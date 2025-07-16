@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/adspower-local-api-mcp-typescript-badge.png)](https://mseep.ai/app/adspower-local-api-mcp-typescript)
+
 # AdsPower LocalAPI MCP Server
 
 A Model Context Protocol server that AdsPower browser LocalAPI. This server enables LLMs to interact with start browser, create browser, update browser fingerprint config ...
