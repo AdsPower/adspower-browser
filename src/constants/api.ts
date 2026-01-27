@@ -1,4 +1,7 @@
-export const LOCAL_API_BASE = 'http://127.0.0.1:50325';
+import axios from 'axios';
+import { PORT, API_KEY } from './config.js';
+
+export const LOCAL_API_BASE = `http://127.0.0.1:${PORT}`;
 
 export const API_ENDPOINTS = {
     START_BROWSER: '/api/v1/browser/start',
@@ -13,4 +16,9 @@ export const API_ENDPOINTS = {
     CREATE_GROUP: '/api/v1/group/create',
     UPDATE_GROUP: '/api/v1/group/update',
     MOVE_BROWSER: '/api/v1/user/regroup'
-} as const; 
+} as const;
+
+// 创建配置了 API key 的 axios 实例
+export const apiClient = axios.create({
+    headers: API_KEY ? { 'Authorization': `Bearer ${API_KEY}` } : {}
+}); 

@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { LOCAL_API_BASE, API_ENDPOINTS } from '../constants/api.js';
+import { apiClient, LOCAL_API_BASE, API_ENDPOINTS } from '../constants/api.js';
 import { buildRequestBody } from '../utils/requestBuilder.js';
 import type { 
     OpenBrowserParams,
@@ -34,7 +33,7 @@ export const browserHandlers = {
         }
         params.set('open_tabs', '0');
 
-        const response = await axios.get(`${LOCAL_API_BASE}${API_ENDPOINTS.START_BROWSER}`, { params });
+        const response = await apiClient.get(`${LOCAL_API_BASE}${API_ENDPOINTS.START_BROWSER}`, { params });
         if (response.data.code === 0) {
             return `Browser opened successfully with: ${Object.entries(response.data.data).map(([key, value]) => {
                 if (value && typeof value === 'object') {
@@ -47,7 +46,7 @@ export const browserHandlers = {
     },
 
     async closeBrowser({ userId }: CloseBrowserParams) {
-        const response = await axios.get(`${LOCAL_API_BASE}${API_ENDPOINTS.CLOSE_BROWSER}`, {
+        const response = await apiClient.get(`${LOCAL_API_BASE}${API_ENDPOINTS.CLOSE_BROWSER}`, {
             params: { user_id: userId }
         });
         return 'Browser closed successfully';
@@ -55,7 +54,7 @@ export const browserHandlers = {
 
     async createBrowser(params: CreateBrowserParams) {
         const requestBody = buildRequestBody(params);
-        const response = await axios.post(`${LOCAL_API_BASE}${API_ENDPOINTS.CREATE_BROWSER}`, requestBody);
+        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.CREATE_BROWSER}`, requestBody);
         
         if (response.data.code === 0) {
             return `Browser created successfully with: ${Object.entries(response.data.data).map(([key, value]) => `${key}: ${value}`).join('\n')}`;
@@ -69,7 +68,7 @@ export const browserHandlers = {
         });
         requestBody.user_id = params.userId;
 
-        const response = await axios.post(`${LOCAL_API_BASE}${API_ENDPOINTS.UPDATE_BROWSER}`, requestBody);
+        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.UPDATE_BROWSER}`, requestBody);
         
         if (response.data.code === 0) {
             return `Browser updated successfully with: ${Object.entries(response.data.data).map(([key, value]) => `${key}: ${value}`).join('\n')}`;
@@ -78,7 +77,7 @@ export const browserHandlers = {
     },
 
     async deleteBrowser({ userIds }: DeleteBrowserParams) {
-        const response = await axios.post(`${LOCAL_API_BASE}${API_ENDPOINTS.DELETE_BROWSER}`, {
+        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.DELETE_BROWSER}`, {
             user_ids: userIds
         });
         
@@ -112,12 +111,12 @@ export const browserHandlers = {
             }));
         }
 
-        const response = await axios.get(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_BROWSER_LIST}`, { params: urlParams });
+        const response = await apiClient.get(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_BROWSER_LIST}`, { params: urlParams });
         return `Browser list: ${JSON.stringify(response.data.data.list, null, 2)}`;
     },
 
     async getOpenedBrowser() {
-        const response = await axios.get(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_OPENED_BROWSER}`);
+        const response = await apiClient.get(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_OPENED_BROWSER}`);
         
         if (response.data.code === 0) {
             return `Opened browser list: ${JSON.stringify(response.data.data.list, null, 2)}`;
@@ -126,7 +125,7 @@ export const browserHandlers = {
     },
 
     async moveBrowser({ groupId, userIds }: MoveBrowserParams) {
-        const response = await axios.post(`${LOCAL_API_BASE}${API_ENDPOINTS.MOVE_BROWSER}`, {
+        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.MOVE_BROWSER}`, {
             group_id: groupId,
             user_ids: userIds
         });
