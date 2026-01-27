@@ -51,6 +51,107 @@ On macOS: `~/Library/Application Support/Claude/claude_desktop_config.json` On W
 }
 ```
 
+### Configuration Parameters
+
+The MCP server supports configuration through command-line arguments or environment variables.
+
+#### Port Configuration
+
+The port parameter specifies the AdsPower Local API port. Default is `50325`.
+
+**Priority order:**
+1. Command-line argument `--port` (highest priority)
+2. Environment variable `PORT` (medium priority)
+3. Default value `50325` (lowest priority)
+
+**Examples:**
+
+Using command-line argument:
+```json
+{
+  "mcpServers": {
+    "adspower-local-api": {
+      "command": "npx",
+      "args": ["-y", "local-api-mcp-typescript", "--port", "50325"]
+    }
+  }
+}
+```
+
+Using environment variable:
+```json
+{
+  "mcpServers": {
+    "adspower-local-api": {
+      "command": "npx",
+      "args": ["-y", "local-api-mcp-typescript"],
+      "env": {
+        "PORT": "50325"
+      }
+    }
+  }
+}
+```
+
+#### API Key Configuration
+
+The API key is used for authentication with the AdsPower API. It will be sent as `Authorization: Bearer <api-key>` header in requests.
+
+**Priority order:**
+1. Command-line argument `--api-key` (highest priority)
+2. Environment variable `API_KEY` (medium priority)
+3. No default value (if not provided, requests will not include the API key header)
+
+**Examples:**
+
+Using command-line argument:
+```json
+{
+  "mcpServers": {
+    "adspower-local-api": {
+      "command": "npx",
+      "args": ["-y", "local-api-mcp-typescript", "--api-key", "your-api-key-here"]
+    }
+  }
+}
+```
+
+Using environment variable:
+```json
+{
+  "mcpServers": {
+    "adspower-local-api": {
+      "command": "npx",
+      "args": ["-y", "local-api-mcp-typescript"],
+      "env": {
+        "API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
+```
+
+#### Combined Configuration
+
+You can use both parameters together. Command-line arguments will override environment variables:
+
+```json
+{
+  "mcpServers": {
+    "adspower-local-api": {
+      "command": "npx",
+      "args": ["-y", "local-api-mcp-typescript", "--port", "50326", "--api-key", "new-key"],
+      "env": {
+        "PORT": "50325",
+        "API_KEY": "old-key"
+      }
+    }
+  }
+}
+```
+
+In this example, the server will use `port: 50326` and `apiKey: new-key` (command-line arguments override environment variables).
+
 ![Claude desktop MCP](https://github.com/AdsPower/local-api-mcp-typescript/blob/main/assets/claude-installed.png)
 
 or use in Cursor
