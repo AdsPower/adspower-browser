@@ -1,3 +1,5 @@
 export interface GetApplicationListParams {
-    size?: number;
+    category_id?: string;
+    page?: number;
+    limit?: number;
 } 

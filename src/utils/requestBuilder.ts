@@ -4,16 +4,26 @@ export function buildRequestBody(params: CreateBrowserParams | UpdateBrowserPara
     const requestBody: Record<string, any> = {};
 
     const basicFields: Record<string, string> = {
-        domainName: 'domain_name',
-        openUrls: 'open_urls',
-        cookie: 'cookie',
+        groupId: 'group_id',
         username: 'username',
         password: 'password',
-        groupId: 'group_id',
+        cookie: 'cookie',
+        fakey: 'fakey',
         name: 'name',
+        platform: 'platform',
+        remark: 'remark',
+        proxyid: 'proxyid',
+        repeatConfig: 'repeat_config',
+        ignoreCookieError: 'ignore_cookie_error',
+        tabs: 'tabs',
+        ip: 'ip',
         country: 'country',
-        sysAppCateId: 'sys_app_cate_id',
-        userId: 'user_id'
+        region: 'region',
+        city: 'city',
+        ipchecker: 'ipchecker',
+        categoryId: 'category_id',
+        launchArgs: 'launch_args',
+        profileId: 'profile_id'
     };
     Object.entries(basicFields).forEach(([paramKey, key]) => {
         const value = params[paramKey as keyof typeof params];
@@ -34,10 +44,6 @@ export function buildRequestBody(params: CreateBrowserParams | UpdateBrowserPara
         if (Object.keys(fpConfig).length > 0) {
             requestBody.fingerprint_config = fpConfig;
         }
-    }
-
-    if (params.storageStrategy !== undefined) {
-        requestBody.storage_strategy = params.storageStrategy;
     }
 
     return requestBody;
