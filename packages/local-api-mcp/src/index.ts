@@ -2,8 +2,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { registerTools } from './utils/toolRegister.js';
-// import { getScreenshot } from './handlers/automation.js';
-// Create server instance
+
 const server = new McpServer({
     name: 'adspower-local-api',
     version: '1.0.6',
@@ -13,27 +12,7 @@ const server = new McpServer({
     },
 });
 
-// Register all tools
 registerTools(server);
-
-// Resources
-// server.resource('get-screenshot', 'Get the screenshot of the page', async (uri, extra) => {
-//     const filename = uri.toString().split("://")[1];
-//     const screenshot = getScreenshot(filename);
-//     if (!screenshot) {
-//         return {
-//             contents: [],
-//             mimeType: 'text/plain',
-//         };
-//     }
-//     return {
-//         contents: [{
-//             uri: filename,
-//             blob: screenshot,
-//             mimeType: 'image/png',
-//         }],
-//     };
-// });
 
 async function main() {
     const transport = new StdioServerTransport();

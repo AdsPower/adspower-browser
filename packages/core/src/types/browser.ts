@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { schemas } from './schemas.js';
 
-// 从已有的 schema 中导出类型
 export type CreateBrowserParams = z.infer<typeof schemas.createBrowserSchema>;
 export type UpdateBrowserParams = z.infer<typeof schemas.updateBrowserSchema>;
 export type OpenBrowserParams = z.infer<typeof schemas.openBrowserSchema>;

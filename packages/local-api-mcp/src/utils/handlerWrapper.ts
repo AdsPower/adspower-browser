@@ -1,5 +1,5 @@
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import browser from './browserBase.js';
+import { browserBase } from '@adspower/local-api-core';
 
 export function wrapHandler(handler: Function) {
     return async (params: any): Promise<CallToolResult> => {
@@ -25,7 +25,7 @@ export function wrapHandler(handler: Function) {
                 errorMessage.includes("Protocol error") ||
                 errorMessage.includes("Connection closed")
             ) {
-                await browser.resetBrowser();
+                await browserBase.resetBrowser();
                 errorMessage = `Browser connection error: ${errorMessage}. Connection has been reset - please retry the operation.`;
             }
             return {
@@ -36,4 +36,4 @@ export function wrapHandler(handler: Function) {
             };
         }
     };
-} 
+}

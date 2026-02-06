@@ -87,7 +87,7 @@ export const automationHandlers = {
         if (!frame) {
             return `Iframe not found: ${iframeSelector}`;
         }
-        
+
         await frame.locator(selector).click();
         return `Clicked element ${selector} inside iframe ${iframeSelector} successfully`;
     },
@@ -138,10 +138,10 @@ export const automationHandlers = {
         browser.checkConnected();
         const sourceElement = await browser.pageInstance!.waitForSelector(selector);
         const targetElement = await browser.pageInstance!.waitForSelector(targetSelector);
-        
+
         const sourceBound = await sourceElement.boundingBox();
         const targetBound = await targetElement.boundingBox();
-        
+
         if (!sourceBound || !targetBound) {
             return `Could not get element positions for drag operation`;
         }
@@ -158,8 +158,8 @@ export const automationHandlers = {
         await browser.pageInstance!.mouse.up();
         return `Dragged element with selector: ${selector} to ${targetSelector} successfully`;
     }
-}
+};
 
 export const getScreenshot = (filename: string) => {
     return browser.screenshotsInstance.get(filename);
-}
+};

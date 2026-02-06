@@ -66,4 +66,4 @@ function buildNestedConfig(config: Record<string, any>): Record<string, any> {
     });
 
     return result;
-} 
+}

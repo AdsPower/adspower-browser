@@ -1,6 +1,6 @@
 import { apiClient, LOCAL_API_BASE, API_ENDPOINTS } from '../constants/api.js';
 import { buildRequestBody } from '../utils/requestBuilder.js';
-import type { 
+import type {
     OpenBrowserParams,
     CloseBrowserParams,
     CreateBrowserParams,
@@ -60,7 +60,7 @@ export const browserHandlers = {
         if (profileNo) {
             requestBody.profile_no = profileNo;
         }
-        
+
         const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.CLOSE_BROWSER}`, requestBody);
         if (response.data.code === 0) {
             return 'Browser closed successfully';
@@ -71,7 +71,7 @@ export const browserHandlers = {
     async createBrowser(params: CreateBrowserParams) {
         const requestBody = buildRequestBody(params);
         const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.CREATE_BROWSER}`, requestBody);
-        
+
         if (response.data.code === 0) {
             return `Browser created successfully with: ${Object.entries(response.data.data).map(([key, value]) => `${key}: ${value}`).join('\n')}`;
         }
@@ -82,7 +82,7 @@ export const browserHandlers = {
         const requestBody = buildRequestBody(params);
 
         const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.UPDATE_BROWSER}`, requestBody);
-        
+
         if (response.data.code === 0) {
             return `Browser updated successfully with: ${Object.entries(response.data.data || {}).map(([key, value]) => `${key}: ${value}`).join('\n')}`;
         }
@@ -93,7 +93,7 @@ export const browserHandlers = {
         const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.DELETE_BROWSER}`, {
             profile_id: profileIds
         });
-        
+
         if (response.data.code === 0) {
             return `Browsers deleted successfully: ${profileIds.join(', ')}`;
         }
@@ -103,7 +103,7 @@ export const browserHandlers = {
     async getBrowserList(params: GetBrowserListParams) {
         const { groupId, limit, page, profileId, profileNo, sortType, sortOrder } = params;
         const requestBody: Record<string, any> = {};
-        
+
         if (limit !== undefined) {
             requestBody.limit = limit;
         }
@@ -135,7 +135,7 @@ export const browserHandlers = {
 
     async getOpenedBrowser() {
         const response = await apiClient.get(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_OPENED_BROWSER}`);
-        
+
         if (response.data.code === 0) {
             return `Opened browser list: ${JSON.stringify(response.data.data.list, null, 2)}`;
         }
@@ -264,4 +264,4 @@ export const browserHandlers = {
         }
         throw new Error(`Failed to get cloud active browsers: ${response.data.msg}`);
     }
-}; 
+};

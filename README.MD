@@ -157,28 +157,38 @@ In this example, the server will use `port: 50326` and `apiKey: new-key` (comman
 or use in Cursor
 ![Cursor](./assets/cursor.png)
 
+### Adding the adspower-browser Skill
+
+Use the **adspower-browser** skill so the AI can operate AdsPower via the CLI without the MCP server. Add it in your editor as follows:
+
+| Environment   | How to add |
+|---------------|-------------|
+| **Cursor**   | `npx skills add adspower-browser` |
+| **Claude Code** | `npx skills add adspower-browser` |
+| **GPT / Codex** | If your setup supports [add-skill](https://github.com/vercel-labs/add-skill): `npx skills add adspower-browser`. Otherwise copy the skill from `packages/adspower-browser/skills/adspower-browser/` into your agent’s skills directory (e.g. `~/.codex/skills/adspower-browser/`). |
+
 ## Development
 
 ```bash
-# git clone 
+# clone
 git clone https://github.com/AdsPower/local-api-mcp-typescript.git
+cd local-api-mcp-typescript
 
-# install package
-cd local-api-mcp-typescript && npx pnpm i
+# install (monorepo)
+pnpm install
 
-# build
-npm run build
+# build all packages
+pnpm run build
 ```
 
-```bash
-# Add the server to your claude_desktop_config.json
+For local MCP development, point Claude Desktop to the MCP package:
+
+```json
 "mcpServers": {
   "adspower-local-api": {
-        "command": "node",
-        "args": [
-            "<Replace Your Project Path>/local-api-mcp-typescript/build/index.js"
-        ]
-    }
+    "command": "node",
+    "args": ["<Replace Your Project Path>/local-api-mcp-typescript/packages/local-api-mcp/build/index.js"]
+  }
 }
 ```
 

@@ -10,13 +10,13 @@ export const groupHandlers = {
         const requestBody: Record<string, string> = {
             group_name: groupName
         };
-        
+
         if (remark !== undefined) {
             requestBody.remark = remark;
         }
 
         const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.CREATE_GROUP}`, requestBody);
-        
+
         if (response.data.code === 0) {
             return `Group created successfully with name: ${groupName}${remark ? `, remark: ${remark}` : ''}`;
         }
@@ -28,13 +28,13 @@ export const groupHandlers = {
             group_id: groupId,
             group_name: groupName
         };
-        
+
         if (remark !== undefined) {
             requestBody.remark = remark;
         }
 
         const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.UPDATE_GROUP}`, requestBody);
-        
+
         if (response.data.code === 0) {
             return `Group updated successfully with id: ${groupId}, name: ${groupName}${remark !== undefined ? `, remark: ${remark === null ? '(cleared)' : remark}` : ''}`;
         }
@@ -56,4 +56,4 @@ export const groupHandlers = {
         const response = await apiClient.get(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_GROUP_LIST}`, { params });
         return `Group list: ${JSON.stringify(response.data.data.list, null, 2)}`;
     }
-}; 
+};

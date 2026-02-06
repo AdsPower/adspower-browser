@@ -1,0 +1,17 @@
+# Smithery configuration for local-api-mcp (monorepo package)
+# https://smithery.ai/docs/config#smitheryyaml
+# Use this file when Smithery base path is set to packages/local-api-mcp
+
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties: {}
+  commandFunction:
+    |-
+    (config) => ({
+      command: 'node',
+      args: ['build/index.js'],
+      env: {}
+    })
+  exampleConfig: {}

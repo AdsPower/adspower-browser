@@ -13,4 +13,4 @@ export interface GetGroupListParams {
     groupName?: string;
     size?: number;
     page?: number;
-} 
+}

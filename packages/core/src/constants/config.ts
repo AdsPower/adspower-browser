@@ -3,7 +3,7 @@ function parseArgs() {
     const args = process.argv;
     let port: string | undefined;
     let apiKey: string | undefined;
-    
+
     for (let i = 0; i < args.length; i++) {
         if (args[i] === '--port' && i + 1 < args.length) {
             port = args[i + 1];
@@ -12,7 +12,7 @@ function parseArgs() {
             apiKey = args[i + 1];
         }
     }
-    
+
     return {
         port: port || process.env.PORT || '50325',
         apiKey: apiKey || process.env.API_KEY

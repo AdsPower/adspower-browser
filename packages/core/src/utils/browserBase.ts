@@ -39,7 +39,7 @@ class BrowserBase {
             throw error;
         }
     }
-    
+
     async connectBrowserWithWs(wsUrl: string) {
         this.browser = await chromium.connectOverCDP(wsUrl);
         const defaultContext = this.browser.contexts()[0];

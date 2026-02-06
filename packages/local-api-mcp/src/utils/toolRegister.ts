@@ -1,120 +1,112 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { browserHandlers } from '../handlers/browser.js';
-import { groupHandlers } from '../handlers/group.js';
-import { applicationHandlers } from '../handlers/application.js';
-import { proxyHandlers } from '../handlers/proxy.js';
-import { schemas } from '../types/schemas.js';
+import {
+    browserHandlers,
+    groupHandlers,
+    applicationHandlers,
+    proxyHandlers,
+    automationHandlers,
+    schemas
+} from '@adspower/local-api-core';
 import { wrapHandler } from './handlerWrapper.js';
-import { automationHandlers } from '../handlers/automation.js';
 import { z } from 'zod';
 
-// Helper function to extract shape from Zod schema (handles both ZodObject and ZodEffects)
 function getSchemaShape(schema: z.ZodTypeAny): Record<string, z.ZodTypeAny> {
-    // If it's a ZodObject, directly return its shape
     if ('shape' in schema && typeof schema.shape === 'object' && schema.shape !== null) {
         return schema.shape as Record<string, z.ZodTypeAny>;
     }
-    
-    // For ZodEffects (from .refine(), .superRefine(), etc.), recursively unwrap to find the inner ZodObject
+
     if ('_def' in schema) {
         const def = (schema as any)._def;
         if (def && 'schema' in def) {
-            // Recursively call to handle nested ZodEffects
             return getSchemaShape(def.schema);
         }
     }
-    
+
     throw new Error(`Cannot extract shape from schema. Schema type: ${(schema as any)._def?.typeName || 'unknown'}`);
 }
 
 export function registerTools(server: McpServer) {
-    // Browser tools
-    server.tool('open-browser', 'Open the browser, both environment and profile mean browser', schemas.openBrowserSchema.shape, 
+    server.tool('open-browser', 'Open the browser, both environment and profile mean browser', schemas.openBrowserSchema.shape,
         wrapHandler(browserHandlers.openBrowser));
-    
+
     server.tool('close-browser', 'Close the browser', getSchemaShape(schemas.closeBrowserSchema),
         wrapHandler(browserHandlers.closeBrowser));
-    
+
     server.tool('create-browser', 'Create a browser', getSchemaShape(schemas.createBrowserSchema),
         wrapHandler(browserHandlers.createBrowser));
-    
+
     server.tool('update-browser', 'Update the browser', schemas.updateBrowserSchema.shape,
         wrapHandler(browserHandlers.updateBrowser));
-    
+
     server.tool('delete-browser', 'Delete the browser', schemas.deleteBrowserSchema.shape,
         wrapHandler(browserHandlers.deleteBrowser));
-    
+
     server.tool('get-browser-list', 'Get the list of browsers', schemas.getBrowserListSchema.shape,
         wrapHandler(browserHandlers.getBrowserList));
-    
+
     server.tool('get-opened-browser', 'Get the list of opened browsers', schemas.emptySchema.shape,
         wrapHandler(browserHandlers.getOpenedBrowser));
-    
+
     server.tool('move-browser', 'Move browsers to a group', schemas.moveBrowserSchema.shape,
         wrapHandler(browserHandlers.moveBrowser));
 
-    // New v2 endpoints
     server.tool('get-profile-cookies', 'Query and return cookies of the specified profile. Only one profile can be queried per request.', getSchemaShape(schemas.getProfileCookiesSchema),
         wrapHandler(browserHandlers.getProfileCookies));
-    
+
     server.tool('get-profile-ua', 'Query and return the User-Agent of specified profiles. Up to 10 profiles can be queried per request.', getSchemaShape(schemas.getProfileUaSchema),
         wrapHandler(browserHandlers.getProfileUa));
-    
+
     server.tool('close-all-profiles', 'Close all opened profiles on the current device', schemas.closeAllProfilesSchema.shape,
         wrapHandler(browserHandlers.closeAllProfiles));
-    
+
     server.tool('new-fingerprint', 'Generate a new fingerprint for specified profiles. Up to 10 profiles are supported per request.', schemas.newFingerprintSchema.shape,
         wrapHandler(browserHandlers.newFingerprint));
-    
+
     server.tool('delete-cache-v2', 'Clear local cache of specific profiles.For account security, please ensure that there are no open browsers on the device when using this interface.', schemas.deleteCacheV2Schema.shape,
         wrapHandler(browserHandlers.deleteCacheV2));
-    
+
     server.tool('share-profile', 'Share profiles via account email or phone number. The maximum number of profiles that can be shared at one time is 200.', schemas.shareProfileSchema.shape,
         wrapHandler(browserHandlers.shareProfile));
-    
+
     server.tool('get-browser-active', 'Get active browser profile information', getSchemaShape(schemas.getBrowserActiveSchema),
         wrapHandler(browserHandlers.getBrowserActive));
-    
-    server.tool('get-cloud-active', 'Query the status of browser profiles by user_id, up to 100 profiles per request. If the team has enabled “Multi device mode,” specific statuses cannot be retrieved and the response will indicate “Profile not opened.”', getSchemaShape(schemas.getCloudActiveSchema),
+
+    server.tool('get-cloud-active', 'Query the status of browser profiles by user_id, up to 100 profiles per request. If the team has enabled "Multi device mode," specific statuses cannot be retrieved and the response will indicate "Profile not opened."', getSchemaShape(schemas.getCloudActiveSchema),
         wrapHandler(browserHandlers.getCloudActive));
 
-    // Group tools
     server.tool('create-group', 'Create a browser group', schemas.createGroupSchema.shape,
         wrapHandler(groupHandlers.createGroup));
-    
+
     server.tool('update-group', 'Update the browser group', schemas.updateGroupSchema.shape,
         wrapHandler(groupHandlers.updateGroup));
-    
+
     server.tool('get-group-list', 'Get the list of groups', schemas.getGroupListSchema.shape,
         wrapHandler(groupHandlers.getGroupList));
 
-    // Application tools
     server.tool('check-status', 'Check the availability of the current device API interface (Connection Status)', schemas.emptySchema.shape,
         wrapHandler(applicationHandlers.checkStatus));
 
     server.tool('get-application-list', 'Get the list of applications (categories)', schemas.getApplicationListSchema.shape,
         wrapHandler(applicationHandlers.getApplicationList));
-    
-    // Proxy tools
+
     server.tool('create-proxy', 'Create a proxy', getSchemaShape(schemas.createProxySchema),
         wrapHandler(proxyHandlers.createProxy));
-    
+
     server.tool('update-proxy', 'Update the proxy', getSchemaShape(schemas.updateProxySchema),
         wrapHandler(proxyHandlers.updateProxy));
-    
+
     server.tool('get-proxy-list', 'Get the list of proxies', schemas.getProxyListSchema.shape,
         wrapHandler(proxyHandlers.getProxyList));
-    
+
     server.tool('delete-proxy', 'Delete the proxy', schemas.deleteProxySchema.shape,
         wrapHandler(proxyHandlers.deleteProxy));
-    
-    // Automation tools
+
     server.tool('connect-browser-with-ws', 'Connect the browser with the ws url', schemas.createAutomationSchema.shape,
         wrapHandler(automationHandlers.connectBrowserWithWs));
-    
+
     server.tool('open-new-page', 'Open a new page', schemas.emptySchema.shape,
         wrapHandler(automationHandlers.openNewPage));
-        
+
     server.tool('navigate', 'Navigate to the url', schemas.navigateSchema.shape,
         wrapHandler(automationHandlers.navigate));
 
@@ -153,4 +145,4 @@ export function registerTools(server: McpServer) {
 
     server.tool('iframe-click-element', 'Click the element in the iframe', schemas.iframeClickElementSchema.shape,
         wrapHandler(automationHandlers.iframeClickElement));
-} 
+}
