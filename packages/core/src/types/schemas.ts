@@ -16,50 +16,189 @@ const userProxyConfigSchema = z.object({
     global_config: z.enum(['0', '1']).optional().describe('The global config of the browser, default is 0')
 }).describe('The user proxy config of the browser');
 
-// Browser Kernel Config Schema
+// Browser Kernel Config Schema — version must match type: chrome supports 92–143, ua_auto; firefox supports 100,107,114,120,123,126,129,132,135,138,141,144,ua_auto
+const CHROME_VERSIONS = [
+    "92", "99", "102", "105", "108", "111", "114", "115", "116", "117", "118", "119",
+    "120", "121", "122", "123", "124", "125", "126", "127", "128", "129", "130", "131",
+    "132", "133", "134", "135", "136", "137", "138", "139", "140", "141", "142", "143", "144", "ua_auto"
+] as const;
+const FIREFOX_VERSIONS = ["100", "107", "114", "120", "123", "126", "129", "132", "135", "138", "141", "144", "ua_auto"] as const;
+const ALL_KERNEL_VERSIONS = [...new Set([...CHROME_VERSIONS, ...FIREFOX_VERSIONS])] as const;
+
 const browserKernelConfigSchema = z.object({
-    version: z.union([
-        z.literal("92"), z.literal("99"), z.literal("102"),
-        z.literal("105"), z.literal("108"), z.literal("111"),
-        z.literal("114"), z.literal("115"), z.literal("116"),
-        z.literal("117"), z.literal("118"), z.literal("119"),
-        z.literal("120"), z.literal("121"), z.literal("122"),
-        z.literal("123"), z.literal("124"), z.literal("125"),
-        z.literal("126"), z.literal("127"), z.literal("128"),
-        z.literal("129"), z.literal("130"), z.literal("131"),
-        z.literal("132"), z.literal("133"), z.literal("134"),
-        z.literal("ua_auto")
-    ]).optional().describe('The version of the browser, default is ua_auto'),
+    version: z.union(
+        ALL_KERNEL_VERSIONS.map((v) => z.literal(v)) as [z.ZodLiteral<(typeof ALL_KERNEL_VERSIONS)[number]>, z.ZodLiteral<(typeof ALL_KERNEL_VERSIONS)[number]>, ...z.ZodLiteral<(typeof ALL_KERNEL_VERSIONS)[number]>[]]
+    ).optional().describe('The version of the browser, must match type: chrome 92–143 or ua_auto, firefox 100,107,114,120,123,126,129,132,135,138,141,144 or ua_auto; default is ua_auto'),
     type: z.enum(['chrome', 'firefox']).optional().describe('The type of the browser, default is chrome')
-}).optional().describe('The browser kernel config of the browser, default is version: ua_auto, type: chrome');
+}).optional().superRefine((data, ctx) => {
+    if (!data) return;
+    const type = data.type ?? 'chrome';
+    const version = data.version;
+    if (version === undefined) return;
+    const validForChrome = (CHROME_VERSIONS as readonly string[]).includes(version);
+    const validForFirefox = (FIREFOX_VERSIONS as readonly string[]).includes(version);
+    if (type === 'chrome' && !validForChrome) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: `Chrome does not support version "${version}". Supported: ${CHROME_VERSIONS.join(', ')}` });
+    }
+    if (type === 'firefox' && !validForFirefox) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: `Firefox does not support version "${version}". Supported: ${FIREFOX_VERSIONS.join(', ')}` });
+    }
+}).describe('The browser kernel config of the browser, default is version: ua_auto, type: chrome');
 
 // Random UA Config Schema
+// ua_system_version: Mac OS X / Windows / iOS / Android / Linux = random any version of that system; omit to random across all systems
 const randomUaConfigSchema = z.object({
     ua_version: z.array(z.string()).optional(),
     ua_system_version: z.array(
         z.enum([
-            'Android 9', 'Android 10', 'Android 11', 'Android 12', 'Android 13',
-            'iOS 14', 'iOS 15',
+            'Android 9', 'Android 10', 'Android 11', 'Android 12', 'Android 13', 'Android 14', 'Android 15',
+            'iOS 14', 'iOS 15', 'iOS 16', 'iOS 17', 'iOS 18',
             'Windows 7', 'Windows 8', 'Windows 10', 'Windows 11',
-            'Mac OS X 10', 'Mac OS X 11', 'Mac OS X 12', 'Mac OS X 13',
-            'Linux'
+            'Mac OS X 10', 'Mac OS X 11', 'Mac OS X 12', 'Mac OS X 13', 'Mac OS X 14', 'Mac OS X 15',
+            'Mac OS X', 'Windows', 'iOS', 'Android', 'Linux'
         ])
-    ).optional().describe('The ua system version of the browser, eg: ["Android 9", "iOS 14"]')
-}).optional().describe('The random ua config of the browser, default is ua_version: [], ua_system_version: []');
+    ).optional().describe(
+        'UA system version. Mac OS X / Windows / iOS / Android / Linux = random any version of that system; omit to random across all systems. e.g. ["Android 9", "iOS 14"] or ["Android", "Mac OS X"]'
+    )
+}).optional().describe('Random UA config (ua_version, ua_system_version). Ignored when fingerprint ua (custom UA) is set.');
+
+// TLS cipher suite name -> hex code (valid values for tls are these hex codes, comma-separated)
+export const TLS_CIPHER_SUITES = {
+    TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: '0xC02C',
+    TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: '0xC030',
+    TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: '0xC02B',
+    TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: '0xC02F',
+    TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: '0xCCA9',
+    TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256: '0xCCA8',
+    TLS_DHE_RSA_WITH_AES_256_GCM_SHA384: '0x009F',
+    TLS_DHE_RSA_WITH_AES_128_GCM_SHA256: '0x009E',
+    TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384: '0xC024',
+    TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384: '0xC028',
+    TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA: '0xC00A',
+    TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA: '0xC014',
+    TLS_DHE_RSA_WITH_AES_256_CBC_SHA256: '0x006B',
+    TLS_DHE_RSA_WITH_AES_256_CBC_SHA: '0x0039',
+    TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256: '0xC023',
+    TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256: '0xC027',
+    TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA: '0xC009',
+    TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA: '0xC013',
+    TLS_DHE_RSA_WITH_AES_128_CBC_SHA256: '0x0067',
+    TLS_DHE_RSA_WITH_AES_128_CBC_SHA: '0x0033',
+    TLS_RSA_WITH_AES_256_GCM_SHA384: '0x009D',
+    TLS_RSA_WITH_AES_128_GCM_SHA256: '0x009C',
+    TLS_RSA_WITH_AES_256_CBC_SHA256: '0x003D',
+    TLS_RSA_WITH_AES_128_CBC_SHA256: '0x003C',
+    TLS_RSA_WITH_AES_256_CBC_SHA: '0x0035',
+    TLS_RSA_WITH_AES_128_CBC_SHA: '0x002F',
+    TLS_AES_128_CCM_8_SHA256: '0x1305',
+    TLS_AES_128_CCM_SHA256: '0x1304',
+} as const;
+
+const TLS_HEX_CODES = Object.values(TLS_CIPHER_SUITES);
+
+// Country code: ISO 3166-1 alpha-2 (lowercase). 
+export const COUNTRY_CODES = [
+    'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az',
+    'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bl', 'bm', 'bn', 'bo', 'bq', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz',
+    'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cu', 'cv', 'cx', 'cy', 'cz',
+    'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg', 'eh', 'er', 'es', 'et', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr',
+    'ga', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy',
+    'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq', 'ir', 'is', 'it', 'je', 'jm', 'jo', 'jp',
+    'ke', 'kg', 'kh', 'ki', 'km', 'kn', 'kp', 'kr', 'kw', 'ky', 'kz', 'la', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu', 'lv', 'ly',
+    'ma', 'mc', 'md', 'me', 'mf', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz',
+    'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl', 'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py',
+    'qa', 're', 'ro', 'rs', 'ru', 'rw', 'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn', 'so', 'sr', 'ss', 'st', 'sv', 'sy', 'sz',
+    'tc', 'td', 'tf', 'tg', 'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua', 'ug', 'um', 'us', 'uy', 'uz',
+    'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'ye', 'yt', 'za', 'zm', 'zw'
+] as const;
+const countryCodeSchema = z.enum(COUNTRY_CODES);
+
+// WebGL config when webgl=2: unmasked_vendor and unmasked_renderer required; webgpu optional (V2.6.8.1+)
+const webglConfigSchema = z.object({
+    unmasked_vendor: z.string().describe('WebGL vendor string, e.g. "Google Inc.". Required when webgl=2, cannot be empty.'),
+    unmasked_renderer: z.string().describe('WebGL renderer string, e.g. "ANGLE (Intel(R) HD Graphics 620 Direct3D11 vs_5_0 ps_5_0)". Required when webgl=2, cannot be empty.'),
+    webgpu: z.object({
+        webgpu_switch: z.enum(['0', '1', '2']).describe('0: Disabled, 1: WebGL based matching, 2: Real')
+    }).optional().describe('WebGPU setting (V2.6.8.1+)')
+}).describe('Custom WebGL metadata when webgl=2. See AdsPower fingerprint_config webgl_config.');
+
+// MAC address config (V4.3.9+)
+const macAddressConfigSchema = z.object({
+    model: z.enum(['0', '1', '2']).describe('0: use current computer MAC, 1: match appropriate value, 2: custom (address required)'),
+    address: z.string().optional().describe('Custom MAC address when model=2, e.g. "E4-02-9B-3B-E9-27"')
+}).describe('MAC address: model 0/1/2, address when model=2.');
+
+// Media devices count when media_devices=2 (V2.6.4.2+)
+const mediaDevicesNumSchema = z.object({
+    audioinput_num: z.string().regex(/^[1-9]$/).describe('Number of microphones, 1-9'),
+    videoinput_num: z.string().regex(/^[1-9]$/).describe('Number of cameras, 1-9'),
+    audiooutput_num: z.string().regex(/^[1-9]$/).describe('Number of speakers, 1-9')
+}).describe('Device counts when media_devices=2: audioinput_num, videoinput_num, audiooutput_num each 1-9.');
 
 // Fingerprint Config Schema
 const fingerprintConfigSchema = z.object({
-    automatic_timezone: z.enum(['0', '1']).optional().describe('The automatic timezone of the browser, default is 0'),
-    timezone: z.string().optional().describe('The timezone of the browser, eg: Asia/Shanghai'),
-    language: z.array(z.string()).optional().describe('The language of the browser, eg: ["en-US", "zh-CN"]'),
-    flash: z.enum(['block', 'allow']).optional().describe('The flash of the browser, default is disabled'),
-    fonts: z.array(z.string()).optional().describe('The fonts of the browser, eg: ["Arial", "Times New Roman"]'),
-    webrtc: z.enum(['disabled', 'forward', 'proxy', 'local']).optional().describe('The webrtc of the browser, default is disabled'),
-    browser_kernel_config: browserKernelConfigSchema,
-    random_ua: randomUaConfigSchema,
-    tls_switch: z.enum(['0', '1']).optional().describe('The tls switch of the browser, default is 0'),
-    tls: z.string().optional().describe('The tls of the browser, if tls_switch is 1, you can set the tls of the browser, eg: "0xC02C,0xC030"')
-}).optional().describe('The fingerprint config of the browser, default is automatic_timezone: 0, timezone: "", language: [], flash: "", fonts: [], webrtc: disabled, browser_kernel_config: ua_auto, random_ua: ua_version: [], ua_system_version: [], tls_switch: 0, tls: ""');
+    automatic_timezone: z.enum(['0', '1']).optional().describe('Auto timezone by IP: 0 custom, 1 (default) by IP'),
+    timezone: z.string().optional().describe('Timezone when automatic_timezone=0, e.g. Asia/Shanghai'),
+    location_switch: z.enum(['0', '1']).optional().describe('Location by IP: 0 custom, 1 (default) by IP'),
+    longitude: z.number().min(-180).max(180).optional().describe('Custom longitude when location_switch=0, -180 to 180, up to 6 decimals'),
+    latitude: z.number().min(-90).max(90).optional().describe('Custom latitude when location_switch=0, -90 to 90, up to 6 decimals'),
+    accuracy: z.number().int().min(10).max(5000).optional().describe('Location accuracy in meters when location_switch=0, 10-5000, default 1000'),
+    location: z.enum(['ask', 'allow', 'block']).optional().describe('Site location permission: ask (default), allow, block'),
+    language_switch: z.enum(['0', '1']).optional().describe('Language by IP country: 0 custom, 1 (default) by IP'),
+    language: z.array(z.string()).optional().describe('Custom languages when language_switch=0, e.g. ["en-US", "zh-CN"]'),
+    page_language_switch: z.enum(['0', '1']).optional().describe('Match UI language to language: 0 off, 1 (default) on; Chrome 109+ Win / 119+ macOS, v2.6.72+'),
+    page_language: z.string().optional().describe('Page language when page_language_switch=0, e.g. en-US'),
+    ua: z.string().optional().describe('Custom User-Agent string; when set, takes precedence over random_ua (random_ua is not sent). Omit for random UA.'),
+    screen_resolution: z.union([
+        z.enum(['none', 'random']),
+        z.string().regex(/^\d+_\d+$/, 'Custom resolution format: width_height e.g. 1024_600')
+    ]).optional().describe('Screen resolution: none (default), random, or width_height e.g. 1024_600'),
+    fonts: z.array(z.string()).optional().describe('Font list e.g. ["Arial", "Times New Roman"] or ["all"]'),
+    canvas: z.enum(['0', '1']).optional().describe('Canvas fingerprint: 0 computer default, 1 (default) add noise'),
+    webgl: z.enum(['0', '2', '3']).optional().describe('WebGL metadata: 0 computer default, 2 custom (use webgl_config), 3 random'),
+    webgl_image: z.enum(['0', '1']).optional().describe('WebGL image fingerprint: 0 default, 1 (default) add noise'),
+    webgl_config: webglConfigSchema.optional().describe('Custom WebGL metadata when webgl=2. Must include unmasked_vendor and unmasked_renderer (non-empty). webgpu.webgpu_switch: 0 Disabled, 1 WebGL based, 2 Real. V2.6.8.1+'),
+    flash: z.enum(['block', 'allow']).optional().describe('Flash: block (default) or allow'),
+    webrtc: z.enum(['disabled', 'forward', 'proxy', 'local']).optional().describe('WebRTC: disabled (default), forward, proxy, local'),
+    audio: z.enum(['0', '1']).optional().describe('Audio fingerprint: 0 close, 1 (default) add noise'),
+    do_not_track: z.enum(['default', 'true', 'false']).optional().describe('Do Not Track: default, true (open), false (close)'),
+    hardware_concurrency: z.enum(['2', '4', '6', '8', '16']).optional().describe('CPU cores: 2, 4 (default if omitted), 6, 8, 16; omit to follow current computer'),
+    device_memory: z.enum(['2', '4', '6', '8']).optional().describe('Device memory (GB): 2, 4, 6, 8 (default if omitted); omit to follow current computer'),
+    scan_port_type: z.enum(['0', '1']).optional().describe('Port scan protection: 0 close, 1 (default) enable'),
+    allow_scan_ports: z.array(z.string()).optional().describe('Ports allowed when scan_port_type=1, e.g. ["4000","4001"]. Empty to not pass.'),
+    media_devices: z.enum(['0', '1', '2']).optional().describe('Media devices: 0 off (use computer default), 1 noise (count follows local), 2 noise (use media_devices_num). V2.6.4.2+'),
+    media_devices_num: mediaDevicesNumSchema.optional().describe('When media_devices=2: audioinput_num, videoinput_num, audiooutput_num each 1-9. V2.6.4.2+'),
+    client_rects: z.enum(['0', '1']).optional().describe('ClientRects: 0 use computer default, 1 add noise. V3.6.2+'),
+    device_name_switch: z.enum(['0', '1', '2']).optional().describe('Device name: 0 close (use computer name), 1 mask, 2 custom (use device_name). V3.6.25+'),
+    device_name: z.string().optional().describe('Custom device name when device_name_switch=2. V2.4.8.1+'),
+    speech_switch: z.enum(['0', '1']).optional().describe('SpeechVoices: 0 use computer default, 1 replace with value. V3.11.10+'),
+    mac_address_config: macAddressConfigSchema.optional().describe('MAC address: model 0/1/2, address when model=2. V4.3.9+'),
+    gpu: z.enum(['0', '1', '2']).optional().describe('GPU: 0 follow Local settings - Hardware acceleration, 1 turn on, 2 turn off'),
+    browser_kernel_config: browserKernelConfigSchema.optional(),
+    random_ua: randomUaConfigSchema.optional().describe('Random UA config; ignored when ua (custom UA) is provided.'),
+    tls_switch: z.enum(['0', '1']).optional().describe('TLS custom list: 0 (default) off, 1 on'),
+    tls: z.string()
+        .optional()
+        .refine(
+            (val) => !val || val.split(',').every((hex) => TLS_HEX_CODES.includes(hex.trim() as (typeof TLS_HEX_CODES)[number])),
+            { message: `tls must be comma-separated hex codes from: ${TLS_HEX_CODES.join(', ')}. e.g. "0xC02C,0xC030"` }
+        )
+        .describe('TLS cipher list when tls_switch=1: comma-separated hex codes. Chrome kernel only.')
+}).optional().superRefine((data, ctx) => {
+    if (!data) return;
+    if (data.browser_kernel_config?.type === 'firefox' && data.tls) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'tls is only supported for Chrome kernel', path: ['tls'] });
+    }
+    if (data.webgl === '2') {
+        const wc = data.webgl_config;
+        if (!wc || typeof wc.unmasked_vendor !== 'string' || wc.unmasked_vendor.trim() === '') {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'When webgl=2, webgl_config.unmasked_vendor is required and cannot be empty', path: ['webgl_config', 'unmasked_vendor'] });
+        }
+        if (!wc || typeof wc.unmasked_renderer !== 'string' || wc.unmasked_renderer.trim() === '') {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'When webgl=2, webgl_config.unmasked_renderer is required and cannot be empty', path: ['webgl_config', 'unmasked_renderer'] });
+        }
+    }
+}).describe('Fingerprint config (fingerprint_config). All fields optional. See AdsPower Local API fingerprint_config.');
 
 export const schemas = {
     createBrowserSchema: z.object({
@@ -79,7 +218,7 @@ export const schemas = {
         ignoreCookieError: z.enum(['0', '1']).optional().describe('Handle cookie verification failures: 0 (default) return data as-is, 1 filter out incorrectly formatted cookies'),
         tabs: z.array(z.string()).optional().describe('URLs to open on startup, eg: ["https://www.google.com"]'),
         ip: z.string().optional().describe('IP address'),
-        country: z.string().optional().describe('Country/Region, eg: "CN"'),
+        country: countryCodeSchema.optional().describe('Country/Region, ISO 3166-1 alpha-2 (lowercase). eg: "cn", "us"'),
         region: z.string().optional().describe('Region'),
         city: z.string().optional().describe('City'),
         ipchecker: z.enum(['ip2location', 'ipapi']).optional().describe('IP query channel'),
@@ -102,7 +241,7 @@ export const schemas = {
         groupId: z.string().optional().describe('The group id of the browser, must be a numeric string (e.g., "123"). You can use the get-group-list tool to get the group list or create a new group'),
         name: z.string().max(100).optional().describe('The Profile name of the browser, eg: "My Browser"'),
         remark: z.string().max(1500).optional().describe('Profile remarks, maximum 1500 characters'),
-        country: z.string().optional().describe('The country of the browser, eg: "CN"'),
+        country: countryCodeSchema.optional().describe('The country of the browser, ISO 3166-1 alpha-2 (lowercase). eg: "cn", "us"'),
         region: z.string().optional().describe('The region of the browser'),
         city: z.string().optional().describe('The city of the browser'),
         ip: z.string().optional().describe('The IP of the browser'),
@@ -236,7 +375,7 @@ export const schemas = {
             password: z.string().optional().describe('Proxy password, eg: password'),
             proxy_url: z.string().optional().describe('URL used to refresh the proxy, eg: https://www.baidu.com/'),
             remark: z.string().optional().describe('Remark/description for the proxy'),
-            ipchecker: z.enum(['ipinfo', 'ip2location', 'ipapi', 'ipfoxy', 'ipidea']).optional().describe('IP checker.')
+            ipchecker: z.enum(['ipinfo', 'ip2location', 'ipapi', 'ipfoxy']).optional().describe('IP checker.')
         }).strict()).describe('Array of proxy configurations to create')
     }).strict(),
 
@@ -249,7 +388,7 @@ export const schemas = {
         password: z.string().optional().describe('Proxy password, eg: password'),
         proxyUrl: z.string().optional().describe('URL used to refresh the proxy, eg: https://www.baidu.com/'),
         remark: z.string().optional().describe('Remark/description for the proxy'),
-        ipchecker: z.enum(['ip2location', 'ipapi', 'ipfoxy', 'ipidea']).optional().describe('IP checker.')
+        ipchecker: z.enum(['ip2location', 'ipapi', 'ipfoxy']).optional().describe('IP checker.')
     }).strict(),
 
     getProxyListSchema: z.object({
