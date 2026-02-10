@@ -1,9 +1,21 @@
-# AdsPower LocalAPI MCP Server
+# AdsPower cli & MCP
+
+# Adding the adspower-browser Skill
+
+Use the **adspower-browser** skill so the AI can operate AdsPower via the CLI without the MCP server. Add it in your editor as follows:
+
+| Environment   | How to add |
+|---------------|-------------|
+| **Cursor**   | `npx skills add AdsPower/adspower-browser` |
+| **Claude Code** | `npx skills add AdsPower/adspower-browser` |
+| **GPT / Codex** | If your setup supports [add-skill](https://github.com/vercel-labs/add-skill): `npx skills add AdsPower/adspower-browser`. Otherwise copy the skill from `skills/adspower-browser/` into your agent’s skills directory (e.g. `~/.codex/skills/adspower-browser/`). |
+
+## AdsPower LocalAPI MCP Server
 
 A Model Context Protocol server that AdsPower browser LocalAPI. This server enables LLMs to interact with AdsPower browser profiles using the v2 API, including creating, updating, deleting profiles, managing groups, and automating browser operations.
 
 
-## Usage with Claude Desktop
+### Usage with Claude Desktop
 
 Talk to LLMs to create browser: `Create an Android UA browser using Chrome 134`
 
@@ -13,21 +25,21 @@ Talk to LLMs to create browser: `Help me with random UA, random fingerprint, ran
 
 ![Claude desktop](https://github.com/AdsPower/adspower-browser/blob/main/assets/claude-open.gif)
 
-## How to use?
+### How to use?
 
-### Requirements
+#### Requirements
 
 - [AdsPower](https://www.adspower.com/?source=github)
 
 - Node version 18 or greater
 
-### Installation
+#### Installation
 
 To use with Claude Desktop, add the server config:
 
 On macOS: `~/Library/Application Support/Claude/claude_desktop_config.json` On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 
-#### MacOS / Linux
+##### MacOS / Linux
 ```bash
 {
   "mcpServers": {
@@ -39,7 +51,7 @@ On macOS: `~/Library/Application Support/Claude/claude_desktop_config.json` On W
 }
 ```
 
-#### Windows
+##### Windows
 ```bash
 {
   "mcpServers": {
@@ -51,7 +63,7 @@ On macOS: `~/Library/Application Support/Claude/claude_desktop_config.json` On W
 }
 ```
 
-### Configuration Parameters
+#### Configuration Parameters
 
 The MCP server supports configuration through command-line arguments or environment variables.
 
@@ -156,16 +168,6 @@ In this example, the server will use `port: 50326` and `apiKey: new-key` (comman
 
 or use in Cursor
 ![Cursor](./assets/cursor.png)
-
-### Adding the adspower-browser Skill
-
-Use the **adspower-browser** skill so the AI can operate AdsPower via the CLI without the MCP server. Add it in your editor as follows:
-
-| Environment   | How to add |
-|---------------|-------------|
-| **Cursor**   | `npx skills add AdsPower/adspower-browser` |
-| **Claude Code** | `npx skills add AdsPower/adspower-browser` |
-| **GPT / Codex** | If your setup supports [add-skill](https://github.com/vercel-labs/add-skill): `npx skills add AdsPower/adspower-browser`. Otherwise copy the skill from `skills/adspower-browser/` into your agent’s skills directory (e.g. `~/.codex/skills/adspower-browser/`). |
 
 ## Development
 
