@@ -7,11 +7,11 @@ A Model Context Protocol server that AdsPower browser LocalAPI. This server enab
 
 Talk to LLMs to create browser: `Create an Android UA browser using Chrome 134`
 
-![Claude desktop](https://github.com/AdsPower/local-api-mcp-typescript/blob/main/assets/claude-use.png)
+![Claude desktop](https://github.com/AdsPower/adspower-browser/blob/main/assets/claude-use.png)
 
 Talk to LLMs to create browser: `Help me with random UA, random fingerprint, random cookie generation, create 3 browsers, use 134 cores, and open them`
 
-![Claude desktop](https://github.com/AdsPower/local-api-mcp-typescript/blob/main/assets/claude-open.gif)
+![Claude desktop](https://github.com/AdsPower/adspower-browser/blob/main/assets/claude-open.gif)
 
 ## How to use?
 
@@ -152,7 +152,7 @@ You can use both parameters together. Command-line arguments will override envir
 
 In this example, the server will use `port: 50326` and `apiKey: new-key` (command-line arguments override environment variables).
 
-![Claude desktop MCP](https://github.com/AdsPower/local-api-mcp-typescript/blob/main/assets/claude-installed.png)
+![Claude desktop MCP](https://github.com/AdsPower/adspower-browser/blob/main/assets/claude-installed.png)
 
 or use in Cursor
 ![Cursor](./assets/cursor.png)
@@ -163,16 +163,16 @@ Use the **adspower-browser** skill so the AI can operate AdsPower via the CLI wi
 
 | Environment   | How to add |
 |---------------|-------------|
-| **Cursor**   | `npx skills add adspower-browser` |
-| **Claude Code** | `npx skills add adspower-browser` |
-| **GPT / Codex** | If your setup supports [add-skill](https://github.com/vercel-labs/add-skill): `npx skills add adspower-browser`. Otherwise copy the skill from `packages/adspower-browser/skills/adspower-browser/` into your agent’s skills directory (e.g. `~/.codex/skills/adspower-browser/`). |
+| **Cursor**   | `npx skills add AdsPower/adspower-browser` |
+| **Claude Code** | `npx skills add AdsPower/adspower-browser` |
+| **GPT / Codex** | If your setup supports [add-skill](https://github.com/vercel-labs/add-skill): `npx skills add AdsPower/adspower-browser`. Otherwise copy the skill from `skills/adspower-browser/` into your agent’s skills directory (e.g. `~/.codex/skills/adspower-browser/`). |
 
 ## Development
 
 ```bash
 # clone
-git clone https://github.com/AdsPower/local-api-mcp-typescript.git
-cd local-api-mcp-typescript
+git clone https://github.com/AdsPower/adspower-browser.git
+cd adspower-browser
 
 # install (monorepo)
 pnpm install
@@ -187,7 +187,7 @@ For local MCP development, point Claude Desktop to the MCP package:
 "mcpServers": {
   "adspower-local-api": {
     "command": "node",
-    "args": ["<Replace Your Project Path>/local-api-mcp-typescript/packages/local-api-mcp/build/index.js"]
+    "args": ["<Replace Your Project Path>/adspower-browser/packages/local-api-mcp/build/index.js"]
   }
 }
 ```

@@ -1,6 +1,6 @@
 {
   "name": "adspower-browser",
-  "version": "1.0.6",
+  "version": "1.0.0",
   "main": "build/cli.js",
   "type": "commonjs",
   "bin": {
@@ -25,7 +25,15 @@
     "node": ">=18.0.0"
   },
   "files": [
-    "build",
-    "skills"
-  ]
+    "build"
+  ],
+  "description": "AdsPower Local API CLI and Cursor/agent skill for browser profiles, groups, proxies.",
+  "keywords": ["adspower", "browser", "cursor", "skill", "agent-skills", "automation"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AdsPower/adspower-browser.git",
+    "directory": "packages/adspower-browser"
+  },
+  "bugs": { "url": "https://github.com/AdsPower/adspower-browser/issues" },
+  "homepage": "https://github.com/AdsPower/adspower-browser/tree/main/packages/adspower-browser#readme"
 }
