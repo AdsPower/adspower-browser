@@ -1,33 +1,45 @@
-# AdsPower LocalAPI MCP Server
+# AdsPower cli & MCP
 
-A Model Context Protocol server that AdsPower browser LocalAPI. This server enables LLMs to interact with start browser, create browser, update browser fingerprint config ...
+# Adding the adspower-browser Skill
+
+Use the **adspower-browser** skill so the AI can operate AdsPower via the CLI without the MCP server. Add it in your editor as follows:
+
+| Environment   | How to add |
+|---------------|-------------|
+| **Cursor**   | `npx skills add AdsPower/adspower-browser` |
+| **Claude Code** | `npx skills add AdsPower/adspower-browser` |
+| **GPT / Codex** | If your setup supports [add-skill](https://github.com/vercel-labs/add-skill): `npx skills add AdsPower/adspower-browser`. Otherwise copy the skill from `skills/adspower-browser/` into your agent’s skills directory (e.g. `~/.codex/skills/adspower-browser/`). |
+
+## AdsPower LocalAPI MCP Server
+
+A Model Context Protocol server that AdsPower browser LocalAPI. This server enables LLMs to interact with AdsPower browser profiles using the v2 API, including creating, updating, deleting profiles, managing groups, and automating browser operations.
 
 
-## Usage with Claude Desktop
+### Usage with Claude Desktop
 
 Talk to LLMs to create browser: `Create an Android UA browser using Chrome 134`
 
-![Claude desktop](https://github.com/AdsPower/local-api-mcp-typescript/blob/main/assets/claude-use.png)
+![Claude desktop](https://github.com/AdsPower/adspower-browser/blob/main/assets/claude-use.png)
 
 Talk to LLMs to create browser: `Help me with random UA, random fingerprint, random cookie generation, create 3 browsers, use 134 cores, and open them`
 
-![Claude desktop](https://github.com/AdsPower/local-api-mcp-typescript/blob/main/assets/claude-open.gif)
+![Claude desktop](https://github.com/AdsPower/adspower-browser/blob/main/assets/claude-open.gif)
 
-## How to use?
+### How to use?
 
-### Requirements
+#### Requirements
 
 - [AdsPower](https://www.adspower.com/?source=github)
 
 - Node version 18 or greater
 
-### Installation
+#### Installation
 
 To use with Claude Desktop, add the server config:
 
 On macOS: `~/Library/Application Support/Claude/claude_desktop_config.json` On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 
-#### MacOS / Linux
+##### MacOS / Linux
 ```bash
 {
   "mcpServers": {
@@ -39,7 +51,7 @@ On macOS: `~/Library/Application Support/Claude/claude_desktop_config.json` On W
 }
 ```
 
-#### Windows
+##### Windows
 ```bash
 {
   "mcpServers": {
@@ -51,7 +63,108 @@ On macOS: `~/Library/Application Support/Claude/claude_desktop_config.json` On W
 }
 ```
 
-![Claude desktop MCP](https://github.com/AdsPower/local-api-mcp-typescript/blob/main/assets/claude-installed.png)
+#### Configuration Parameters
+
+The MCP server supports configuration through command-line arguments or environment variables.
+
+#### Port Configuration
+
+The port parameter specifies the AdsPower Local API port. Default is `50325`.
+
+**Priority order:**
+1. Command-line argument `--port` (highest priority)
+2. Environment variable `PORT` (medium priority)
+3. Default value `50325` (lowest priority)
+
+**Examples:**
+
+Using command-line argument:
+```json
+{
+  "mcpServers": {
+    "adspower-local-api": {
+      "command": "npx",
+      "args": ["-y", "local-api-mcp-typescript", "--port", "50325"]
+    }
+  }
+}
+```
+
+Using environment variable:
+```json
+{
+  "mcpServers": {
+    "adspower-local-api": {
+      "command": "npx",
+      "args": ["-y", "local-api-mcp-typescript"],
+      "env": {
+        "PORT": "50325"
+      }
+    }
+  }
+}
+```
+
+#### API Key Configuration
+
+The API key is used for authentication with the AdsPower API. It will be sent as `Authorization: Bearer <api-key>` header in requests.
+
+**Priority order:**
+1. Command-line argument `--api-key` (highest priority)
+2. Environment variable `API_KEY` (medium priority)
+3. No default value (if not provided, requests will not include the API key header)
+
+**Examples:**
+
+Using command-line argument:
+```json
+{
+  "mcpServers": {
+    "adspower-local-api": {
+      "command": "npx",
+      "args": ["-y", "local-api-mcp-typescript", "--api-key", "your-api-key-here"]
+    }
+  }
+}
+```
+
+Using environment variable:
+```json
+{
+  "mcpServers": {
+    "adspower-local-api": {
+      "command": "npx",
+      "args": ["-y", "local-api-mcp-typescript"],
+      "env": {
+        "API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
+```
+
+#### Combined Configuration
+
+You can use both parameters together. Command-line arguments will override environment variables:
+
+```json
+{
+  "mcpServers": {
+    "adspower-local-api": {
+      "command": "npx",
+      "args": ["-y", "local-api-mcp-typescript", "--port", "50326", "--api-key", "new-key"],
+      "env": {
+        "PORT": "50325",
+        "API_KEY": "old-key"
+      }
+    }
+  }
+}
+```
+
+In this example, the server will use `port: 50326` and `apiKey: new-key` (command-line arguments override environment variables).
+
+![Claude desktop MCP](https://github.com/AdsPower/adspower-browser/blob/main/assets/claude-installed.png)
 
 or use in Cursor
 ![Cursor](./assets/cursor.png)
@@ -59,138 +172,24 @@ or use in Cursor
 ## Development
 
 ```bash
-# git clone 
-git clone https://github.com/AdsPower/local-api-mcp-typescript.git
+# clone
+git clone https://github.com/AdsPower/adspower-browser.git
+cd adspower-browser
 
-# install package
-cd local-api-mcp-typescript && npx pnpm i
+# install (monorepo)
+pnpm install
 
-# build
-npm run build
+# build all packages
+pnpm run build
 ```
 
-```bash
-# Add the server to your claude_desktop_config.json
+For local MCP development, point Claude Desktop to the MCP package:
+
+```json
 "mcpServers": {
   "adspower-local-api": {
-        "command": "node",
-        "args": [
-            "<Replace Your Project Path>/local-api-mcp-typescript/build/index.js"
-        ]
-    }
+    "command": "node",
+    "args": ["<Replace Your Project Path>/adspower-browser/packages/local-api-mcp/build/index.js"]
+  }
 }
 ```
-
-## Components
-
-### Tools
-
-- **open_browser**
-  - Open the browser
-  - Inputs: 
-    - `serialNumber` (string, optional): The serial number of the browser to open
-    - `userId` (string, optional): The browser id of the browser to open
-
-- **close_browser**
-  - Close the browser
-  - Input: 
-    - `userId` (string): The browser id of the browser to stop
-
-- **create_browser**
-  - Create a browser
-  - Inputs:
-    - `groupId` (string): The group id for the browser
-    - `domainName` (string, optional): The domain name
-    - `openUrls` (string[], optional): URLs to open
-    - `cookie` (string, optional): Browser cookie
-    - `username` (string, optional): Username
-    - `password` (string, optional): Password
-    - `system` (string, optional): System type
-    - `name` (string, optional): Browser name
-    - `country` (string, optional): Country
-    - `sysAppCateId` (string, optional): System application category id
-    - `storageStrategy` (number, optional): Storage strategy
-    - `userProxyConfig` (object): Proxy configuration
-    - `fingerprintConfig` (object, optional): Browser fingerprint configuration
-
-- **update_browser**
-  - Update the browser
-  - Inputs: Same as create_browser, plus:
-    - `userId` (string): The user id of the browser to update
-
-- **delete_browser**
-  - Delete the browser
-  - Input:
-    - `userIds` (string[]): The user ids of the browsers to delete
-
-- **get_browser_list**
-  - Get the list of browsers
-  - Inputs:
-    - `groupId` (string, optional): The group id of the browser
-    - `size` (number, optional): The size of the page
-    - `id` (string, optional): The id of the browser
-    - `serialNumber` (string, optional): The serial number of the browser
-    - `sort` (enum, optional): Sort field ('serial_number' | 'last_open_time' | 'created_time')
-    - `order` (enum, optional): Sort order ('asc' | 'desc')
-
-- **get-opened_browser**
-  - Get the list of opened browsers
-  - No inputs required
-
-- **move_browser**
-  - Move browsers to a group
-  - Inputs:
-    - `groupId` (string): The target group id
-    - `userIds` (string[]): The browser ids to move
-
-- **create_group**
-  - Create a browser group
-  - Inputs:
-    - `groupName` (string): The name of the group to create
-    - `remark` (string, optional): The remark of the group
-
-- **update_group**
-  - Update the browser group
-  - Inputs:
-    - `groupId` (string): The id of the group to update
-    - `groupName` (string): The new name of the group
-    - `remark` (string | null, optional): The new remark of the group, set null to clear
-
-- **get_group_list**
-  - Get the list of groups
-  - Inputs:
-    - `name` (string, optional): The name of the group
-    - `size` (number, optional): The size of the page
-
-- **get-application_list**
-  - Get the list of applications
-  - Input:
-    - `size` (number, optional): The size of the page
-
-### Advanced Configuration Types
-
-#### UserProxyConfig
-- `proxy_soft` (enum): The proxy soft type ('brightdata', 'brightauto', 'oxylabsauto', etc.)
-- `proxy_type` (enum, optional): Proxy type ('http', 'https', 'socks5', 'no_proxy')
-- `proxy_host` (string, optional): Proxy host
-- `proxy_port` (string, optional): Proxy port
-- `proxy_user` (string, optional): Proxy username
-- `proxy_password` (string, optional): Proxy password
-- `proxy_url` (string, optional): Proxy URL
-- `global_config` (enum, optional): Global config ('0' | '1')
-
-#### FingerprintConfig
-- `automatic_timezone` (enum, optional): Automatic timezone ('0' | '1')
-- `timezone` (string, optional): Timezone
-- `language` (string[], optional): Languages
-- `flash` (string, optional): Flash version
-- `fonts` (string[], optional): Font list
-- `webrtc` (enum, optional): WebRTC setting ('disabled' | 'forward' | 'proxy' | 'local')
-- `browser_kernel_config` (object, optional):
-  - `version` (string, optional): Browser version
-  - `type` (enum, optional): Browser type ('chrome' | 'firefox')
-- `random_ua` (object, optional):
-  - `ua_version` (string[], optional): User agent versions
-  - `ua_system_version` (enum[], optional): System versions
-- `tls_switch` (enum, optional): TLS switch ('0' | '1')
-- `tls` (string, optional): TLS configuration
