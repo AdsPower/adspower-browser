@@ -5,7 +5,7 @@ description: Runs AdsPower Local API operations via the adspower-browser CLI (no
 
 # AdsPower Local API with adspower-browser
 
-The Skills CLI (npx adspower-browser) is the package manager for operate AdsPower browser profiles, groups, proxies, and application/category lists via the **adspower-browser** CLI. 
+The Skills CLI (npx adspower-browser) is the package manager for operate AdsPower browser profiles, groups, proxies, and application/category lists via the **adspower-browser** CLI. For more infomation about out product and services, visit [AdsPower Official Website](https://www.adspower.com/)
 
 ## When to Use This Skill
 
