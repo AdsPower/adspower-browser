@@ -29,7 +29,6 @@ adspower-browser [--port PORT] [--api-key KEY] <command> [<arg>]
 1. **Single value (shorthand)** — for profile-related commands, pass one profile ID or number:
    - `adspower-browser open-browser <ProfileId>`
    - `adspower-browser close-browser <ProfileId>`
-   - `adspower-browser get-profile-cookies <ProfileId>`
    - `adspower-browser get-browser-active <ProfileId>`
    - `adspower-browser get-profile-ua <ProfileId>` (single ID)
    - `adspower-browser new-fingerprint <ProfileId>` (single ID)
@@ -57,16 +56,14 @@ adspower-browser get-browser-list '{}'                       # Or groupId?, limi
 adspower-browser get-opened-browser                          # No params
 ```
 
-### Browser profile – move/cookies/UA/fingerprint/cache/share/active
+### Browser profile – move/cookies/UA/fingerprint/cache/active
 
 ```bash
 adspower-browser move-browser '{"groupId":"1","userIds":["..."]}'   # groupId + userIds required
-adspower-browser get-profile-cookies <profileId>             # Or JSON: profileId? | profileNo?
 adspower-browser get-profile-ua <profileId>                  # Or JSON: profileId[]? | profileNo[]? (up to 10)
 adspower-browser close-all-profiles                          # No params
 adspower-browser new-fingerprint <profileId>                 # Or JSON: profileId[]? | profileNo[]? (up to 10)
-adspower-browser delete-cache-v2 '{"profileIds":["..."],"type":["cookie","history"]}'  # type: local_storage|indexeddb|extension_cache|cookie|history|image_file
-adspower-browser share-profile '{"profileIds":["..."],"receiver":"email@example.com"}' # receiver required; shareType?, content?
+adspower-browser delete-cache-v2 '{"profileIds":["..."],"type":["cookie","history"]}'  # type: local_storage|indexeddb|extension_cache|cookie|history|image_filerequired; shareType?, content?
 adspower-browser get-browser-active <profileId>              # Or JSON: profileId? | profileNo?
 adspower-browser get-cloud-active '{"userIds":"id1,id2"}'    # userIds comma-separated, max 100
 ```
@@ -101,7 +98,7 @@ All parameter names are camelCase in JSON.
 
 ### Browser Profile Management
 
-See [references/browser-profile-management.md](references/browser-profile-management.md) for open-browser, close-browser, create-browser, update-browser, delete-browser, get-browser-list, get-opened-browser, move-browser, get-profile-cookies, get-profile-ua, close-all-profiles, new-fingerprint, delete-cache-v2, share-profile, get-browser-active, get-cloud-active and their parameters.
+See [references/browser-profile-management.md](references/browser-profile-management.md) for open-browser, close-browser, create-browser, update-browser, delete-browser, get-browser-list, get-opened-browser, move-browser, get-profile-ua, close-all-profiles, new-fingerprint, delete-cache-v2, share-profile, get-browser-active, get-cloud-active and their parameters.
 
 ### Group Management
 
@@ -133,7 +130,7 @@ Reference docs with full enum values and field lists:
 
 | Reference | Description | When to use |
 |-----------|-------------|-------------|
-| [references/browser-profile-management.md](references/browser-profile-management.md) | **open-browser**, **close-browser**, **create-browser**, **update-browser**, **delete-browser**, **get-browser-list**, **get-opened-browser**, **move-browser**, **get-profile-cookies**, **get-profile-ua**, **close-all-profiles**, **new-fingerprint**, **delete-cache-v2**, **share-profile**, **get-browser-active**, **get-cloud-active** parameters. | Any browser profile operation (open, create, update, delete, list, move, cookies, UA, cache, share, status). |
+| [references/browser-profile-management.md](references/browser-profile-management.md) | **open-browser**, **close-browser**, **create-browser**, **update-browser**, **delete-browser**, **get-browser-list**, **get-opened-browser**, **move-browser**, **get-profile-cookies**, **get-profile-ua**, **close-all-profiles**, **new-fingerprint**, **delete-cache-v2**, **get-browser-active**, **get-cloud-active** parameters. | Any browser profile operation (open, create, update, delete, list, move, cookies, UA, cache, share, status). |
 | [references/group-management.md](references/group-management.md) | **create-group**, **update-group**, **get-group-list** parameters. | Creating, updating, or listing browser groups. |
 | [references/application-management.md](references/application-management.md) | **check-status**, **get-application-list** parameters. | Checking API availability or listing applications (categories). |
 | [references/proxy-management.md](references/proxy-management.md) | **create-proxy**, **update-proxy**, **get-proxy-list**, **delete-proxy** parameters and enums. | Creating, updating, listing, or deleting proxies. |

@@ -57,10 +57,6 @@
 - **groupId** (required): Numeric string. Target group id; use get-group-list to get list.
 - **userIds** (required): Array of browser profile ids to move.
 
-**get-profile-cookies** — Query cookies of the specified profile. One profile per request.
-
-- **profileId** (optional) or **profileNo** (optional): One required.
-
 **get-profile-ua** — Query User-Agent of specified profiles. Up to 10 per request.
 
 - **profileId** (optional): Array. Or **profileNo** (optional): Array. At least one element required.
@@ -77,13 +73,6 @@
 
 - **profileIds** (required): Array of profile ids.
 - **type** (required): Array of `'local_storage'` | `'indexeddb'` | `'extension_cache'` | `'cookie'` | `'history'` | `'image_file'`.
-
-**share-profile** — Share profiles via account email or phone. Max 200 per request.
-
-- **profileIds** (required): Array.
-- **receiver** (required): Account email or phone number, no area code.
-- **shareType** (optional): 1 for email (default), 2 for phone number.
-- **content** (optional): Array of `'name'` | `'proxy'` | `'remark'` | `'tabs'`. Shared content.
 
 **get-browser-active** — Get active browser profile information.
 
