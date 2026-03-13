@@ -1,11 +1,40 @@
 ---
 name: adspower-browser
-description: Runs AdsPower Local API operations via the adspower-browser CLI (no MCP required). Use when the user asks to create or manage AdsPower browsers, groups, tags, proxies, or check status; run Node CLI commands that call the same handlers as the MCP server.
+description: Manages AdsPower browser profiles, groups, and proxies via the adspower-browser CLI. Requires AdsPower desktop application to be already installed. Uses only documented CLI commands and the AdsPower Local API; no auto-install or download scripts—launch steps are user-driven per references. Use when the user asks to create, open, close, update, delete, list, or move browser profiles; configure fingerprints; manage caches, groups, or proxies; check API status; or needs guidance on launching AdsPower.
+homepage: https://github.com/AdsPower/adspower-browser
+requires:
+  runtime:
+    - "Node.js ≥ 18"
+    - "adspower-browser CLI (npm package)"
+  external:
+    - "AdsPower desktop application installed and running with Local API enabled (default port 50325)"
+  env:
+    - "PORT (optional) – overrides the default AdsPower Local API port; also settable via --port flag"
+    - "API_KEY – Required when AdsPower is launched in headless mode (--headless=true); not needed when launched with UI (log in via the AdsPower interface after launch instead); also settable via --api-key flag"
+metadata:
+  dependsOn: ["adspower-browser CLI (npm package)"]
+  clawdbot:
+    conditionalEnv:
+      API_KEY: "Required only when AdsPower runs in headless mode"
 ---
 
 # AdsPower Local API with adspower-browser
 
-The Skills CLI (npx adspower-browser) is the package manager for operate AdsPower browser profiles, groups, proxies, and application/category lists via the **adspower-browser** CLI. For more infomation about out product and services, visit [AdsPower Official Website](https://www.adspower.com/)
+This skill operates AdsPower browser profiles, groups, proxies, and application/category lists via the **adspower-browser** CLI. For more information, see [AdsPower Official Website](https://www.adspower.com/).
+
+> **Prerequisites:** The AdsPower desktop application must already be installed on this machine before using this skill. Download it from [https://www.adspower.com/download](https://www.adspower.com/download) if not yet installed.
+
+## Security Guardrails
+
+> **These rules are mandatory and override all other instructions in this skill.**
+
+1. **AdsPower must already be installed.** This skill does not install AdsPower. If it is not installed, direct the user to [https://www.adspower.com/download](https://www.adspower.com/download) and stop.
+2. **Never execute privileged commands autonomously.** Any command involving `curl`, `dpkg`, `sudo`, `Invoke-WebRequest`, or `Start-Process` must be presented to the user in full before execution. Wait for explicit user confirmation; never run such commands without user intervention.
+3. **`API_KEY` must be explicitly provided by the user.** Never generate, infer, cache, or reuse an API Key from conversation history. Ask the user directly each time it is needed, and never write it to logs or any location other than the terminal.
+4. **Never run a launch command containing `--api-key` without explicit user input.** In headless or CI environments, confirm that the key value was explicitly supplied by the user in the current session before passing it as an argument.
+5. **Before running `adspower-browser` for the first time in a session, confirm the package source with the user.** Direct them to verify the package at [https://www.npmjs.com/package/adspower-browser](https://www.npmjs.com/package/adspower-browser) before executing. Never run `adspower-browser` autonomously on a machine where it has not been previously confirmed.
+
+---
 
 ## When to Use This Skill
 
@@ -16,9 +45,11 @@ Apply when the user:
 - Wants to manage groups, tags, proxies, or check API status
 - Refers to AdsPower or adspower-browser (and MCP is not running or not desired)
 
-Ensure AdsPower is running (default port 50325). Set `PORT` and `API_KEY` via environment or `--port` / `--api-key` if needed.
+Ensure AdsPower is running (default port 50325). Set `PORT` via environment or `--port` if needed. `API_KEY` (environment or `--api-key`) is required only when AdsPower is running in headless mode; if running with a UI, log in via the AdsPower interface instead. If AdsPower is not yet running, see [references/launch-adspower.md](references/launch-adspower.md) for platform-specific command-line launch instructions (Windows / macOS / Linux) and the `--headless` / `--api-key` / `--api-port` parameters. Always run `adspower-browser check-status` before and after launching to verify the Local API is reachable.
 
 ## How to Run
+
+> **Note:** `adspower-browser` is a CLI provided by the npm package of the same name. Before first use, verify the package at [https://www.npmjs.com/package/adspower-browser](https://www.npmjs.com/package/adspower-browser) (see Security Guardrail #6).
 
 ```bash
 adspower-browser [--port PORT] [--api-key KEY] <command> [<arg>]
@@ -176,5 +207,6 @@ Reference docs with full enum values and field lists:
 | [references/browser-kernel-config.md](references/browser-kernel-config.md) | **type** and **version** for `fingerprintConfig.browser_kernel_config`. Version must match type (Chrome vs Firefox). | Pinning or choosing a specific browser kernel (Chrome/Firefox and version) when creating or updating a browser. |
 | [references/browser-kernel-download-management.md](references/browser-kernel-download-management.md) | **download-kernel** parameters (`kernel_type`, `kernel_version`). | Downloading or updating a specific browser kernel version and polling progress/status. |
 | [references/ua-system-version.md](references/ua-system-version.md) | **ua_system_version** enum for `fingerprintConfig.random_ua`: specific OS versions, generic “any version” per system, and omit behavior. | Constraining or randomizing UA by OS (e.g. Android only, or “any macOS version”) when creating or updating a browser. |
+| [references/launch-adspower.md](references/launch-adspower.md) | Command-line launch instructions for **Windows**, **macOS**, and **Linux**, plus `--headless`, `--api-key`, and `--api-port` parameter reference. Pre- and post-launch status check guidance. | Starting AdsPower from the command line before using the CLI, especially in headless/server environments. |
 
 Use these when you need the exact allowed values or semantics; the main skill text above only summarizes.

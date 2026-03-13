@@ -11,7 +11,7 @@
 - **location** (optional): Site location permission. `'ask'` (default) / `'allow'` / `'block'`
 - **language_switch** (optional): Language by IP country. `'0'` custom / `'1'` by IP (default)
 - **language** (optional): Custom languages when language_switch=0, e.g. `["en-US", "zh-CN"]`
-- **page_language_switch** (optional): Match UI language to language. `'0'` off / `'1'` on (default); requires Chrome 109+ Win / 119+ macOS, AdsPower v2.6.72+
+- **page_language_switch** (optional): Match UI language to language. `'0'` off / `'1'` on (default); requires Chrome 109+ Win / 119+ macOS.
 - **page_language** (optional): Page language when page_language_switch=0, e.g. `en-US`
 - **ua** (optional): Custom User-Agent string; when set, takes precedence over **random_ua** (random_ua is not sent). Omit for random UA.
 - **screen_resolution** (optional): Screen resolution. `'none'` follow computer (default) / `'random'` / or `"width_height"` e.g. `"1024_600"`
@@ -22,7 +22,7 @@
 - **webgl_config** (optional): When webgl=2, **required**; vendor and renderer cannot be empty.
   - **unmasked_vendor** (required when webgl=2): e.g. `"Google Inc."`
   - **unmasked_renderer** (required when webgl=2): e.g. `"ANGLE (Intel(R) HD Graphics 620 Direct3D11 vs_5_0 ps_5_0)"`
-  - **webgpu** (optional): `{ "webgpu_switch": "0" | "1" | "2" }` — 0 Disabled, 1 WebGL based matching, 2 Real. V2.6.8.1+
+  - **webgpu** (optional): `{ "webgpu_switch": "0" | "1" | "2" }` — 0 Disabled, 1 WebGL based matching, 2 Real
 - **flash** (optional): Flash. `'block'` (default) / `'allow'`
 - **webrtc** (optional): WebRTC. `'disabled'` (default) / `'forward'` / `'proxy'` / `'local'`
 - **audio** (optional): Audio fingerprint. `'0'` close / `'1'` add noise (default)
@@ -31,13 +31,13 @@
 - **device_memory** (optional): Device memory (GB). `'2'` | `'4'` | `'6'` | `'8'`; omit to follow computer
 - **scan_port_type** (optional): Port scan protection. `'0'` close / `'1'` enable (default)
 - **allow_scan_ports** (optional): Ports allowed when scan_port_type=1, e.g. `["4000","4001"]`
-- **media_devices** (optional): Media devices. `'0'` off / `'1'` noise (count from local) / `'2'` noise (use **media_devices_num**). V2.6.4.2+
-- **media_devices_num** (optional): When media_devices=2: `{ "audioinput_num": "1"-"9", "videoinput_num": "1"-"9", "audiooutput_num": "1"-"9" }`. V2.6.4.2+
-- **client_rects** (optional): ClientRects. `'0'` computer default / `'1'` add noise. V3.6.2+
-- **device_name_switch** (optional): Device name. `'0'` close / `'1'` mask / `'2'` custom (**device_name**). V3.6.25+
-- **device_name** (optional): Custom device name when device_name_switch=2. V2.4.8.1+
-- **speech_switch** (optional): SpeechVoices. `'0'` computer default / `'1'` replace. V3.11.10+
-- **mac_address_config** (optional): MAC address. `{ "model": "0"|"1"|"2", "address"?: string }` — 0 use computer, 1 match, 2 custom (address required). V4.3.9+
+- **media_devices** (optional): Media devices. `'0'` off / `'1'` noise (count from local) / `'2'` noise (use **media_devices_num**)
+- **media_devices_num** (optional): When media_devices=2: `{ "audioinput_num": "1"-"9", "videoinput_num": "1"-"9", "audiooutput_num": "1"-"9" }`
+- **client_rects** (optional): ClientRects. `'0'` computer default / `'1'` add noise
+- **device_name_switch** (optional): Device name. `'0'` close / `'1'` mask / `'2'` custom (**device_name**)
+- **device_name** (optional): Custom device name when device_name_switch=2
+- **speech_switch** (optional): SpeechVoices. `'0'` computer default / `'1'` replace
+- **mac_address_config** (optional): MAC address. `{ "model": "0"|"1"|"2", "address"?: string }` — 0 use computer, 1 match, 2 custom (address required)
 - **gpu** (optional): GPU. `'0'` follow Local settings / `'1'` turn on / `'2'` turn off
 - **browser_kernel_config** (optional): Browser kernel; type and version must match. See [browser-kernel-config.md](browser-kernel-config.md)
 - **random_ua** (optional): Random UA; ignored when **ua** (custom UA) is provided.
