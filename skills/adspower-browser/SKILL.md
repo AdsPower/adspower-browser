@@ -16,6 +16,7 @@ metadata:
   clawdbot:
     conditionalEnv:
       API_KEY: "Required only when AdsPower runs in headless mode"
+    os: ["linux","darwin","win32"]
 ---
 
 # AdsPower Local API with adspower-browser
