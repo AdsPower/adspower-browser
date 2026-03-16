@@ -50,7 +50,7 @@ adspower-browser close-browser <profileId>                   # Or JSON: profileI
 ### Browser profile – create/update/delete/list
 
 ```bash
-adspower-browser create-browser '{"groupId":"0","proxyid":"random",...}'  # groupId + account field + proxy required
+adspower-browser create-browser '{"groupId":"0","userProxyConfig":{"proxy_soft":"no_proxy"},...}'  # groupId + account field required; proxy optional (defaults to no_proxy; proxyid takes priority over userProxyConfig when both given)
 adspower-browser update-browser '{"profileId":"...",...}'    # profileId required
 adspower-browser delete-browser '{"profileIds":["..."]}'     # profileIds required
 adspower-browser get-browser-list '{}'                       # Or groupId?, limit?, page?, profileId?, profileNo?, sortType?, sortOrder?
@@ -117,7 +117,7 @@ See [references/proxy-management.md](references/proxy-management.md) for create-
 
 ### UserProxyConfig (inline proxy config for create-browser / update-browser)
 
-See [references/user-proxy-config.md](references/user-proxy-config.md) for all fields (proxy_soft, proxy_type, proxy_host, proxy_port, etc.) and example.
+See [references/user-proxy-config.md](references/user-proxy-config.md) for all fields (proxy_soft, proxy_type, proxy_host, proxy_port, etc.) and example. Defaults to `{"proxy_soft":"no_proxy"}` when omitted. If **proxyid** is also provided, **proxyid** takes priority and **userProxyConfig** is ignored.
 
 ### FingerprintConfig (fingerprint config for create-browser / update-browser)
 

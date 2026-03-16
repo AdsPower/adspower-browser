@@ -94,7 +94,7 @@ export const TLS_CIPHER_SUITES = {
     TLS_AES_128_CCM_SHA256: '0x1304',
 } as const;
 
-const TLS_HEX_CODES = Object.values(TLS_CIPHER_SUITES);
+const TLS_HEX_CODES = Object.values(TLS_CIPHER_SUITES) as [string, ...string[]];
 
 // Country code: ISO 3166-1 alpha-2 (lowercase). 
 export const COUNTRY_CODES = [
@@ -129,10 +129,11 @@ const macAddressConfigSchema = z.object({
 }).describe('MAC address: model 0/1/2, address when model=2.');
 
 // Media devices count when media_devices=2 (V2.6.4.2+)
+const DEVICE_COUNT_VALUES = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const;
 const mediaDevicesNumSchema = z.object({
-    audioinput_num: z.string().regex(/^[1-9]$/).describe('Number of microphones, 1-9'),
-    videoinput_num: z.string().regex(/^[1-9]$/).describe('Number of cameras, 1-9'),
-    audiooutput_num: z.string().regex(/^[1-9]$/).describe('Number of speakers, 1-9')
+    audioinput_num: z.enum(DEVICE_COUNT_VALUES).describe('Number of microphones, 1-9'),
+    videoinput_num: z.enum(DEVICE_COUNT_VALUES).describe('Number of cameras, 1-9'),
+    audiooutput_num: z.enum(DEVICE_COUNT_VALUES).describe('Number of speakers, 1-9')
 }).describe('Device counts when media_devices=2: audioinput_num, videoinput_num, audiooutput_num each 1-9.');
 
 // Fingerprint Config Schema
@@ -212,8 +213,8 @@ export const schemas = {
         name: z.string().max(100).optional().describe('Account name, max 100 characters'),
         platform: z.string().optional().describe('Platform domain, eg: facebook.com'),
         remark: z.string().optional().describe('Remarks to describe the account. Maximum 1500 characters.'),
-        userProxyConfig: userProxyConfigSchema.optional().describe('Either user_proxy_config or proxyid must be provided. Only one is required.'),
-        proxyid: z.string().optional().describe('Either user_proxy_config or proxyid must be provided. Only one is required.'),
+        userProxyConfig: userProxyConfigSchema.default({ proxy_soft: 'no_proxy' }).describe('Proxy configuration. If proxyid is provided, proxyid takes priority and this field is ignored. Defaults to no_proxy when neither proxyid nor a custom proxy is needed.'),
+        proxyid: z.string().optional().describe('Proxy profile ID. Takes priority over userProxyConfig when provided.'),
         repeatConfig: z.array(z.union([z.literal(0), z.literal(2), z.literal(3), z.literal(4)])).optional().describe('Account deduplication settings (0, 2, 3, or 4)'),
         ignoreCookieError: z.enum(['0', '1']).optional().describe('Handle cookie verification failures: 0 (default) return data as-is, 1 filter out incorrectly formatted cookies'),
         tabs: z.array(z.string()).optional().describe('URLs to open on startup, eg: ["https://www.google.com"]'),
@@ -223,11 +224,7 @@ export const schemas = {
         city: z.string().optional().describe('City'),
         ipchecker: z.enum(['ip2location', 'ipapi']).optional().describe('IP query channel'),
         categoryId: z.string().optional().describe('The category id of the browser, you can use the get-application-list tool to get the application list'),
-        fingerprintConfig: fingerprintConfigSchema.optional()
-    }).refine(data => data.userProxyConfig || data.proxyid, {
-        message: "Either userProxyConfig or proxyid must be provided"
-    }).refine(data => data.username || data.password || data.cookie || data.fakey, {
-        message: "At least one account information field (username, password, cookie, or fakey) must be provided"
+        fingerprintConfig: fingerprintConfigSchema.optional().default({ random_ua: { ua_system_version: ['Windows'] } })
     }),
 
     updateBrowserSchema: z.object({

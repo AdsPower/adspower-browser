@@ -1,6 +1,6 @@
 # UserProxyConfig (inline proxy config for create-browser / update-browser)
 
-When using **userProxyConfig** instead of **proxyid**, pass the following object (field names match the API, mostly snake_case):
+Used to configure an inline proxy for **create-browser** / **update-browser**. Defaults to `{"proxy_soft":"no_proxy"}` when omitted. If **proxyid** is also provided, **proxyid** takes priority and this config is ignored. Field names match the API (snake_case):
 
 - **proxy_soft** (required): Proxy software type. `'brightdata'` | `'brightauto'` | `'oxylabsauto'` | `'922S5auto'` | `'ipfoxyauto'` | `'922S5auth'` | `'kookauto'` | `'ssh'` | `'other'` | `'no_proxy'`
 - **proxy_type** (optional): Proxy type. `'http'` | `'https'` | `'socks5'` | `'no_proxy'`
