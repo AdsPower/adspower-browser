@@ -282,7 +282,15 @@ export const schemas = {
         sortType: z.enum(['profile_no', 'last_open_time', 'created_time']).optional()
             .describe('Sort results by: profile_no, last_open_time, or created_time'),
         sortOrder: z.enum(['asc', 'desc']).optional()
-            .describe('Sort order: "asc" (ascending) or "desc" (descending)')
+            .describe('Sort order: "asc" (ascending) or "desc" (descending)'),
+        tag_ids: z.array(z.string()).optional()
+            .describe('Tag IDs to filter profiles by tags. Example: ["tag1","tag2"]'),
+        tags_filter: z.enum(['include', 'exclude']).optional()
+            .describe('Tag matching mode: "include" (default) matches profiles with any of the tags, "exclude" matches profiles without the tags'),
+        name: z.string().optional()
+            .describe('Profile name keyword to search for'),
+        name_filter: z.enum(['include', 'exclude']).optional()
+            .describe('Name matching mode: "include" (default) matches profiles containing the name keyword, "exclude" matches profiles not containing the name keyword')
     }).strict(),
 
     moveBrowserSchema: z.object({
