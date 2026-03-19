@@ -4,6 +4,7 @@ export { browserHandlers } from './handlers/browser.js';
 export { groupHandlers } from './handlers/group.js';
 export { applicationHandlers } from './handlers/application.js';
 export { proxyHandlers } from './handlers/proxy.js';
+export { tagHandlers } from './handlers/tag.js';
 export { automationHandlers, getScreenshot } from './handlers/automation.js';
 export { schemas } from './types/schemas.js';
 export { default as browserBase } from './utils/browserBase.js';

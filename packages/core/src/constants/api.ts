@@ -28,7 +28,11 @@ export const API_ENDPOINTS = {
     GET_GROUP_LIST: '/api/v1/group/list',
     CREATE_GROUP: '/api/v1/group/create',
     UPDATE_GROUP: '/api/v1/group/update',
-    GET_APPLICATION_LIST: '/api/v2/category/list'
+    GET_APPLICATION_LIST: '/api/v2/category/list',
+    GET_TAG_LIST: '/api/v2/browser-tags/list',
+    CREATE_TAG: '/api/v2/browser-tags/create',
+    UPDATE_TAG: '/api/v2/browser-tags/update',
+    DELETE_TAG: '/api/v2/browser-tags/delete'
 } as const;
 
 export const apiClient = axios.create({

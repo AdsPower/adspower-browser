@@ -4,6 +4,7 @@ import {
     groupHandlers,
     applicationHandlers,
     proxyHandlers,
+    tagHandlers,
     automationHandlers,
     schemas
 } from '@adspower/local-api-core';
@@ -100,6 +101,18 @@ export function registerTools(server: McpServer) {
 
     server.tool('delete-proxy', 'Delete the proxy', schemas.deleteProxySchema.shape,
         wrapHandler(proxyHandlers.deleteProxy));
+
+    server.tool('get-tag-list', 'Get the list of browser tags', schemas.getTagListSchema.shape,
+        wrapHandler(tagHandlers.getTagList));
+
+    server.tool('create-tag', 'Create browser tags (batch supported)', schemas.createTagSchema.shape,
+        wrapHandler(tagHandlers.createTag));
+
+    server.tool('update-tag', 'Update browser tags (batch supported)', schemas.updateTagSchema.shape,
+        wrapHandler(tagHandlers.updateTag));
+
+    server.tool('delete-tag', 'Delete browser tags', schemas.deleteTagSchema.shape,
+        wrapHandler(tagHandlers.deleteTag));
 
     server.tool('connect-browser-with-ws', 'Connect the browser with the ws url', schemas.createAutomationSchema.shape,
         wrapHandler(automationHandlers.connectBrowserWithWs));

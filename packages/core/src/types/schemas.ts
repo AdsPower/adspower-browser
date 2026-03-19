@@ -406,6 +406,33 @@ export const schemas = {
         proxyIds: z.array(z.string()).describe('The proxy ids of the proxies to delete, it is required when you want to delete the proxy. The maximum is 100. ')
     }).strict(),
 
+    getTagListSchema: z.object({
+        ids: z.array(z.string()).optional().describe('Tag IDs to query, max 100 per request. Example: ["tag1","tag2"]'),
+        limit: z.number().optional().describe('Number of tags returned per page, range 1 ~ 200, default is 50'),
+        page: z.number().optional().describe('Page number for results, default is 1')
+    }).strict(),
+
+    createTagSchema: z.object({
+        tags: z.array(z.object({
+            name: z.string().max(50).describe('Tag name, max 50 characters'),
+            color: z.enum(['darkBlue', 'blue', 'purple', 'red', 'yellow', 'orange', 'green', 'lightGreen']).optional()
+                .describe('Tag color, default is darkBlue')
+        }).strict()).describe('Array of tags to create')
+    }).strict(),
+
+    updateTagSchema: z.object({
+        tags: z.array(z.object({
+            id: z.string().describe('Tag ID to update'),
+            name: z.string().max(50).optional().describe('Tag name, max 50 characters'),
+            color: z.enum(['darkBlue', 'blue', 'purple', 'red', 'yellow', 'orange', 'green', 'lightGreen']).optional()
+                .describe('Tag color')
+        }).strict()).describe('Array of tags to update')
+    }).strict(),
+
+    deleteTagSchema: z.object({
+        ids: z.array(z.string()).describe('Tag IDs to delete')
+    }).strict(),
+
     emptySchema: z.object({}).strict(),
 
     createAutomationSchema: z.object({
