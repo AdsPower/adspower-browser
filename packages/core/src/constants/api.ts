@@ -32,7 +32,8 @@ export const API_ENDPOINTS = {
     GET_TAG_LIST: '/api/v2/browser-tags/list',
     CREATE_TAG: '/api/v2/browser-tags/create',
     UPDATE_TAG: '/api/v2/browser-tags/update',
-    DELETE_TAG: '/api/v2/browser-tags/delete'
+    DELETE_TAG: '/api/v2/browser-tags/delete',
+    DOWNLOAD_KERNEL: '/api/v2/browser-profile/download-kernel'
 } as const;
 
 export const apiClient = axios.create({

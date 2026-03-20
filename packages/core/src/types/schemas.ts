@@ -439,6 +439,11 @@ export const schemas = {
         ids: z.array(z.string()).describe('Tag IDs to delete')
     }).strict(),
 
+    downloadKernelSchema: z.object({
+        kernel_type: z.enum(['Chrome', 'Firefox']).describe('Browser kernel type'),
+        kernel_version: z.string().describe('Browser kernel version, e.g. 141')
+    }).strict(),
+
     emptySchema: z.object({}).strict(),
 
     createAutomationSchema: z.object({
