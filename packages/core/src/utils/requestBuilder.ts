@@ -23,7 +23,9 @@ export function buildRequestBody(params: CreateBrowserParams | UpdateBrowserPara
         ipchecker: 'ipchecker',
         categoryId: 'category_id',
         launchArgs: 'launch_args',
-        profileId: 'profile_id'
+        profileId: 'profile_id',
+        profileTagIds: 'profile_tag_ids',
+        tagsUpdateType: 'tags_update_type'
     };
     Object.entries(basicFields).forEach(([paramKey, key]) => {
         const value = params[paramKey as keyof typeof params];

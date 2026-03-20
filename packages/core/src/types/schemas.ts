@@ -224,6 +224,8 @@ export const schemas = {
         city: z.string().optional().describe('City'),
         ipchecker: z.enum(['ip2location', 'ipapi']).optional().describe('IP query channel'),
         categoryId: z.string().optional().describe('The category id of the browser, you can use the get-application-list tool to get the application list'),
+        profileTagIds: z.array(z.string()).max(30).optional()
+            .describe('Tag IDs to assign to the profile, max 30 tags per profile. Example: ["tag1","tag2"]'),
         fingerprintConfig: fingerprintConfigSchema.optional().default({ random_ua: { ua_system_version: ['Windows'] } })
     }),
 
@@ -247,6 +249,10 @@ export const schemas = {
         proxyid: z.string().optional().describe('Proxy ID'),
         fingerprintConfig: fingerprintConfigSchema.optional(),
         launchArgs: z.string().optional().describe('Browser startup parameters'),
+        profileTagIds: z.array(z.string()).max(30).optional()
+            .describe('Tag IDs to set on the profile, max 30 tags per profile. Example: ["tag1","tag2"]'),
+        tagsUpdateType: z.enum(['1', '2']).optional()
+            .describe('How to apply profile_tag_ids: "1" (default) replace all existing tags; "2" append tags (truncated to 30 total if exceeded)'),
         profileId: z.string().describe('The profile id of the browser to update, it is required when you want to update the browser')
     }),
 
