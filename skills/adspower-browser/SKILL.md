@@ -71,6 +71,12 @@ adspower-browser get-browser-active <profileId>              # Or JSON: profileI
 adspower-browser get-cloud-active '{"userIds":"id1,id2"}'    # userIds comma-separated, max 100
 ```
 
+### Kernel
+
+```bash
+adspower-browser download-kernel '{"kernel_type":"Chrome","kernel_version":"141"}'
+```
+
 ### Group
 
 ```bash
@@ -140,6 +146,7 @@ Reference docs with full enum values and field lists:
 | [references/user-proxy-config.md](references/user-proxy-config.md) | Full **userProxyConfig** field list (proxy_soft, proxy_type, proxy_host, proxy_port, etc.) and example. | Building inline proxy config for create-browser / update-browser when not using **proxyid**. |
 | [references/fingerprint-config.md](references/fingerprint-config.md) | Full **fingerprintConfig** field list (timezone, language, WebRTC, browser_kernel_config, random_ua, TLS, etc.) and example. | Building or editing fingerprint config for create-browser / update-browser. |
 | [references/browser-kernel-config.md](references/browser-kernel-config.md) | **type** and **version** for `fingerprintConfig.browser_kernel_config`. Version must match type (Chrome vs Firefox). | Pinning or choosing a specific browser kernel (Chrome/Firefox and version) when creating or updating a browser. |
+| [references/browser-kernel-download-management.md](references/browser-kernel-download-management.md) | **download-kernel** parameters (`kernel_type`, `kernel_version`). | Downloading or updating a specific browser kernel version and polling progress/status. |
 | [references/ua-system-version.md](references/ua-system-version.md) | **ua_system_version** enum for `fingerprintConfig.random_ua`: specific OS versions, generic “any version” per system, and omit behavior. | Constraining or randomizing UA by OS (e.g. Android only, or “any macOS version”) when creating or updating a browser. |
 
 Use these when you need the exact allowed values or semantics; the main skill text above only summarizes.

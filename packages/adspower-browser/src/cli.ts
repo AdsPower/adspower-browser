@@ -3,7 +3,8 @@ import {
     browserHandlers,
     groupHandlers,
     applicationHandlers,
-    proxyHandlers
+    proxyHandlers,
+    kernelHandlers
 } from '@adspower/local-api-core';
 
 type HandlerFn = (params: any) => Promise<string | unknown>;
@@ -34,6 +35,7 @@ const STATELESS_HANDLERS: Record<string, HandlerFn> = {
     'update-proxy': proxyHandlers.updateProxy as HandlerFn,
     'get-proxy-list': proxyHandlers.getProxyList as HandlerFn,
     'delete-proxy': proxyHandlers.deleteProxy as HandlerFn,
+    'download-kernel': kernelHandlers.downloadKernel as HandlerFn,
 };
 
 // Commands that accept a single profileId (or profileNo) as shorthand when one non-JSON arg is given
