@@ -4,6 +4,7 @@ import {
     groupHandlers,
     applicationHandlers,
     proxyHandlers,
+    tagHandlers,
     kernelHandlers
 } from '@adspower/local-api-core';
 
@@ -35,6 +36,10 @@ const STATELESS_HANDLERS: Record<string, HandlerFn> = {
     'update-proxy': proxyHandlers.updateProxy as HandlerFn,
     'get-proxy-list': proxyHandlers.getProxyList as HandlerFn,
     'delete-proxy': proxyHandlers.deleteProxy as HandlerFn,
+    'get-tag-list': tagHandlers.getTagList as HandlerFn,
+    'create-tag': tagHandlers.createTag as HandlerFn,
+    'update-tag': tagHandlers.updateTag as HandlerFn,
+    'delete-tag': tagHandlers.deleteTag as HandlerFn,
     'download-kernel': kernelHandlers.downloadKernel as HandlerFn,
 };
 
