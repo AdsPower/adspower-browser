@@ -50,6 +50,11 @@
 - **sortType** (optional): `'profile_no'` | `'last_open_time'` | `'created_time'`.
 - **sortOrder** (optional): `'asc'` | `'desc'`.
 
+- **tag_ids** (optional): Tag IDs to filter environments by tags.
+- **tags_filter** (optional): `'include'` (default) | `'exclude'` for tag match mode.
+- **name** (optional): Environment name keyword.
+- **name_filter** (optional): `'include'` (default) | `'exclude'` for name match mode.
+
 **get-opened-browser** — Get the list of opened browsers.
 
 - No parameters.

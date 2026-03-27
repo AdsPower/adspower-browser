@@ -53,7 +53,7 @@ adspower-browser close-browser <profileId>                   # Or JSON: profileI
 adspower-browser create-browser '{"groupId":"0","userProxyConfig":{"proxy_soft":"no_proxy"},...}'  # groupId + account field required; proxy optional (defaults to no_proxy; proxyid takes priority over userProxyConfig when both given)
 adspower-browser update-browser '{"profileId":"...",...}'    # profileId required
 adspower-browser delete-browser '{"profileIds":["..."]}'     # profileIds required
-adspower-browser get-browser-list '{}'                       # Or groupId?, limit?, page?, profileId?, profileNo?, sortType?, sortOrder?
+adspower-browser get-browser-list '{}'                       # Or groupId?, limit?, page?, profileId?, profileNo?, sortType?, sortOrder?, tag_ids?, tags_filter?, name?, name_filter?
 adspower-browser get-opened-browser                          # No params
 ```
 
