@@ -18,6 +18,7 @@ export function wrapHandler(handler: Function) {
             };
         } catch (error) {
             let errorMessage = error instanceof Error ? error.message : String(error);
+            const lowerErrorMessage = errorMessage.toLowerCase();
             if (
                 errorMessage.includes("Target page, context or browser has been closed") ||
                 errorMessage.includes("Target closed") ||
@@ -27,6 +28,9 @@ export function wrapHandler(handler: Function) {
             ) {
                 await browserBase.resetBrowser();
                 errorMessage = `Browser connection error: ${errorMessage}. Connection has been reset - please retry the operation.`;
+            }
+            if (lowerErrorMessage.includes('not found')) {
+                errorMessage = `${errorMessage}\n\nIf this API was introduced in a newer client version, please update AdsPower client to the latest patch first (use update-patch), then retry.`;
             }
             return {
                 content: [{

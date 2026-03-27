@@ -444,6 +444,14 @@ export const schemas = {
         kernel_version: z.string().describe('Browser kernel version, e.g. 141')
     }).strict(),
 
+    getKernelListSchema: z.object({
+        kernel_type: z.enum(['Chrome', 'Firefox']).optional().describe('Browser kernel type; omit to return all supported kernels')
+    }).strict(),
+
+    updatePatchSchema: z.object({
+        version_type: z.enum(['stable', 'beta']).optional().describe('Patch version type to update, default stable')
+    }).strict(),
+
     emptySchema: z.object({}).strict(),
 
     createAutomationSchema: z.object({

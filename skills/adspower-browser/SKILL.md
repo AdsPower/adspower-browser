@@ -75,6 +75,13 @@ adspower-browser get-cloud-active '{"userIds":"id1,id2"}'    # userIds comma-sep
 
 ```bash
 adspower-browser download-kernel '{"kernel_type":"Chrome","kernel_version":"141"}'
+adspower-browser get-kernel-list '{}'                         # kernel_type?: Chrome | Firefox (omit to get all)
+```
+
+### Patch
+
+```bash
+adspower-browser update-patch '{}'                            # version_type?: stable | beta (default stable)
 ```
 
 ### Tag
@@ -134,6 +141,14 @@ See [references/proxy-management.md](references/proxy-management.md) for create-
 
 See [references/browser-tag-management.md](references/browser-tag-management.md) for get-tag-list, create-tag, update-tag, and delete-tag parameters.
 
+### Kernel Management
+
+See [references/browser-kernel-management.md](references/browser-kernel-management.md) for download-kernel and get-kernel-list parameters.
+
+### Patch Management
+
+See [references/client-patch-management.md](references/client-patch-management.md) for update-patch parameters.
+
 ### UserProxyConfig (inline proxy config for create-browser / update-browser)
 
 See [references/user-proxy-config.md](references/user-proxy-config.md) for all fields (proxy_soft, proxy_type, proxy_host, proxy_port, etc.) and example. Defaults to `{"proxy_soft":"no_proxy"}` when omitted. If **proxyid** is also provided, **proxyid** takes priority and **userProxyConfig** is ignored.
@@ -157,6 +172,8 @@ Reference docs with full enum values and field lists:
 | [references/application-management.md](references/application-management.md) | **check-status**, **get-application-list** parameters. | Checking API availability or listing applications (categories). |
 | [references/proxy-management.md](references/proxy-management.md) | **create-proxy**, **update-proxy**, **get-proxy-list**, **delete-proxy** parameters and enums. | Creating, updating, listing, or deleting proxies. |
 | [references/browser-tag-management.md](references/browser-tag-management.md) | **get-tag-list**, **create-tag**, **update-tag**, **delete-tag** parameters. | Listing, creating, updating, or deleting browser tags. |
+| [references/browser-kernel-management.md](references/browser-kernel-management.md) | **download-kernel**, **get-kernel-list** parameters. | Downloading a specific kernel and querying supported kernel versions. |
+| [references/client-patch-management.md](references/client-patch-management.md) | **update-patch** parameters. | Updating AdsPower client to latest patch channel (stable/beta). |
 | [references/user-proxy-config.md](references/user-proxy-config.md) | Full **userProxyConfig** field list (proxy_soft, proxy_type, proxy_host, proxy_port, etc.) and example. | Building inline proxy config for create-browser / update-browser when not using **proxyid**. |
 | [references/fingerprint-config.md](references/fingerprint-config.md) | Full **fingerprintConfig** field list (timezone, language, WebRTC, browser_kernel_config, random_ua, TLS, etc.) and example. | Building or editing fingerprint config for create-browser / update-browser. |
 | [references/browser-kernel-config.md](references/browser-kernel-config.md) | **type** and **version** for `fingerprintConfig.browser_kernel_config`. Version must match type (Chrome vs Firefox). | Pinning or choosing a specific browser kernel (Chrome/Firefox and version) when creating or updating a browser. |

@@ -5,7 +5,8 @@ import {
     applicationHandlers,
     proxyHandlers,
     tagHandlers,
-    kernelHandlers
+    kernelHandlers,
+    patchHandlers
 } from '@adspower/local-api-core';
 
 type HandlerFn = (params: any) => Promise<string | unknown>;
@@ -41,6 +42,8 @@ const STATELESS_HANDLERS: Record<string, HandlerFn> = {
     'update-tag': tagHandlers.updateTag as HandlerFn,
     'delete-tag': tagHandlers.deleteTag as HandlerFn,
     'download-kernel': kernelHandlers.downloadKernel as HandlerFn,
+    'get-kernel-list': kernelHandlers.getKernelList as HandlerFn,
+    'update-patch': patchHandlers.updatePatch as HandlerFn,
 };
 
 // Commands that accept a single profileId (or profileNo) as shorthand when one non-JSON arg is given
