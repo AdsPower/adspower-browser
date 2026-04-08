@@ -101,7 +101,7 @@ export const browserHandlers = {
     },
 
     async getBrowserList(params: GetBrowserListParams) {
-        const { groupId, limit, page, profileId, profileNo, sortType, sortOrder } = params;
+        const { groupId, limit, page, profileId, profileNo, sortType, sortOrder, tag_ids, tags_filter, name, name_filter } = params;
         const requestBody: Record<string, any> = {};
 
         if (limit !== undefined) {
@@ -125,6 +125,19 @@ export const browserHandlers = {
         if (sortOrder) {
             requestBody.sort_order = sortOrder;
         }
+        if (tag_ids && tag_ids.length > 0) {
+            requestBody.tag_ids = tag_ids;
+        }
+        if (tags_filter) {
+            requestBody.tags_filter = tags_filter;
+        }
+        if (name) {
+            requestBody.name = name;
+        }
+        if (name_filter) {
+            requestBody.name_filter = name_filter;
+        }
+
         const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.GET_BROWSER_LIST}`, requestBody);
         if (response.data.code === 0) {
             return `Browser list: ${JSON.stringify(response.data.data.list, null, 2)}`;

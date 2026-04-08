@@ -4,6 +4,9 @@ import {
     groupHandlers,
     applicationHandlers,
     proxyHandlers,
+    tagHandlers,
+    kernelHandlers,
+    patchHandlers,
     automationHandlers,
     schemas
 } from '@adspower/local-api-core';
@@ -100,6 +103,27 @@ export function registerTools(server: McpServer) {
 
     server.tool('delete-proxy', 'Delete the proxy', schemas.deleteProxySchema.shape,
         wrapHandler(proxyHandlers.deleteProxy));
+
+    server.tool('get-tag-list', 'Get the list of browser tags', schemas.getTagListSchema.shape,
+        wrapHandler(tagHandlers.getTagList));
+
+    server.tool('create-tag', 'Create browser tags (batch supported)', schemas.createTagSchema.shape,
+        wrapHandler(tagHandlers.createTag));
+
+    server.tool('update-tag', 'Update browser tags (batch supported)', schemas.updateTagSchema.shape,
+        wrapHandler(tagHandlers.updateTag));
+
+    server.tool('delete-tag', 'Delete browser tags', schemas.deleteTagSchema.shape,
+        wrapHandler(tagHandlers.deleteTag));
+
+    server.tool('download-kernel', 'Download or update a browser kernel version', schemas.downloadKernelSchema.shape,
+        wrapHandler(kernelHandlers.downloadKernel));
+
+    server.tool('get-kernel-list', 'Get browser kernel list by type or all', schemas.getKernelListSchema.shape,
+        wrapHandler(kernelHandlers.getKernelList));
+
+    server.tool('update-patch', 'Update AdsPower to latest patch version', schemas.updatePatchSchema.shape,
+        wrapHandler(patchHandlers.updatePatch));
 
     server.tool('connect-browser-with-ws', 'Connect the browser with the ws url', schemas.createAutomationSchema.shape,
         wrapHandler(automationHandlers.connectBrowserWithWs));

@@ -2,7 +2,10 @@ import {
     browserHandlers,
     groupHandlers,
     applicationHandlers,
-    proxyHandlers
+    proxyHandlers,
+    tagHandlers,
+    kernelHandlers,
+    patchHandlers
 } from '@adspower/local-api-core';
 
 type HandlerFn = (params: any) => Promise<string | unknown>;
@@ -112,6 +115,34 @@ export const STATELESS_HANDLERS: Record<string, Handler> = {
     'delete-proxy': {
         fn: proxyHandlers.deleteProxy as HandlerFn,
         description: 'Delete the proxy'
+    },
+    'get-tag-list': {
+        fn: tagHandlers.getTagList as HandlerFn,
+        description: 'Get the list of browser tags'
+    },
+    'create-tag': {
+        fn: tagHandlers.createTag as HandlerFn,
+        description: 'Create browser tags (batch supported)'
+    },
+    'update-tag': {
+        fn: tagHandlers.updateTag as HandlerFn,
+        description: 'Update browser tags (batch supported)'
+    },
+    'delete-tag': {
+        fn: tagHandlers.deleteTag as HandlerFn,
+        description: 'Delete browser tags'
+    },
+    'download-kernel': {
+        fn: kernelHandlers.downloadKernel as HandlerFn,
+        description: 'Download or update a browser kernel version'
+    },
+    'get-kernel-list': {
+        fn: kernelHandlers.getKernelList as HandlerFn,
+        description: 'Get browser kernel list by type or all'
+    },
+    'update-patch': {
+        fn: patchHandlers.updatePatch as HandlerFn,
+        description: 'Update AdsPower to latest patch version'
     },
 };
 
