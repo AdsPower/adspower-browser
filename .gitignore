@@ -62,7 +62,6 @@ coverage/
 
 # adspower-browser
 packages/adspower-browser/cli
-packages/adspower-browser/cwd
+packages/adspower-browser/cwd/**
+!packages/adspower-browser/cwd/lib/
 !packages/adspower-browser/cwd/lib/main.min.js
-!packages/adspower-browser/cwd/lib/bundles.min.js
-!packages/adspower-browser/cwd/lib/node_sqlite3.node

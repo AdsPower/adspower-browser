@@ -5,7 +5,7 @@ import * as crypto from "node:crypto";
 import * as util from "node:util";
 import { exec } from "node:child_process";
 import { red, green, yellow } from 'colors';
-import { ensureDirSync, readJsonSync, outputJsonSync, removeSync } from "fs-extra2";
+import { ensureDirSync, readJsonSync, outputJsonSync, removeSync, copySync } from "fs-extra2";
 
 export const VERSION = "1.0.0";
 
@@ -117,53 +117,6 @@ export const ensureBrowserPath = () => {
     }
 }
 
-// export const initDefaultArgs = (argv: string[]) => {
-//     const nextArgv = [...argv];
-//     const command = nextArgv[2];
-//     const commandsRequireApiKey = ['get-browser-list'];
-    
-//     const hasApiKey = nextArgv.includes('--api-key');
-//     const hasPort = nextArgv.includes('--port');
-
-//     if (!command || !commandsRequireApiKey.includes(command)) {
-//         return nextArgv;
-//     }
-//     if (hasApiKey && hasPort) {
-//         return normalizeArgv(nextArgv);
-//     }
-//     const processInstance = readPidFile();
-
-//     if (!hasApiKey && processInstance.apiKey) {
-//         nextArgv.splice(3, 0, '--api-key', processInstance.apiKey);
-//     }
-
-//     if (!hasPort && processInstance.apiPort) {
-//         nextArgv.splice(3, 0, '--port', processInstance.apiPort);
-//     }
-//     console.log('===> nextArgv: ', nextArgv);
-//     return normalizeArgv(nextArgv);
-// }
-
-// const normalizeArgv = (argv: string[]) => {
-//     // 将argv中的--api-key=value和--port=value转换为--api-key value和--port value的形式
-//     const nextArgv = [...argv];
-//     for (let i = 0; i < nextArgv.length; i++) {
-//         if (nextArgv[i].startsWith('--api-key=')) {
-//             // ["--api-key=value"]换成["--api-key", "value"]
-//             const value = nextArgv[i].split('=')[1];
-//             // 先去掉["--api-key=value"]，在最末位插入["--api-key", "value"]
-//             nextArgv.splice(i, 1, '--api-key', value);
-//             nextArgv.push('--api-key', value);
-//         }
-//         if (nextArgv[i].startsWith('--port=')) {
-//             const value = nextArgv[i].split('=')[1];
-//             nextArgv.splice(i, 1, '--port', value);
-//             nextArgv.push('--port', value);
-//         }
-//     }
-//     return nextArgv;
-// }
-
 export const getApiKeyAndPort = (options: any) => {
     const apiKey = options.apiKey;
     const port = options.port;
@@ -228,3 +181,29 @@ export const createLoading = (text: string) => {
         }
     };
 };
+
+export const initSqlite3 = () => {
+    const sqliteFile = path.join(__dirname, '../cwd/lib', 'node_sqlite3.node');
+    if (fs.existsSync(sqliteFile)) {
+        return;
+    }
+    const isMac = process.platform === 'darwin';
+    const isLinux = process.platform === 'linux';
+    const is32 = process.arch === 'ia32';
+    const isArm = process.arch === 'arm64';
+    const isX64 = process.arch === 'x64';
+    const macFolder = isArm ? 'arm64' : 'mac';
+    const winFolder = is32 ? 'ia32' : 'x64';
+    const linuxFolder = isLinux && isX64 && 'linux';
+    const sqliteFolder = isMac ? macFolder : (isLinux ? linuxFolder : winFolder);
+    const dir = path.join(__dirname, `../sqlite/${sqliteFolder}`);
+    if (!fs.existsSync(dir)) {
+        throw new Error(`SQLite folder not found: ${dir}`);
+    } else {
+        const sqliteFile = path.join(dir, 'node_sqlite3.node');
+        const cwdPath = path.join(__dirname, '../cwd/lib');
+        // 将sqliteFile复制到cwdPath
+        copySync(sqliteFile, path.join(cwdPath, 'node_sqlite3.node'));
+        logSuccess(`[i] SQLite file initialized successfully!`);
+    }
+}

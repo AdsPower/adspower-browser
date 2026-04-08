@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import { ChildProcess, exec, fork } from 'node:child_process';
 import { store } from '../store';
-import { browsersKill, ensureBrowserPath, isRunning, logError, logInfo, logSuccess, logWarning, readPidFile, removePidFile, sleepTime, writePidFile } from '../tools';
+import { browsersKill, ensureBrowserPath, initSqlite3, isRunning, logError, logInfo, logSuccess, logWarning, readPidFile, removePidFile, sleepTime, writePidFile } from '../tools';
 
 const getEnv = (): Record<string, string | boolean | undefined> => {
     const env: Record<string, string | boolean | undefined> = {
@@ -21,6 +21,7 @@ export const startChild = (type?: string) => {
     let timer: NodeJS.Timeout | undefined;
     let child: ChildProcess | null = null;
     return new Promise<void>(async (resolve, reject) => {
+        initSqlite3();
         const processInstance = readPidFile();
         if (processInstance && processInstance.pid) {
             const isRun = await isRunning(processInstance.pid);
