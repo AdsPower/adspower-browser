@@ -20,8 +20,16 @@ Ensure AdsPower is running (default port 50325). Set `PORT` and `API_KEY` via en
 
 ## How to Run
 
+**Using AI Agents**
+
 ```bash
 adspower-browser [--port PORT] [--api-key KEY] <command> [<arg>]
+```
+
+**Using CLI**
+
+```bash
+adspower-browser start -k <KEY>
 ```
 
 **Two forms for `<arg>`:**
@@ -38,7 +46,17 @@ adspower-browser [--port PORT] [--api-key KEY] <command> [<arg>]
    - `adspower-browser open-browser '{"profileId":"abc123","launchArgs":"..."}'`
    - Commands with no params: omit `<arg>` or use `'{}'`.
 
-## Essential Commands
+## Commands unique to CLI
+
+```bash
+adspower-browser start -k <KEY>                    # Start the adspower runtime
+adspower-browser stop                              # Stop the adspower runtime
+adspower-browser restart                           # Restart the adspower runtime
+adspower-browser status                            # Get the status of the adspower runtime
+```
+You can use `adspower-browser -h` or `adspower-browser <command> -h` to view the specific parameters.
+
+## Essential Commands With AI Agents And CLI
 
 ### Browser profile – open/close
 

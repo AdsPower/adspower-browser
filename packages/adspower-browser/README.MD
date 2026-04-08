@@ -26,8 +26,16 @@ Use the CLI in terminal or let the agent run it; the installed skill gives the a
 
 ## How to Run
 
+**Using AI Agents**
+
 ```bash
 adspower-browser [--port PORT] [--api-key KEY] <command> [<arg>]
+```
+
+**Using CLI**
+
+```bash
+adspower-browser start -k <KEY>
 ```
 
 **Two forms for `<arg>`:**
@@ -44,7 +52,17 @@ adspower-browser [--port PORT] [--api-key KEY] <command> [<arg>]
    - `adspower-browser open-browser '{"profileId":"abc123","launchArgs":"..."}'`
    - Commands with no params: omit `<arg>` or use `'{}'`.
 
-## Essential Commands
+## Commands unique to CLI
+
+```bash
+adspower-browser start -k <KEY>                    # Start the adspower runtime
+adspower-browser stop                              # Stop the adspower runtime
+adspower-browser restart                           # Restart the adspower runtime
+adspower-browser status                            # Get the status of the adspower runtime
+```
+You can use `adspower-browser -h` or `adspower-browser <command> -h` to view the specific parameters.
+
+## Essential Commands With AI Agents And CLI
 
 ### Browser profile – open/close
 
@@ -99,4 +117,26 @@ adspower-browser create-proxy '{"proxies":[{"type":"http","host":"127.0.0.1","po
 adspower-browser update-proxy '{"proxyId":"...","host":"..."}'   # proxyId required
 adspower-browser get-proxy-list '{}'                         # limit?, page?, proxyId?
 adspower-browser delete-proxy '{"proxyIds":["..."]}'        # proxyIds required, max 100
+```
+
+### Tag
+
+```bash
+adspower-browser get-tag-list '{}'  # limit?, page?, ids?
+adspower-browser create-tag '{"tags":[{"name":"test","color":"darkBlue"}]}'   # name required, color?: darkBlue|blue|purple|red|yellow|orange|green|lightGreen
+adspower-browser update-tag '[{"id":"...","name":"test2","color":"yellow"}]'                         # id required,name?, color?: darkBlue|blue|purple|red|yellow|orange|green|lightGreen
+adspower-browser delete-tag '{"ids":["..."]}'        # ids required, max 100
+```
+
+### Kernel
+
+```bash
+adspower-browser get-kernel-list '{"kernel_type":"Chrome"}'  # kernel_type?:Chrome|Firefox
+adspower-browser download-kernel '{"kernel_type":"Chrome","kernel_version":"..."}'   # kernel_type:Chrome|Firefox required,kernel_version required
+```
+
+### Update Patch
+
+```bash
+adspower-browser update-patch '{"version_type":"stable"}'  # version_type?:stable|beta
 ```
