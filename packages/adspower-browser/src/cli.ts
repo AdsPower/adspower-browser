@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import {
     browserHandlers,
     groupHandlers,
@@ -8,96 +7,121 @@ import {
 
 type HandlerFn = (params: any) => Promise<string | unknown>;
 
-const STATELESS_HANDLERS: Record<string, HandlerFn> = {
-    'open-browser': browserHandlers.openBrowser as HandlerFn,
-    'close-browser': browserHandlers.closeBrowser as HandlerFn,
-    'create-browser': browserHandlers.createBrowser as HandlerFn,
-    'update-browser': browserHandlers.updateBrowser as HandlerFn,
-    'delete-browser': browserHandlers.deleteBrowser as HandlerFn,
-    'get-browser-list': browserHandlers.getBrowserList as HandlerFn,
-    'get-opened-browser': browserHandlers.getOpenedBrowser as HandlerFn,
-    'move-browser': browserHandlers.moveBrowser as HandlerFn,
-    'get-profile-cookies': browserHandlers.getProfileCookies as HandlerFn,
-    'get-profile-ua': browserHandlers.getProfileUa as HandlerFn,
-    'close-all-profiles': browserHandlers.closeAllProfiles as HandlerFn,
-    'new-fingerprint': browserHandlers.newFingerprint as HandlerFn,
-    'delete-cache-v2': browserHandlers.deleteCacheV2 as HandlerFn,
-    'share-profile': browserHandlers.shareProfile as HandlerFn,
-    'get-browser-active': browserHandlers.getBrowserActive as HandlerFn,
-    'get-cloud-active': browserHandlers.getCloudActive as HandlerFn,
-    'create-group': groupHandlers.createGroup as HandlerFn,
-    'update-group': groupHandlers.updateGroup as HandlerFn,
-    'get-group-list': groupHandlers.getGroupList as HandlerFn,
-    'check-status': applicationHandlers.checkStatus as HandlerFn,
-    'get-application-list': applicationHandlers.getApplicationList as HandlerFn,
-    'create-proxy': proxyHandlers.createProxy as HandlerFn,
-    'update-proxy': proxyHandlers.updateProxy as HandlerFn,
-    'get-proxy-list': proxyHandlers.getProxyList as HandlerFn,
-    'delete-proxy': proxyHandlers.deleteProxy as HandlerFn,
+type Handler = {
+    fn: HandlerFn;
+    description: string;
+}
+
+export const STATELESS_HANDLERS: Record<string, Handler> = {
+    'open-browser': {
+        fn: browserHandlers.openBrowser as HandlerFn,
+        description: 'Open the browser, both environment and profile mean browser'
+    },
+    'close-browser': {
+        fn: browserHandlers.closeBrowser as HandlerFn,
+        description: 'Close the browser'
+    },  
+    'create-browser': {
+        fn: browserHandlers.createBrowser as HandlerFn,
+        description: 'Create a browser'
+    },
+    'update-browser': {
+        fn: browserHandlers.updateBrowser as HandlerFn,
+        description: 'Update the browser'
+    },
+    'delete-browser': {
+        fn: browserHandlers.deleteBrowser as HandlerFn,
+        description: 'Delete the browser'
+    },
+    'get-browser-list': {
+        fn: browserHandlers.getBrowserList as HandlerFn,
+        description: 'Get the list of browsers'
+    },
+    'get-opened-browser': {
+        fn: browserHandlers.getOpenedBrowser as HandlerFn,
+        description: 'Get the list of opened browsers'
+    },
+    'move-browser': {
+        fn: browserHandlers.moveBrowser as HandlerFn,
+        description: 'Move browsers to a group'
+    },
+    'get-profile-cookies': {
+        fn: browserHandlers.getProfileCookies as HandlerFn,
+        description: 'Query and return cookies of the specified profile. Only one profile can be queried per request.'
+    },
+    'get-profile-ua': {
+        fn: browserHandlers.getProfileUa as HandlerFn,
+        description: 'Query and return the User-Agent of specified profiles. Up to 10 profiles can be queried per request.'
+    },
+    'close-all-profiles': {
+        fn: browserHandlers.closeAllProfiles as HandlerFn,
+        description: 'Close all opened profiles on the current device'
+    },
+    'new-fingerprint': {
+        fn: browserHandlers.newFingerprint as HandlerFn,
+        description: 'Generate a new fingerprint for specified profiles. Up to 10 profiles are supported per request.'
+    },
+    'delete-cache-v2': {
+        fn: browserHandlers.deleteCacheV2 as HandlerFn,
+        description: 'Clear local cache of specific profiles.For account security, please ensure that there are no open browsers on the device when using this interface.'
+    },
+    'share-profile': {
+        fn: browserHandlers.shareProfile as HandlerFn,
+        description: 'Share profiles via account email or phone number. The maximum number of profiles that can be shared at one time is 200.'
+    },
+    'get-browser-active': {
+        fn: browserHandlers.getBrowserActive as HandlerFn,
+        description: 'Get active browser profile information'
+    },
+    'get-cloud-active': {
+        fn: browserHandlers.getCloudActive as HandlerFn,
+        description: 'Query the status of browser profiles by user_id, up to 100 profiles per request. If the team has enabled "Multi device mode," specific statuses cannot be retrieved and the response will indicate "Profile not opened."'
+    },
+    'create-group': {
+        fn: groupHandlers.createGroup as HandlerFn,
+        description: 'Create a browser group'
+    },
+    'update-group': {
+        fn: groupHandlers.updateGroup as HandlerFn,
+        description: 'Update the browser group'
+    },
+    'get-group-list': {
+        fn: groupHandlers.getGroupList as HandlerFn,
+        description: 'Get the list of groups'
+    },
+    'check-status': {
+        fn: applicationHandlers.checkStatus as HandlerFn,
+        description: 'Check the availability of the current device API interface (Connection Status)'
+    },
+    'get-application-list': {
+        fn: applicationHandlers.getApplicationList as HandlerFn,
+        description: 'Get the list of applications (categories)'
+    },
+    'create-proxy': {
+        fn: proxyHandlers.createProxy as HandlerFn,
+        description: 'Create the proxy'
+    },
+    'update-proxy': {
+        fn: proxyHandlers.updateProxy as HandlerFn,
+        description: 'Update the proxy'
+    },
+    'get-proxy-list': {
+        fn: proxyHandlers.getProxyList as HandlerFn,
+        description: 'Get the list of proxies'
+    },
+    'delete-proxy': {
+        fn: proxyHandlers.deleteProxy as HandlerFn,
+        description: 'Delete the proxy'
+    },
 };
 
 // Commands that accept a single profileId (or profileNo) as shorthand when one non-JSON arg is given
-const SINGLE_PROFILE_ID_COMMANDS: Record<string, 'profileId' | 'profileNo'> = {
+export const SINGLE_PROFILE_ID_COMMANDS: Record<string, 'profileId' | 'profileNo'> = {
     'open-browser': 'profileId',
     'close-browser': 'profileId',
     'get-profile-cookies': 'profileId',
     'get-browser-active': 'profileId',
 };
 // Commands that accept a single value as profileId array (e.g. get-profile-ua, new-fingerprint)
-const SINGLE_PROFILE_ID_ARRAY_COMMANDS: string[] = ['get-profile-ua', 'new-fingerprint'];
+export const SINGLE_PROFILE_ID_ARRAY_COMMANDS: string[] = ['get-profile-ua', 'new-fingerprint'];
 
-function parseArgv(argv: string[]): { command: string; args: Record<string, any> } {
-    let i = 0;
-    while (i < argv.length) {
-        if (argv[i] === '--port' || argv[i] === '--api-key') {
-            i += 2;
-            continue;
-        }
-        break;
-    }
-    const command = argv[i];
-    const arg = argv[i + 1];
-    if (!command || !STATELESS_HANDLERS[command]) {
-        throw new Error(`Unknown or unsupported command: ${command || '(missing)'}. Supported: ${Object.keys(STATELESS_HANDLERS).join(', ')}`);
-    }
-    let args: Record<string, any> = {};
-    if (arg) {
-        const trimmed = arg.trim();
-        if (trimmed.startsWith('{')) {
-            try {
-                args = JSON.parse(arg);
-            } catch {
-                throw new Error('Invalid JSON for command args');
-            }
-        } else if (SINGLE_PROFILE_ID_COMMANDS[command]) {
-            const key = SINGLE_PROFILE_ID_COMMANDS[command];
-            args = { [key]: trimmed };
-        } else if (SINGLE_PROFILE_ID_ARRAY_COMMANDS.includes(command)) {
-            args = { profileId: [trimmed] };
-        } else {
-            try {
-                args = JSON.parse(arg);
-            } catch {
-                throw new Error('Command requires JSON args (e.g. \'{"key":"value"}\') or use a supported shorthand');
-            }
-        }
-    }
-    return { command, args };
-}
-
-async function main() {
-    const argv = process.argv.slice(2);
-    try {
-        const { command, args } = parseArgv(argv);
-        const handler = STATELESS_HANDLERS[command];
-        const result = await handler(args);
-        const out = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
-        process.stdout.write(out + '\n');
-    } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        process.stderr.write(msg + '\n');
-        process.exit(1);
-    }
-}
-
-main();
