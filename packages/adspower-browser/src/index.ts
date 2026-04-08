@@ -2,7 +2,7 @@
 import { Command, Option } from "commander";
 import { store } from "./store";
 import { getChildStatus, restartChild, startChild, stopChild } from "./core/start";
-import { createLoading, getApiKeyAndPort, hasRunning, logError, logInfo, logSuccess, VERSION } from "./tools";
+import { createLoading, getApiKeyAndPort, hasRunning, logError, logInfo, logSuccess, sleepTime, VERSION } from "./tools";
 import { green } from 'colors';
 import { updateConfig } from '@adspower/local-api-core';
 import { SINGLE_PROFILE_ID_ARRAY_COMMANDS, SINGLE_PROFILE_ID_COMMANDS, STATELESS_HANDLERS } from "./cli";
@@ -97,6 +97,11 @@ for (const cmd of Object.keys(STATELESS_HANDLERS)) {
                 const result = await fnc(args);
                 const out = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
                 logInfo(`\n\n${out}\n`);
+
+                if (command.name() === 'update-patch') {
+                    await sleepTime(1000 * 60);
+                    await restartChild();
+                }
             } finally {
                 loading.stop();
             }

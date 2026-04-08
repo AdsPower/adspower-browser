@@ -7,10 +7,14 @@ const getEnv = (): Record<string, string | boolean | undefined> => {
     const env: Record<string, string | boolean | undefined> = {
         ...process.env, // 系统的环境变量信息
         API_KEY: store.getStoreValue('apiKey'),
-        BASE_URL: store.getStoreValue('baseUrl') || 'https://api-wx.loginkits.com/',      // 调试使用
-        NODE_ENV: store.getStoreValue('nodeEnv') || 'development',                        // 调试使用
         IS_CLOUD_BROWSER: true,                         // 云浏览器场景预留标识
     };
+    if (store.getStoreValue('baseUrl')) {
+        env.BASE_URL = store.getStoreValue('baseUrl');
+    }
+    if (store.getStoreValue('nodeEnv')) {
+        env.NODE_ENV = store.getStoreValue('nodeEnv');
+    }
     return env;
 };
 export const startChild = (type?: string) => {
@@ -167,10 +171,8 @@ export const stopChild = async () => {
             }
         }
         logSuccess('[i] Adspower program is stopped');
-        process.exit(0);
     } else {
         logInfo('[i] No running adspower program');
-        process.exit(0);
     }
 }
 
@@ -193,7 +195,6 @@ export const restartChild = async () => {
     } else {
         logInfo('[i] No running adspower program');
     }
-    process.exit(0);
 }
 
 export const getChildStatus = async () => {
