@@ -224,6 +224,8 @@ export const schemas = {
         city: z.string().optional().describe('City'),
         ipchecker: z.enum(['ip2location', 'ipapi']).optional().describe('IP query channel'),
         categoryId: z.string().optional().describe('The category id of the browser, you can use the get-application-list tool to get the application list'),
+        profileTagIds: z.array(z.string()).max(30).optional()
+            .describe('Tag IDs to assign to the profile, max 30 tags per profile. Example: ["tag1","tag2"]'),
         fingerprintConfig: fingerprintConfigSchema.optional().default({ random_ua: { ua_system_version: ['Windows'] } })
     }),
 
@@ -247,6 +249,10 @@ export const schemas = {
         proxyid: z.string().optional().describe('Proxy ID'),
         fingerprintConfig: fingerprintConfigSchema.optional(),
         launchArgs: z.string().optional().describe('Browser startup parameters'),
+        profileTagIds: z.array(z.string()).max(30).optional()
+            .describe('Tag IDs to set on the profile, max 30 tags per profile. Example: ["tag1","tag2"]'),
+        tagsUpdateType: z.enum(['1', '2']).optional()
+            .describe('How to apply profile_tag_ids: "1" (default) replace all existing tags; "2" append tags (truncated to 30 total if exceeded)'),
         profileId: z.string().describe('The profile id of the browser to update, it is required when you want to update the browser')
     }),
 
@@ -282,7 +288,15 @@ export const schemas = {
         sortType: z.enum(['profile_no', 'last_open_time', 'created_time']).optional()
             .describe('Sort results by: profile_no, last_open_time, or created_time'),
         sortOrder: z.enum(['asc', 'desc']).optional()
-            .describe('Sort order: "asc" (ascending) or "desc" (descending)')
+            .describe('Sort order: "asc" (ascending) or "desc" (descending)'),
+        tag_ids: z.array(z.string()).optional()
+            .describe('Tag IDs to filter profiles by tags. Example: ["tag1","tag2"]'),
+        tags_filter: z.enum(['include', 'exclude']).optional()
+            .describe('Tag matching mode: "include" (default) matches profiles with any of the tags, "exclude" matches profiles without the tags'),
+        name: z.string().optional()
+            .describe('Profile name keyword to search for'),
+        name_filter: z.enum(['include', 'exclude']).optional()
+            .describe('Name matching mode: "include" (default) matches profiles containing the name keyword, "exclude" matches profiles not containing the name keyword')
     }).strict(),
 
     moveBrowserSchema: z.object({
@@ -396,6 +410,46 @@ export const schemas = {
 
     deleteProxySchema: z.object({
         proxyIds: z.array(z.string()).describe('The proxy ids of the proxies to delete, it is required when you want to delete the proxy. The maximum is 100. ')
+    }).strict(),
+
+    getTagListSchema: z.object({
+        ids: z.array(z.string()).optional().describe('Tag IDs to query, max 100 per request. Example: ["tag1","tag2"]'),
+        limit: z.number().optional().describe('Number of tags returned per page, range 1 ~ 200, default is 50'),
+        page: z.number().optional().describe('Page number for results, default is 1')
+    }).strict(),
+
+    createTagSchema: z.object({
+        tags: z.array(z.object({
+            name: z.string().max(50).describe('Tag name, max 50 characters'),
+            color: z.enum(['darkBlue', 'blue', 'purple', 'red', 'yellow', 'orange', 'green', 'lightGreen']).optional()
+                .describe('Tag color, default is darkBlue')
+        }).strict()).describe('Array of tags to create')
+    }).strict(),
+
+    updateTagSchema: z.object({
+        tags: z.array(z.object({
+            id: z.string().describe('Tag ID to update'),
+            name: z.string().max(50).optional().describe('Tag name, max 50 characters'),
+            color: z.enum(['darkBlue', 'blue', 'purple', 'red', 'yellow', 'orange', 'green', 'lightGreen']).optional()
+                .describe('Tag color')
+        }).strict()).describe('Array of tags to update')
+    }).strict(),
+
+    deleteTagSchema: z.object({
+        ids: z.array(z.string()).describe('Tag IDs to delete')
+    }).strict(),
+
+    downloadKernelSchema: z.object({
+        kernel_type: z.enum(['Chrome', 'Firefox']).describe('Browser kernel type'),
+        kernel_version: z.string().describe('Browser kernel version, e.g. 141')
+    }).strict(),
+
+    getKernelListSchema: z.object({
+        kernel_type: z.enum(['Chrome', 'Firefox']).optional().describe('Browser kernel type; omit to return all supported kernels')
+    }).strict(),
+
+    updatePatchSchema: z.object({
+        version_type: z.enum(['stable', 'beta']).optional().describe('Patch version type to update, default stable')
     }).strict(),
 
     emptySchema: z.object({}).strict(),

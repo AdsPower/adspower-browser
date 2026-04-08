@@ -28,12 +28,13 @@
 - **ip**, **country** (see [country-code.md](country-code.md)), **region**, **city** (optional).
 - **ipchecker** (optional): `'ip2location'` | `'ipapi'`. IP query channel.
 - **categoryId** (optional): Use get-application-list to get list.
+- **profileTagIds** (optional): Array of tag IDs, max 30 tags per profile.
 - **fingerprintConfig** (optional): Browser fingerprint config; see [fingerprint-config.md](fingerprint-config.md).
 
 **update-browser** — Update the browser.
 
 - **profileId** (required): The profile id of the browser to update.
-- **platform**, **tabs**, **cookie**, **username**, **password**, **fakey**, **ignoreCookieError** (`'0'`|`'1'`), **groupId**, **name** (max 100), **remark** (max 1500), **country** (see [country-code.md](country-code.md)), **region**, **city**, **ip**, **categoryId**, **userProxyConfig** (see [user-proxy-config.md](user-proxy-config.md)), **proxyid**, **fingerprintConfig** (see [fingerprint-config.md](fingerprint-config.md)), **launchArgs** (all optional).
+- **platform**, **tabs**, **cookie**, **username**, **password**, **fakey**, **ignoreCookieError** (`'0'`|`'1'`), **groupId**, **name** (max 100), **remark** (max 1500), **country** (see [country-code.md](country-code.md)), **region**, **city**, **ip**, **categoryId**, **userProxyConfig** (see [user-proxy-config.md](user-proxy-config.md)), **proxyid**, **fingerprintConfig** (see [fingerprint-config.md](fingerprint-config.md)), **launchArgs**, **profileTagIds** (array, max 30), **tagsUpdateType** (`'1'` replace all tags, `'2'` append and truncate to 30) (all optional).
 
 **delete-browser** — Delete the browser(s).
 
@@ -48,6 +49,11 @@
 - **profileNo** (optional): Array, e.g. `["123","124"]`.
 - **sortType** (optional): `'profile_no'` | `'last_open_time'` | `'created_time'`.
 - **sortOrder** (optional): `'asc'` | `'desc'`.
+
+- **tag_ids** (optional): Tag IDs to filter environments by tags.
+- **tags_filter** (optional): `'include'` (default) | `'exclude'` for tag match mode.
+- **name** (optional): Environment name keyword.
+- **name_filter** (optional): `'include'` (default) | `'exclude'` for name match mode.
 
 **get-opened-browser** — Get the list of opened browsers.
 

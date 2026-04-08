@@ -33,6 +33,15 @@ Talk to LLMs to create browser: `Help me with random UA, random fingerprint, ran
 
 - Node version 18 or greater
 
+#### Version Compatibility
+
+Some APIs are introduced incrementally by AdsPower client version.  
+If the client has not been upgraded to a version that includes a specific API, requests may return `Not found`.
+
+When this happens:
+- Upgrade AdsPower client to the latest patch version first.
+- Then retry the same command/API.
+
 #### Installation
 
 To use with Claude Desktop, add the server config:

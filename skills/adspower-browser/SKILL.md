@@ -1,6 +1,6 @@
 ---
 name: adspower-browser
-description: Runs AdsPower Local API operations via the adspower-browser CLI (no MCP required). Use when the user asks to create or manage AdsPower browsers, groups, proxies, or check status; run Node CLI commands that call the same handlers as the MCP server.
+description: Runs AdsPower Local API operations via the adspower-browser CLI (no MCP required). Use when the user asks to create or manage AdsPower browsers, groups, tags, proxies, or check status; run Node CLI commands that call the same handlers as the MCP server.
 ---
 
 # AdsPower Local API with adspower-browser
@@ -13,7 +13,7 @@ Apply when the user:
 
 - Asks to create, update, delete, or list AdsPower browser profiles
 - Mentions opening or closing browsers/profiles, fingerprint, UA, or proxy
-- Wants to manage groups, proxies, or check API status
+- Wants to manage groups, tags, proxies, or check API status
 - Refers to AdsPower or adspower-browser (and MCP is not running or not desired)
 
 Ensure AdsPower is running (default port 50325). Set `PORT` and `API_KEY` via environment or `--port` / `--api-key` if needed.
@@ -53,7 +53,7 @@ adspower-browser close-browser <profileId>                   # Or JSON: profileI
 adspower-browser create-browser '{"groupId":"0","userProxyConfig":{"proxy_soft":"no_proxy"},...}'  # groupId + account field required; proxy optional (defaults to no_proxy; proxyid takes priority over userProxyConfig when both given)
 adspower-browser update-browser '{"profileId":"...",...}'    # profileId required
 adspower-browser delete-browser '{"profileIds":["..."]}'     # profileIds required
-adspower-browser get-browser-list '{}'                       # Or groupId?, limit?, page?, profileId?, profileNo?, sortType?, sortOrder?
+adspower-browser get-browser-list '{}'                       # Or groupId?, limit?, page?, profileId?, profileNo?, sortType?, sortOrder?, tag_ids?, tags_filter?, name?, name_filter?
 adspower-browser get-opened-browser                          # No params
 ```
 
@@ -69,6 +69,28 @@ adspower-browser delete-cache-v2 '{"profileIds":["..."],"type":["cookie","histor
 adspower-browser share-profile '{"profileIds":["..."],"receiver":"email@example.com"}' # receiver required; shareType?, content?
 adspower-browser get-browser-active <profileId>              # Or JSON: profileId? | profileNo?
 adspower-browser get-cloud-active '{"userIds":"id1,id2"}'    # userIds comma-separated, max 100
+```
+
+### Kernel
+
+```bash
+adspower-browser download-kernel '{"kernel_type":"Chrome","kernel_version":"141"}'
+adspower-browser get-kernel-list '{}'                         # kernel_type?: Chrome | Firefox (omit to get all)
+```
+
+### Patch
+
+```bash
+adspower-browser update-patch '{}'                            # version_type?: stable | beta (default stable)
+```
+
+### Tag
+
+```bash
+adspower-browser get-tag-list '{}'                              # ids?, limit?, page?
+adspower-browser create-tag '{"tags":[{"name":"My tag","color":"blue"}]}'   # name required per item; color optional
+adspower-browser update-tag '{"tags":[{"id":"1","name":"Renamed"}]}'        # id required per item; name?, color?
+adspower-browser delete-tag '{"ids":["tagId1","tagId2"]}'                   # ids required
 ```
 
 ### Group
@@ -115,6 +137,18 @@ See [references/application-management.md](references/application-management.md)
 
 See [references/proxy-management.md](references/proxy-management.md) for create-proxy, update-proxy, get-proxy-list, and delete-proxy parameters.
 
+### Tag Management
+
+See [references/browser-tag-management.md](references/browser-tag-management.md) for get-tag-list, create-tag, update-tag, and delete-tag parameters.
+
+### Kernel Management
+
+See [references/browser-kernel-management.md](references/browser-kernel-management.md) for download-kernel and get-kernel-list parameters.
+
+### Patch Management
+
+See [references/client-patch-management.md](references/client-patch-management.md) for update-patch parameters.
+
 ### UserProxyConfig (inline proxy config for create-browser / update-browser)
 
 See [references/user-proxy-config.md](references/user-proxy-config.md) for all fields (proxy_soft, proxy_type, proxy_host, proxy_port, etc.) and example. Defaults to `{"proxy_soft":"no_proxy"}` when omitted. If **proxyid** is also provided, **proxyid** takes priority and **userProxyConfig** is ignored.
@@ -137,9 +171,13 @@ Reference docs with full enum values and field lists:
 | [references/group-management.md](references/group-management.md) | **create-group**, **update-group**, **get-group-list** parameters. | Creating, updating, or listing browser groups. |
 | [references/application-management.md](references/application-management.md) | **check-status**, **get-application-list** parameters. | Checking API availability or listing applications (categories). |
 | [references/proxy-management.md](references/proxy-management.md) | **create-proxy**, **update-proxy**, **get-proxy-list**, **delete-proxy** parameters and enums. | Creating, updating, listing, or deleting proxies. |
+| [references/browser-tag-management.md](references/browser-tag-management.md) | **get-tag-list**, **create-tag**, **update-tag**, **delete-tag** parameters. | Listing, creating, updating, or deleting browser tags. |
+| [references/browser-kernel-management.md](references/browser-kernel-management.md) | **download-kernel**, **get-kernel-list** parameters. | Downloading a specific kernel and querying supported kernel versions. |
+| [references/client-patch-management.md](references/client-patch-management.md) | **update-patch** parameters. | Updating AdsPower client to latest patch channel (stable/beta). |
 | [references/user-proxy-config.md](references/user-proxy-config.md) | Full **userProxyConfig** field list (proxy_soft, proxy_type, proxy_host, proxy_port, etc.) and example. | Building inline proxy config for create-browser / update-browser when not using **proxyid**. |
 | [references/fingerprint-config.md](references/fingerprint-config.md) | Full **fingerprintConfig** field list (timezone, language, WebRTC, browser_kernel_config, random_ua, TLS, etc.) and example. | Building or editing fingerprint config for create-browser / update-browser. |
 | [references/browser-kernel-config.md](references/browser-kernel-config.md) | **type** and **version** for `fingerprintConfig.browser_kernel_config`. Version must match type (Chrome vs Firefox). | Pinning or choosing a specific browser kernel (Chrome/Firefox and version) when creating or updating a browser. |
+| [references/browser-kernel-download-management.md](references/browser-kernel-download-management.md) | **download-kernel** parameters (`kernel_type`, `kernel_version`). | Downloading or updating a specific browser kernel version and polling progress/status. |
 | [references/ua-system-version.md](references/ua-system-version.md) | **ua_system_version** enum for `fingerprintConfig.random_ua`: specific OS versions, generic “any version” per system, and omit behavior. | Constraining or randomizing UA by OS (e.g. Android only, or “any macOS version”) when creating or updating a browser. |
 
 Use these when you need the exact allowed values or semantics; the main skill text above only summarizes.
