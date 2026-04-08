@@ -1,4 +1,4 @@
-import { apiClient, LOCAL_API_BASE, API_ENDPOINTS } from '../constants/api.js';
+import { getApiClient, getLocalApiBase, API_ENDPOINTS } from '../constants/api.js';
 import type {
     CreateProxyParams,
     UpdateProxyParams,
@@ -71,7 +71,7 @@ function buildCreateProxyRequestBody(proxy: ProxyItem): Record<string, any> {
 export const proxyHandlers = {
     async createProxy(params: CreateProxyParams) {
         const requestBody = params.proxies.map(proxy => buildCreateProxyRequestBody(proxy));
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.CREATE_PROXY}`, requestBody);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.CREATE_PROXY}`, requestBody);
 
         if (response.data.code === 0) {
             return `Proxy created successfully with: ${Object.entries(response.data.data || {}).map(([key, value]) => `${key}: ${value}`).join('\n')}`;
@@ -81,7 +81,7 @@ export const proxyHandlers = {
 
     async updateProxy(params: UpdateProxyParams) {
         const requestBody = buildProxyRequestBody(params);
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.UPDATE_PROXY}`, requestBody);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.UPDATE_PROXY}`, requestBody);
 
         if (response.data.code === 0) {
             return `Proxy updated successfully with: ${Object.entries(response.data.data || {}).map(([key, value]) => `${key}: ${value}`).join('\n')}`;
@@ -103,7 +103,7 @@ export const proxyHandlers = {
             requestBody.proxy_id = proxyId;
         }
 
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_PROXY_LIST}`, requestBody);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.GET_PROXY_LIST}`, requestBody);
         if (response.data.code === 0) {
             return `Proxy list: ${JSON.stringify(response.data.data.list || response.data.data, null, 2)}`;
         }
@@ -111,7 +111,7 @@ export const proxyHandlers = {
     },
 
     async deleteProxy({ proxyIds }: DeleteProxyParams) {
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.DELETE_PROXY}`, {
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.DELETE_PROXY}`, {
             proxy_id: proxyIds
         });
 

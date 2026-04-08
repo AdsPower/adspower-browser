@@ -1,7 +1,11 @@
 import axios from 'axios';
-import { PORT, API_KEY } from './config.js';
+import { PORT, API_KEY, CONFIG } from './config.js';
 
 export const LOCAL_API_BASE = `http://127.0.0.1:${PORT}`;
+
+export const getLocalApiBase = () => {
+    return `http://127.0.0.1:${CONFIG.port}`;
+}
 
 export const API_ENDPOINTS = {
     STATUS: '/status',
@@ -34,3 +38,9 @@ export const API_ENDPOINTS = {
 export const apiClient = axios.create({
     headers: API_KEY ? { 'Authorization': `Bearer ${API_KEY}` } : {}
 });
+
+export const getApiClient = () => {
+    return axios.create({
+        headers: CONFIG.apiKey ? { 'Authorization': `Bearer ${CONFIG.apiKey}` } : {}
+    });
+}

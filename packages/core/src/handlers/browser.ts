@@ -1,4 +1,4 @@
-import { apiClient, LOCAL_API_BASE, API_ENDPOINTS } from '../constants/api.js';
+import { getApiClient, getLocalApiBase, API_ENDPOINTS } from '../constants/api.js';
 import { buildRequestBody } from '../utils/requestBuilder.js';
 import type {
     OpenBrowserParams,
@@ -40,7 +40,7 @@ export const browserHandlers = {
             requestBody.cdp_mask = cdpMask;
         }
 
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.START_BROWSER}`, requestBody);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.START_BROWSER}`, requestBody);
         if (response.data.code === 0) {
             return `Browser opened successfully with: ${Object.entries(response.data.data).map(([key, value]) => {
                 if (value && typeof value === 'object') {
@@ -61,7 +61,7 @@ export const browserHandlers = {
             requestBody.profile_no = profileNo;
         }
 
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.CLOSE_BROWSER}`, requestBody);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.CLOSE_BROWSER}`, requestBody);
         if (response.data.code === 0) {
             return 'Browser closed successfully';
         }
@@ -70,7 +70,7 @@ export const browserHandlers = {
 
     async createBrowser(params: CreateBrowserParams) {
         const requestBody = buildRequestBody(params);
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.CREATE_BROWSER}`, requestBody);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.CREATE_BROWSER}`, requestBody);
 
         if (response.data.code === 0) {
             return `Browser created successfully with: ${Object.entries(response.data.data).map(([key, value]) => `${key}: ${value}`).join('\n')}`;
@@ -81,7 +81,7 @@ export const browserHandlers = {
     async updateBrowser(params: UpdateBrowserParams) {
         const requestBody = buildRequestBody(params);
 
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.UPDATE_BROWSER}`, requestBody);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.UPDATE_BROWSER}`, requestBody);
 
         if (response.data.code === 0) {
             return `Browser updated successfully with: ${Object.entries(response.data.data || {}).map(([key, value]) => `${key}: ${value}`).join('\n')}`;
@@ -90,7 +90,7 @@ export const browserHandlers = {
     },
 
     async deleteBrowser({ profileIds }: DeleteBrowserParams) {
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.DELETE_BROWSER}`, {
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.DELETE_BROWSER}`, {
             profile_id: profileIds
         });
 
@@ -125,8 +125,7 @@ export const browserHandlers = {
         if (sortOrder) {
             requestBody.sort_order = sortOrder;
         }
-
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_BROWSER_LIST}`, requestBody);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.GET_BROWSER_LIST}`, requestBody);
         if (response.data.code === 0) {
             return `Browser list: ${JSON.stringify(response.data.data.list, null, 2)}`;
         }
@@ -134,7 +133,7 @@ export const browserHandlers = {
     },
 
     async getOpenedBrowser() {
-        const response = await apiClient.get(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_OPENED_BROWSER}`);
+        const response = await getApiClient().get(`${getLocalApiBase()}${API_ENDPOINTS.GET_OPENED_BROWSER}`);
 
         if (response.data.code === 0) {
             return `Opened browser list: ${JSON.stringify(response.data.data.list, null, 2)}`;
@@ -143,7 +142,7 @@ export const browserHandlers = {
     },
 
     async moveBrowser({ groupId, userIds }: MoveBrowserParams) {
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.MOVE_BROWSER}`, {
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.MOVE_BROWSER}`, {
             group_id: groupId,
             user_ids: userIds
         });
@@ -163,7 +162,7 @@ export const browserHandlers = {
             params.set('profile_no', profileNo);
         }
 
-        const response = await apiClient.get(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_PROFILE_COOKIES}`, { params });
+        const response = await getApiClient().get(`${getLocalApiBase()}${API_ENDPOINTS.GET_PROFILE_COOKIES}`, { params });
         if (response.data.code === 0) {
             return `Profile cookies: ${JSON.stringify(response.data.data, null, 2)}`;
         }
@@ -179,7 +178,7 @@ export const browserHandlers = {
             requestBody.profile_no = profileNo;
         }
 
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_PROFILE_UA}`, requestBody);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.GET_PROFILE_UA}`, requestBody);
         if (response.data.code === 0) {
             return `Profile User-Agent: ${JSON.stringify(response.data.data, null, 2)}`;
         }
@@ -187,7 +186,7 @@ export const browserHandlers = {
     },
 
     async closeAllProfiles(_params: CloseAllProfilesParams) {
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.CLOSE_ALL_PROFILES}`, {});
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.CLOSE_ALL_PROFILES}`, {});
         if (response.data.code === 0) {
             return 'All profiles closed successfully';
         }
@@ -202,7 +201,7 @@ export const browserHandlers = {
         if (profileNo && profileNo.length > 0) {
             requestBody.profile_no = profileNo;
         }
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.NEW_FINGERPRINT}`, requestBody);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.NEW_FINGERPRINT}`, requestBody);
         if (response.data.code === 0) {
             return `New fingerprint created: ${JSON.stringify(response.data.data, null, 2)}`;
         }
@@ -210,7 +209,7 @@ export const browserHandlers = {
     },
 
     async deleteCacheV2({ profileIds, type }: DeleteCacheV2Params) {
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.DELETE_CACHE_V2}`, {
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.DELETE_CACHE_V2}`, {
             profile_id: profileIds,
             type: type
         });
@@ -232,7 +231,7 @@ export const browserHandlers = {
             requestBody.content = content;
         }
 
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.SHARE_PROFILE}`, requestBody);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.SHARE_PROFILE}`, requestBody);
         if (response.data.code === 0) {
             return `Profiles shared successfully: ${profileIds.join(', ')}`;
         }
@@ -248,7 +247,7 @@ export const browserHandlers = {
             params.set('profile_no', profileNo);
         }
 
-        const response = await apiClient.get(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_BROWSER_ACTIVE}`, { params });
+        const response = await getApiClient().get(`${getLocalApiBase()}${API_ENDPOINTS.GET_BROWSER_ACTIVE}`, { params });
         if (response.data.code === 0) {
             return `Browser active info: ${JSON.stringify(response.data.data, null, 2)}`;
         }
@@ -256,7 +255,7 @@ export const browserHandlers = {
     },
 
     async getCloudActive({ userIds }: GetCloudActiveParams) {
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_CLOUD_ACTIVE}`, {
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.GET_CLOUD_ACTIVE}`, {
             user_ids: userIds
         });
         if (response.data.code === 0) {

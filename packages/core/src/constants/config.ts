@@ -14,11 +14,20 @@ function parseArgs() {
     }
 
     return {
-        port: port || process.env.PORT || '50325',
+        port: port || process.env.PORT || '50326',
         apiKey: apiKey || process.env.API_KEY
     };
 }
 
 const config = parseArgs();
+export const updateConfig = (apiKey: string, port: string) => {
+    if (apiKey) {
+        config.apiKey = apiKey;
+    }
+    if (port) {
+        config.port = port;
+    }
+}
 export const PORT = config.port;
 export const API_KEY = config.apiKey;
+export const CONFIG = config;

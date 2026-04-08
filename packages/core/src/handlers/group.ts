@@ -1,4 +1,4 @@
-import { apiClient, LOCAL_API_BASE, API_ENDPOINTS } from '../constants/api.js';
+import { getApiClient, getLocalApiBase, API_ENDPOINTS } from '../constants/api.js';
 import type {
     CreateGroupParams,
     UpdateGroupParams,
@@ -15,7 +15,7 @@ export const groupHandlers = {
             requestBody.remark = remark;
         }
 
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.CREATE_GROUP}`, requestBody);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.CREATE_GROUP}`, requestBody);
 
         if (response.data.code === 0) {
             return `Group created successfully with name: ${groupName}${remark ? `, remark: ${remark}` : ''}`;
@@ -33,7 +33,7 @@ export const groupHandlers = {
             requestBody.remark = remark;
         }
 
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.UPDATE_GROUP}`, requestBody);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.UPDATE_GROUP}`, requestBody);
 
         if (response.data.code === 0) {
             return `Group updated successfully with id: ${groupId}, name: ${groupName}${remark !== undefined ? `, remark: ${remark === null ? '(cleared)' : remark}` : ''}`;
@@ -53,7 +53,7 @@ export const groupHandlers = {
             params.set('page', page.toString());
         }
 
-        const response = await apiClient.get(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_GROUP_LIST}`, { params });
+        const response = await getApiClient().get(`${getLocalApiBase()}${API_ENDPOINTS.GET_GROUP_LIST}`, { params });
         return `Group list: ${JSON.stringify(response.data.data.list, null, 2)}`;
     }
 };
