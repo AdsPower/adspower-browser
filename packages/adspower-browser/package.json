@@ -28,7 +28,9 @@
     "node": ">=18.0.0"
   },
   "files": [
-    "build"
+    "cli",
+    "cwd/lib/main.min.js",
+    "sqlite"
   ],
   "description": "AdsPower Local API CLI and Cursor/agent skill for browser profiles, groups, proxies.",
   "keywords": [
