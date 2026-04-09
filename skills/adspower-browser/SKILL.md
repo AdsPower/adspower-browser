@@ -5,7 +5,25 @@ description: Runs AdsPower Local API operations via the adspower-browser CLI (no
 
 # AdsPower Local API with adspower-browser
 
-The Skills CLI (npx adspower-browser) is the package manager for operate AdsPower browser profiles, groups, proxies, and application/category lists via the **adspower-browser** CLI. For more infomation about out product and services, visit [AdsPower Official Website](https://www.adspower.com/)
+The Skills CLI (npx adspower-browser) is the package manager for operate AdsPower browser profiles, groups, proxies, 
+and application/category lists via the **adspower-browser** CLI. For more infomation about out product and services, 
+visit [AdsPower Official Website](https://www.adspower.com/).
+
+## Install CLI
+
+```bash
+npm install -g adspower-browser
+```
+
+After installation, you can use any of these equivalent commands:
+
+```bash
+adspower-browser
+adspower
+ads
+```
+
+`adspower-browser` is the original command name. `adspower` and `ads` are aliases that point to the same CLI entry.
 
 ## When to Use This Skill
 
@@ -16,123 +34,130 @@ Apply when the user:
 - Wants to manage groups, tags, proxies, or check API status
 - Refers to AdsPower or adspower-browser (and MCP is not running or not desired)
 
-Ensure AdsPower is running (default port 50325). Set `PORT` and `API_KEY` via environment or `--port` / `--api-key` if needed.
+Ensure AdsPower is running (default port `50325`). Pass `--port` / `--api-key` when needed, or set the `ADS_API_KEY` environment variable before running `start`.
 
 ## How to Run
 
-**Using AI Agents**
+The examples below use `ads` for brevity, but `adspower-browser` and `adspower` work the same way.
 
 ```bash
-adspower-browser [--port PORT] [--api-key KEY] <command> [<arg>]
+ads start -k <KEY>
 ```
 
-**Using CLI**
+If the `ADS_API_KEY` environment variable is set, you can start the CLI directly with:
 
 ```bash
-adspower-browser start -k <KEY>
+ads start
+```
+
+General command form:
+
+```bash
+ads [--port PORT] [--api-key KEY] <command> [<arg>]
 ```
 
 **Two forms for `<arg>`:**
 
 1. **Single value (shorthand)** — for profile-related commands, pass one profile ID or number:
-   - `adspower-browser open-browser <ProfileId>`
-   - `adspower-browser close-browser <ProfileId>`
-   - `adspower-browser get-profile-cookies <ProfileId>`
-   - `adspower-browser get-browser-active <ProfileId>`
-   - `adspower-browser get-profile-ua <ProfileId>` (single ID)
-   - `adspower-browser new-fingerprint <ProfileId>` (single ID)
+   - `ads open-browser <ProfileId>`
+   - `ads close-browser <ProfileId>`
+   - `ads get-profile-cookies <ProfileId>`
+   - `ads get-browser-active <ProfileId>`
+   - `ads get-profile-ua <ProfileId>` (single ID)
+   - `ads new-fingerprint <ProfileId>` (single ID)
 
 2. **JSON string** — full parameters for any command (see Command Reference below):
-   - `adspower-browser open-browser '{"profileId":"abc123","launchArgs":"..."}'`
+   - `ads open-browser '{"profileId":"abc123","launchArgs":"..."}'`
    - Commands with no params: omit `<arg>` or use `'{}'`.
 
-## Commands unique to CLI
+## Essential Commands With AI Agents
+
+You can use `ads -h` or `ads <command> -h` to view the specific parameters.
+
+### Start and stop CLI
 
 ```bash
-adspower-browser start -k <KEY>                    # Start the adspower runtime
-adspower-browser stop                              # Stop the adspower runtime
-adspower-browser restart                           # Restart the adspower runtime
-adspower-browser status                            # Get the status of the adspower runtime
+ads start -k <KEY>                    # Start the adspower runtime
+ads stop                              # Stop the adspower runtime
+ads restart                           # Restart the adspower runtime
+ads status                            # Get the status of the adspower runtime
 ```
-You can use `adspower-browser -h` or `adspower-browser <command> -h` to view the specific parameters.
-
-## Essential Commands With AI Agents And CLI
 
 ### Browser profile – open/close
 
 ```bash
-adspower-browser open-browser <profileId>                    # Or JSON: profileId, profileNo?, ipTab?, launchArgs?, clearCacheAfterClosing?, cdpMask?
-adspower-browser close-browser <profileId>                   # Or JSON: profileId? | profileNo? (one required)
+ads open-browser <profileId>                    # Or JSON: profileId, profileNo?, ipTab?, launchArgs?, clearCacheAfterClosing?, cdpMask?
+ads close-browser <profileId>                   # Or JSON: profileId? | profileNo? (one required)
 ```
 
 ### Browser profile – create/update/delete/list
 
 ```bash
-adspower-browser create-browser '{"groupId":"0","userProxyConfig":{"proxy_soft":"no_proxy"},...}'  # groupId + account field required; proxy optional (defaults to no_proxy; proxyid takes priority over userProxyConfig when both given)
-adspower-browser update-browser '{"profileId":"...",...}'    # profileId required
-adspower-browser delete-browser '{"profileIds":["..."]}'     # profileIds required
-adspower-browser get-browser-list '{}'                       # Or groupId?, limit?, page?, profileId?, profileNo?, sortType?, sortOrder?, tag_ids?, tags_filter?, name?, name_filter?
-adspower-browser get-opened-browser                          # No params
+ads create-browser '{"groupId":"0","userProxyConfig":{"proxy_soft":"no_proxy"},...}'  # groupId + account field required; proxy optional (defaults to no_proxy; proxyid takes priority over userProxyConfig when both given)
+ads update-browser '{"profileId":"...",...}'    # profileId required
+ads delete-browser '{"profileIds":["..."]}'     # profileIds required
+ads get-browser-list '{}'                       # Or groupId?, limit?, page?, profileId?, profileNo?, sortType?, sortOrder?, tag_ids?, tags_filter?, name?, name_filter?
+ads get-opened-browser                          # No params
 ```
 
 ### Browser profile – move/cookies/UA/fingerprint/cache/share/active
 
 ```bash
-adspower-browser move-browser '{"groupId":"1","userIds":["..."]}'   # groupId + userIds required
-adspower-browser get-profile-cookies <profileId>             # Or JSON: profileId? | profileNo?
-adspower-browser get-profile-ua <profileId>                  # Or JSON: profileId[]? | profileNo[]? (up to 10)
-adspower-browser close-all-profiles                          # No params
-adspower-browser new-fingerprint <profileId>                 # Or JSON: profileId[]? | profileNo[]? (up to 10)
-adspower-browser delete-cache-v2 '{"profileIds":["..."],"type":["cookie","history"]}'  # type: local_storage|indexeddb|extension_cache|cookie|history|image_file
-adspower-browser share-profile '{"profileIds":["..."],"receiver":"email@example.com"}' # receiver required; shareType?, content?
-adspower-browser get-browser-active <profileId>              # Or JSON: profileId? | profileNo?
-adspower-browser get-cloud-active '{"userIds":"id1,id2"}'    # userIds comma-separated, max 100
+ads move-browser '{"groupId":"1","userIds":["..."]}'   # groupId + userIds required
+ads get-profile-cookies <profileId>             # Or JSON: profileId? | profileNo?
+ads get-profile-ua <profileId>                  # Or JSON: profileId[]? | profileNo[]? (up to 10)
+ads close-all-profiles                          # No params
+ads new-fingerprint <profileId>                 # Or JSON: profileId[]? | profileNo[]? (up to 10)
+ads delete-cache-v2 '{"profileIds":["..."],"type":["cookie","history"]}'  # type: local_storage|indexeddb|extension_cache|cookie|history|image_file
+ads share-profile '{"profileIds":["..."],"receiver":"email@example.com"}' # receiver required; shareType?, content?
+ads get-browser-active <profileId>              # Or JSON: profileId? | profileNo?
+ads get-cloud-active '{"userIds":"id1,id2"}'    # userIds comma-separated, max 100
 ```
 
 ### Kernel
 
 ```bash
-adspower-browser download-kernel '{"kernel_type":"Chrome","kernel_version":"141"}'
-adspower-browser get-kernel-list '{}'                         # kernel_type?: Chrome | Firefox (omit to get all)
+ads download-kernel '{"kernel_type":"Chrome","kernel_version":"141"}'
+ads get-kernel-list '{}'                         # kernel_type?: Chrome | Firefox (omit to get all)
 ```
 
 ### Patch
 
 ```bash
-adspower-browser update-patch '{}'                            # version_type?: stable | beta (default stable)
+ads update-patch '{}'                            # version_type?: stable | beta (default stable)
 ```
 
 ### Tag
 
 ```bash
-adspower-browser get-tag-list '{}'                              # ids?, limit?, page?
-adspower-browser create-tag '{"tags":[{"name":"My tag","color":"blue"}]}'   # name required per item; color optional
-adspower-browser update-tag '{"tags":[{"id":"1","name":"Renamed"}]}'        # id required per item; name?, color?
-adspower-browser delete-tag '{"ids":["tagId1","tagId2"]}'                   # ids required
+ads get-tag-list '{}'                              # ids?, limit?, page?
+ads create-tag '{"tags":[{"name":"My tag","color":"blue"}]}'   # name required per item; color optional
+ads update-tag '{"tags":[{"id":"1","name":"Renamed"}]}'        # id required per item; name?, color?
+ads delete-tag '{"ids":["tagId1","tagId2"]}'                   # ids required
 ```
 
 ### Group
 
 ```bash
-adspower-browser create-group '{"groupName":"My Group","remark":"..."}'   # groupName required
-adspower-browser update-group '{"groupId":"1","groupName":"New Name"}'    # groupId + groupName required; remark? (null to clear)
-adspower-browser get-group-list '{}'                         # groupName?, size?, page?
+ads create-group '{"groupName":"My Group","remark":"..."}'   # groupName required
+ads update-group '{"groupId":"1","groupName":"New Name"}'    # groupId + groupName required; remark? (null to clear)
+ads get-group-list '{}'                         # groupName?, size?, page?
 ```
 
 ### Application (categories)
 
 ```bash
-adspower-browser check-status                                # No params – API availability
-adspower-browser get-application-list '{}'                   # category_id?, page?, limit?
+ads check-status                                # No params – API availability
+ads get-application-list '{}'                   # category_id?, page?, limit?
 ```
 
 ### Proxy
 
 ```bash
-adspower-browser create-proxy '{"proxies":[{"type":"http","host":"127.0.0.1","port":"8080"}]}'  # type, host, port required per item
-adspower-browser update-proxy '{"proxyId":"...","host":"..."}'   # proxyId required
-adspower-browser get-proxy-list '{}'                         # limit?, page?, proxyId?
-adspower-browser delete-proxy '{"proxyIds":["..."]}'        # proxyIds required, max 100
+ads create-proxy '{"proxies":[{"type":"http","host":"127.0.0.1","port":"8080"}]}'  # type, host, port required per item
+ads update-proxy '{"proxyId":"...","host":"..."}'   # proxyId required
+ads get-proxy-list '{}'                         # limit?, page?, proxyId?
+ads delete-proxy '{"proxyIds":["..."]}'        # proxyIds required, max 100
 ```
 
 ## Command Reference (full interface and parameters)
