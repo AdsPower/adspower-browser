@@ -1,10 +1,12 @@
 {
   "name": "adspower-browser",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "cli/index.js",
   "type": "commonjs",
   "bin": {
-    "adspower-browser": "./cli/index.js"
+    "adspower-browser": "./cli/index.js",
+    "adspower": "./cli/index.js",
+    "ads": "./cli/index.js"
   },
   "scripts": {
     "build": "tsup",

@@ -2,7 +2,7 @@
 import { Command, Option } from "commander";
 import { store } from "./store";
 import { getChildStatus, restartChild, startChild, stopChild } from "./core/start";
-import { createLoading, getApiKeyAndPort, hasRunning, logError, logInfo, logSuccess, sleepTime, VERSION } from "./tools";
+import { createLoading, getApiKeyAndPort, hasRunning, logError, logInfo, logSuccess, sleepTime, trackKernelDownload, VERSION } from "./tools";
 import { green } from 'colors';
 import { updateConfig } from '@adspower/local-api-core';
 import { SINGLE_PROFILE_ID_ARRAY_COMMANDS, SINGLE_PROFILE_ID_COMMANDS, STATELESS_HANDLERS } from "./cli";
@@ -13,12 +13,19 @@ program.name("adspower-browser").description("CLI and runtime for adspower-brows
 // 设置API Key
 program.command("start")
     .description("Start the adspower runtime")
-    .requiredOption("-k, --api-key <apiKey>", "Set the API key for the adspower runtime")
+    .option("-k, --api-key <apiKey>", "Set the API key for the adspower runtime")
     .addOption(new Option("--base-url <baseUrl>", "Set the base URL for the adspower runtime").hideHelp())
     .addOption(new Option("--node-env <nodeEnv>", "Set the node environment for the adspower runtime").hideHelp())
     .action(async (options) => {
         if (options.apiKey) {
             store.setStoreValue('apiKey', options.apiKey);
+        } else {
+            const apiKey = process.env.ADS_API_KEY;
+            if (!apiKey) {
+                logError("error: required option '-k, --api-key <apiKey>' not specified");
+                process.exit(1);
+            }
+            store.setStoreValue('apiKey', '');
         }
         if (options.baseUrl) {
             store.setStoreValue('baseUrl', options.baseUrl);
@@ -94,13 +101,20 @@ for (const cmd of Object.keys(STATELESS_HANDLERS)) {
             logSuccess(`Executing command: ${command.name()}, params: ${JSON.stringify(args)}`);
             const loading = createLoading(`Executing ${command.name()}...`);
             try {
-                const result = await fnc(args);
-                const out = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
-                logInfo(`\n\n${out}\n`);
-
-                if (command.name() === 'update-patch') {
-                    await sleepTime(1000 * 60);
-                    await restartChild();
+                if (command.name() === 'download-kernel') {
+                    loading.stop();
+                    const result = await trackKernelDownload(fnc, args);
+                    const out = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+                    logInfo(`\n\n${out}\n\n`);
+                } else {
+                    const result = await fnc(args);
+                    const out = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+                    logInfo(`\n\n${out}\n`);
+                    if (command.name() === 'update-patch' && !out.includes('The client is already on the latest patch version. No update is required')) {
+                        loading.stop();
+                        await sleepTime(1000 * 60);
+                        await restartChild();
+                    }
                 }
             } finally {
                 loading.stop();

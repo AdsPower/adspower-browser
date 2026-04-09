@@ -27,6 +27,9 @@ class Store {
     }
 
     public getStoreValue(key: StoreKey): string {
+        if (key === 'apiKey' && !this.apiKey) {
+            return process.env.ADS_API_KEY || '';
+        }
         return this[key];
     }
 
