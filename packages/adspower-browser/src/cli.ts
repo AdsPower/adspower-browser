@@ -156,3 +156,48 @@ export const SINGLE_PROFILE_ID_COMMANDS: Record<string, 'profileId' | 'profileNo
 // Commands that accept a single value as profileId array (e.g. get-profile-ua, new-fingerprint)
 export const SINGLE_PROFILE_ID_ARRAY_COMMANDS: string[] = ['get-profile-ua', 'new-fingerprint'];
 
+type ResolveCommandArgsResult =
+    | { ok: true; args: Record<string, any> }
+    | { ok: false; error: string };
+
+export function resolveStatelessCommandArgs(commandName: string, params?: string): ResolveCommandArgsResult {
+    let args: Record<string, any> = {};
+
+    if (!params) {
+        return { ok: true, args };
+    }
+
+    const trimmed = params.trim();
+
+    if (trimmed.startsWith('{')) {
+        try {
+            args = JSON.parse(params);
+            return { ok: true, args };
+        } catch {
+            return { ok: false, error: 'Invalid JSON for command args' };
+        }
+    }
+
+    if (SINGLE_PROFILE_ID_COMMANDS[commandName]) {
+        if (!isNaN(Number(trimmed))) {
+            return { ok: true, args: { profileNo: Number(trimmed) } };
+        }
+
+        return { ok: true, args: { profileId: trimmed } };
+    }
+
+    if (SINGLE_PROFILE_ID_ARRAY_COMMANDS.includes(commandName)) {
+        return { ok: true, args: { profileId: [trimmed] } };
+    }
+
+    try {
+        args = JSON.parse(params);
+        return { ok: true, args };
+    } catch {
+        return {
+            ok: false,
+            error: 'Command requires JSON args (e.g. \'{"key":"value"}\') or use a supported shorthand'
+        };
+    }
+}
+

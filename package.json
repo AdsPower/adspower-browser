@@ -5,7 +5,14 @@
   "description": "AdsPower Local API — monorepo: core, MCP server, and adspower-browser CLI/skill",
   "scripts": {
     "build": "pnpm --filter adspower-browser --filter local-api-mcp-typescript run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:contracts": "vitest run --config vitest.config.ts",
+    "test:contracts:watch": "vitest --config vitest.config.ts",
+    "typecheck": "pnpm exec tsc --noEmit -p packages/core/tsconfig.json && pnpm exec tsc --noEmit -p packages/adspower-browser/tsconfig.json && pnpm exec tsc --noEmit -p packages/local-api-mcp/tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "vitest": "^3.1.1"
   },
   "keywords": [
     "adspower",

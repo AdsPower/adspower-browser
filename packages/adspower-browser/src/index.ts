@@ -5,7 +5,7 @@ import { getChildStatus, restartChild, startChild, stopChild } from "./core/star
 import { createLoading, getApiKeyAndPort, hasRunning, logError, logInfo, logSuccess, sleepTime, trackKernelDownload, VERSION } from "./tools";
 import { green } from 'colors';
 import { updateConfig } from '@adspower/local-api-core';
-import { SINGLE_PROFILE_ID_ARRAY_COMMANDS, SINGLE_PROFILE_ID_COMMANDS, STATELESS_HANDLERS } from "./cli";
+import { resolveStatelessCommandArgs, STATELESS_HANDLERS } from "./cli";
 
 const program = new Command();
 program.name("adspower-browser").description("CLI and runtime for adspower-browser").version(VERSION);
@@ -70,34 +70,12 @@ for (const cmd of Object.keys(STATELESS_HANDLERS)) {
             }
             const { apiKey, port } = getApiKeyAndPort(options);
             updateConfig(apiKey, port);
-            let args: Record<string, any> = {};
-            if (params) {
-                const trimmed = params.trim();
-                if (trimmed.startsWith('{')) {
-                    try {
-                        args = JSON.parse(params);
-                    } catch {
-                        logError('Invalid JSON for command args');
-                        return;
-                    }
-                } else if (SINGLE_PROFILE_ID_COMMANDS[command.name()]) {
-                    const key = SINGLE_PROFILE_ID_COMMANDS[command.name()];
-                    if (!isNaN(Number(trimmed))) {
-                        args = { profileNo: Number(trimmed) };
-                    } else {
-                        args = { profileId: trimmed };
-                    }
-                } else if (SINGLE_PROFILE_ID_ARRAY_COMMANDS.includes(command.name())) {
-                    args = { profileId: [trimmed] };
-                } else {
-                    try {
-                        args = JSON.parse(params);
-                    } catch {
-                        logError('Command requires JSON args (e.g. \'{"key":"value"}\') or use a supported shorthand');
-                        return;
-                    }
-                }
+            const resolved = resolveStatelessCommandArgs(command.name(), params);
+            if (!resolved.ok) {
+                logError(resolved.error);
+                return;
             }
+            const args = resolved.args;
             logSuccess(`Executing command: ${command.name()}, params: ${JSON.stringify(args)}`);
             const loading = createLoading(`Executing ${command.name()}...`);
             try {
