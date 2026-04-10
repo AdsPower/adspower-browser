@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { z } from 'zod';
-import { buildRequestBody } from '../src/utils/requestBuilder.js';
+import { API_ENDPOINTS } from '../src/constants/api.js';
+import { buildQueryParamsFor, buildRequestBodyFor } from '../src/utils/requestBuilder.js';
 import { schemas } from '../src/types/schemas.js';
 
 /**
@@ -232,23 +233,33 @@ describe('Zod schemas accept Postman-style external keys', () => {
     });
 });
 
-describe('buildRequestBody maps Postman-shaped create/update input to API wire body', () => {
-    it('includes group_id and category_id when provided with Postman keys', () => {
-        const body = buildRequestBody({
-            group_id: '5',
-            category_id: 'c1',
-            profile_id: 'pid',
-        } as any);
-        expect(body.group_id, 'wire body must contain group_id from Postman-style input').toBe('5');
-        expect(body.category_id, 'wire body must contain category_id').toBe('c1');
-        expect(body.profile_id, 'wire body must contain profile_id for update-style payloads').toBe('pid');
+describe('shared contract metadata and serializers', () => {
+    it('maps open-browser to the documented v2 body contract', () => {
+        const parsed = {
+            profile_id: 'h1yynkm',
+            ip_tab: '1',
+            launch_args: ['--start-maximized'],
+            delete_cache: '0',
+            cdp_mask: '1',
+        };
+
+        expect(API_ENDPOINTS.START_BROWSER).toBe('/api/v2/browser-profile/start');
+        expect(buildRequestBodyFor('open-browser', parsed)).toEqual({
+            profile_id: 'h1yynkm',
+            ip_tab: '1',
+            launch_args: ['--start-maximized'],
+            delete_cache: '0',
+            cdp_mask: '1',
+        });
     });
 
-    it('passes user_proxy_config through with Postman key', () => {
-        const body = buildRequestBody({
-            group_id: '0',
-            user_proxy_config: { proxy_soft: 'no_proxy', proxy_url: 'http://x' },
-        } as any);
-        expect(body.user_proxy_config).toEqual({ proxy_soft: 'no_proxy', proxy_url: 'http://x' });
+    it('maps query-style commands with documented API field names', () => {
+        const query = buildQueryParamsFor('get-application-list', {
+            category_id: '123',
+            page: 2,
+            limit: 50,
+        });
+
+        expect(query.toString()).toBe('category_id=123&page=2&limit=50');
     });
 });
