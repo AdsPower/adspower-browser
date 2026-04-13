@@ -20,9 +20,9 @@ const userProxyConfigSchema = z.object({
 const CHROME_VERSIONS = [
     "92", "99", "102", "105", "108", "111", "114", "115", "116", "117", "118", "119",
     "120", "121", "122", "123", "124", "125", "126", "127", "128", "129", "130", "131",
-    "132", "133", "134", "135", "136", "137", "138", "139", "140", "141", "142", "143", "144", "ua_auto"
+    "132", "133", "134", "135", "136", "137", "138", "139", "140", "141", "142", "143", "144", "ua_auto", "latest"
 ] as const;
-const FIREFOX_VERSIONS = ["100", "107", "114", "120", "123", "126", "129", "132", "135", "138", "141", "144", "ua_auto"] as const;
+const FIREFOX_VERSIONS = ["100", "107", "114", "120", "123", "126", "129", "132", "135", "138", "141", "144", "ua_auto", "latest"] as const;
 const ALL_KERNEL_VERSIONS = [...new Set([...CHROME_VERSIONS, ...FIREFOX_VERSIONS])] as const;
 
 const browserKernelConfigSchema = z.object({
@@ -136,6 +136,13 @@ const mediaDevicesNumSchema = z.object({
     audiooutput_num: z.enum(DEVICE_COUNT_VALUES).describe('Number of speakers, 1-9')
 }).describe('Device counts when media_devices=2: audioinput_num, videoinput_num, audiooutput_num each 1-9.');
 
+const platformAccountSchema = z.object({
+    account: z.string().min(1).describe('Platform account identifier, e.g. shop username or login email'),
+    password: z.string().min(1).optional().describe('Optional platform account password'),
+}).strict().optional().describe('Structured platform account metadata keyed by Postman field name platform_account.');
+
+const nonEmptyStringArraySchema = z.array(z.string()).nonempty();
+
 // Fingerprint Config Schema
 const fingerprintConfigSchema = z.object({
     automatic_timezone: z.enum(['0', '1']).optional().describe('Auto timezone by IP: 0 custom, 1 (default) by IP'),
@@ -203,7 +210,7 @@ const fingerprintConfigSchema = z.object({
 
 export const schemas = {
     createBrowserSchema: z.object({
-        groupId: z.string()
+        group_id: z.string()
             .regex(/^\d+$/, "Group ID must be a numeric string")
             .describe('The group id of the browser, must be a numeric string (e.g., "123"). You can use the get-group-list tool to get the group list or create a new group, use 0 for Ungrouped'),
         username: z.string().optional().describe('Platform account username'),
@@ -213,21 +220,22 @@ export const schemas = {
         name: z.string().max(100).optional().describe('Account name, max 100 characters'),
         platform: z.string().optional().describe('Platform domain, eg: facebook.com'),
         remark: z.string().optional().describe('Remarks to describe the account. Maximum 1500 characters.'),
-        userProxyConfig: userProxyConfigSchema.default({ proxy_soft: 'no_proxy' }).describe('Proxy configuration. If proxyid is provided, proxyid takes priority and this field is ignored. Defaults to no_proxy when neither proxyid nor a custom proxy is needed.'),
+        user_proxy_config: userProxyConfigSchema.default({ proxy_soft: 'no_proxy' }).describe('Proxy configuration. If proxyid is provided, proxyid takes priority and this field is ignored. Defaults to no_proxy when neither proxyid nor a custom proxy is needed.'),
         proxyid: z.string().optional().describe('Proxy profile ID. Takes priority over userProxyConfig when provided.'),
-        repeatConfig: z.array(z.union([z.literal(0), z.literal(2), z.literal(3), z.literal(4)])).optional().describe('Account deduplication settings (0, 2, 3, or 4)'),
-        ignoreCookieError: z.enum(['0', '1']).optional().describe('Handle cookie verification failures: 0 (default) return data as-is, 1 filter out incorrectly formatted cookies'),
+        repeat_config: z.array(z.union([z.literal(0), z.literal(2), z.literal(3), z.literal(4)])).optional().describe('Account deduplication settings (0, 2, 3, or 4)'),
+        ignore_cookie_error: z.enum(['0', '1']).optional().describe('Handle cookie verification failures: 0 (default) return data as-is, 1 filter out incorrectly formatted cookies'),
         tabs: z.array(z.string()).optional().describe('URLs to open on startup, eg: ["https://www.google.com"]'),
         ip: z.string().optional().describe('IP address'),
         country: countryCodeSchema.optional().describe('Country/Region, ISO 3166-1 alpha-2 (lowercase). eg: "cn", "us"'),
         region: z.string().optional().describe('Region'),
         city: z.string().optional().describe('City'),
-        ipchecker: z.enum(['ip2location', 'ipapi']).optional().describe('IP query channel'),
-        categoryId: z.string().optional().describe('The category id of the browser, you can use the get-application-list tool to get the application list'),
-        profileTagIds: z.array(z.string()).max(30).optional()
+        ipchecker: z.enum(['ipinfo', 'ip2location', 'ipapi', 'ipfoxy']).optional().describe('IP query channel'),
+        category_id: z.string().optional().describe('The category id of the browser, you can use the get-application-list tool to get the application list'),
+        profile_tag_ids: z.array(z.string()).max(30).optional()
             .describe('Tag IDs to assign to the profile, max 30 tags per profile. Example: ["tag1","tag2"]'),
-        fingerprintConfig: fingerprintConfigSchema.optional().default({ random_ua: { ua_system_version: ['Windows'] } })
-    }),
+        fingerprint_config: fingerprintConfigSchema.optional().default({ random_ua: { ua_system_version: ['Windows'] } }),
+        platform_account: platformAccountSchema,
+    }).strict(),
 
     updateBrowserSchema: z.object({
         platform: z.string().optional().describe('The platform of the browser, eg: facebook.com'),
@@ -236,60 +244,70 @@ export const schemas = {
         username: z.string().optional().describe('The username of the browser, eg: "user"'),
         password: z.string().optional().describe('The password of the browser, eg: "password"'),
         fakey: z.string().optional().describe('Enter the 2FA-key'),
-        ignoreCookieError: z.enum(['0', '1']).optional().describe('Specifies how to handle the case when cookie validation fails.'),
-        groupId: z.string().optional().describe('The group id of the browser, must be a numeric string (e.g., "123"). You can use the get-group-list tool to get the group list or create a new group'),
+        ignore_cookie_error: z.enum(['0', '1']).optional().describe('Specifies how to handle the case when cookie validation fails.'),
+        group_id: z.string().optional().describe('The group id of the browser, must be a numeric string (e.g., "123"). You can use the get-group-list tool to get the group list or create a new group'),
         name: z.string().max(100).optional().describe('The Profile name of the browser, eg: "My Browser"'),
         remark: z.string().max(1500).optional().describe('Profile remarks, maximum 1500 characters'),
         country: countryCodeSchema.optional().describe('The country of the browser, ISO 3166-1 alpha-2 (lowercase). eg: "cn", "us"'),
         region: z.string().optional().describe('The region of the browser'),
         city: z.string().optional().describe('The city of the browser'),
+        ipchecker: z.enum(['ipinfo', 'ip2location', 'ipapi', 'ipfoxy']).optional().describe('IP query channel'),
         ip: z.string().optional().describe('The IP of the browser'),
-        categoryId: z.string().optional().describe('The category id of the browser, you can use the get-application-list tool to get the application list'),
-        userProxyConfig: userProxyConfigSchema.optional(),
+        category_id: z.string().optional().describe('The category id of the browser, you can use the get-application-list tool to get the application list'),
+        user_proxy_config: userProxyConfigSchema.optional(),
         proxyid: z.string().optional().describe('Proxy ID'),
-        fingerprintConfig: fingerprintConfigSchema.optional(),
-        launchArgs: z.string().optional().describe('Browser startup parameters'),
-        profileTagIds: z.array(z.string()).max(30).optional()
+        fingerprint_config: fingerprintConfigSchema.optional(),
+        launch_args: z.string().optional().describe('Browser startup parameters'),
+        profile_tag_ids: z.array(z.string()).max(30).optional()
             .describe('Tag IDs to set on the profile, max 30 tags per profile. Example: ["tag1","tag2"]'),
-        tagsUpdateType: z.enum(['1', '2']).optional()
+        tags_update_type: z.enum(['1', '2']).optional()
             .describe('How to apply profile_tag_ids: "1" (default) replace all existing tags; "2" append tags (truncated to 30 total if exceeded)'),
-        profileId: z.string().describe('The profile id of the browser to update, it is required when you want to update the browser')
-    }),
-
-    openBrowserSchema: z.object({
-        profileNo: z.string().optional().describe('Priority will be given to user id when profile_id is filled.'),
-        profileId: z.string().describe('Unique profile ID, generated after creating profile. The profile id of the browser to open'),
-        ipTab: z.enum(['0', '1']).optional().describe('The ip tab of the browser, 0 is not use ip tab, 1 is use ip tab, default is 0'),
-        launchArgs: z.string().optional().describe('The launch args of the browser, use chrome launch args, or vista url'),
-        clearCacheAfterClosing: z.enum(['0', '1']).optional().describe('The clear cache after closing of the browser, 0 is not clear cache after closing, 1 is clear cache after closing, default is 0'),
-        cdpMask: z.enum(['0', '1']).optional().describe('The cdp mask of the browser, 0 is not use cdp mask, 1 is use cdp mask, default is 0'),
+        profile_id: z.string().describe('The profile id of the browser to update, it is required when you want to update the browser'),
+        platform_account: platformAccountSchema,
     }).strict(),
 
+    openBrowserSchema: z.object({
+        profile_no: z.string().optional().describe('Priority will be given to user id when profile_id is filled.'),
+        profile_id: z.string().optional().describe('Unique profile ID, generated after creating profile. The profile id of the browser to open'),
+        ip_tab: z.enum(['0', '1']).optional().describe('The ip tab of the browser, 0 is not use ip tab, 1 is use ip tab, default is 0'),
+        launch_args: z.union([z.string(), z.array(z.string())]).optional().describe('The launch args of the browser, use chrome launch args, or vista url'),
+        headless: z.enum(['0', '1']).optional().describe('Headless browser switch, 0 disabled, 1 enabled.'),
+        last_opened_tabs: z.enum(['0', '1']).optional().describe('Whether to restore the last opened tabs.'),
+        proxy_detection: z.enum(['0', '1']).optional().describe('Whether to enable proxy detection.'),
+        password_filling: z.enum(['0', '1']).optional().describe('Whether to enable password auto-filling.'),
+        password_saving: z.enum(['0', '1']).optional().describe('Whether to enable password saving.'),
+        delete_cache: z.enum(['0', '1']).optional().describe('The clear cache after closing of the browser, 0 is not clear cache after closing, 1 is clear cache after closing, default is 0'),
+        cdp_mask: z.enum(['0', '1']).optional().describe('The cdp mask of the browser, 0 is not use cdp mask, 1 is use cdp mask, default is 0'),
+        device_scale: z.string().optional().describe('Device scale factor passed to browser-profile/start.'),
+    }).strict().refine(data => data.profile_id || data.profile_no, {
+        message: "Either profile_id or profile_no must be provided"
+    }),
+
     closeBrowserSchema: z.object({
-        profileId: z.string().optional().describe('The profile id of the browser to stop, either profileId or profileNo must be provided'),
-        profileNo: z.string().optional().describe('The profile number of the browser to stop, priority will be given to profileId when profileId is filled')
-    }).refine(data => data.profileId || data.profileNo, {
-        message: "Either profileId or profileNo must be provided"
+        profile_id: z.string().optional().describe('The profile id of the browser to stop, either profile_id or profile_no must be provided'),
+        profile_no: z.string().optional().describe('The profile number of the browser to stop, priority will be given to profile_id when profile_id is filled')
+    }).strict().refine(data => data.profile_id || data.profile_no, {
+        message: "Either profile_id or profile_no must be provided"
     }),
 
     deleteBrowserSchema: z.object({
-        profileIds: z.array(z.string()).describe('The profile ids of the browsers to delete, it is required when you want to delete the browser')
+        profile_id: z.array(z.string()).describe('The profile ids of the browsers to delete, it is required when you want to delete the browser')
     }).strict(),
 
     getBrowserListSchema: z.object({
-        groupId: z.string()
+        group_id: z.string()
             .regex(/^\d+$/, "Group ID must be a numeric string")
             .optional()
             .describe('Query by group ID; searches all groups if empty'),
-        limit: z.number().optional().describe('Profiles per page. Number of profiles returned per page, range 1 ~ 200, default is 50'),
-        page: z.number().optional().describe('Page number for results, default is 1'),
-        profileId: z.array(z.string()).optional().describe('Query by profile ID. Example: ["h1yynkm","h1yynks"]'),
-        profileNo: z.array(z.string()).optional().describe('Query by profile number. Example: ["123","124"]'),
-        sortType: z.enum(['profile_no', 'last_open_time', 'created_time']).optional()
+        limit: z.number().min(1).max(200).optional().describe('Profiles per page. Number of profiles returned per page, range 1 ~ 200, default is 50'),
+        page: z.number().min(1).optional().describe('Page number for results, default is 1'),
+        profile_id: nonEmptyStringArraySchema.optional().describe('Query by profile ID. Example: ["h1yynkm","h1yynks"]'),
+        profile_no: nonEmptyStringArraySchema.optional().describe('Query by profile number. Example: ["123","124"]'),
+        sort_type: z.enum(['profile_no', 'last_open_time', 'created_time']).optional()
             .describe('Sort results by: profile_no, last_open_time, or created_time'),
-        sortOrder: z.enum(['asc', 'desc']).optional()
+        sort_order: z.enum(['asc', 'desc']).optional()
             .describe('Sort order: "asc" (ascending) or "desc" (descending)'),
-        tag_ids: z.array(z.string()).optional()
+        tag_ids: nonEmptyStringArraySchema.optional()
             .describe('Tag IDs to filter profiles by tags. Example: ["tag1","tag2"]'),
         tags_filter: z.enum(['include', 'exclude']).optional()
             .describe('Tag matching mode: "include" (default) matches profiles with any of the tags, "exclude" matches profiles without the tags'),
@@ -307,35 +325,37 @@ export const schemas = {
     }).strict(),
 
     getProfileCookiesSchema: z.object({
-        profileId: z.string().optional().describe('The profile id, either profileId or profileNo must be provided'),
-        profileNo: z.string().optional().describe('The profile number, priority will be given to profileId when profileId is filled')
-    }).refine(data => data.profileId || data.profileNo, {
-        message: "Either profileId or profileNo must be provided"
+        profile_id: z.string().optional().describe('The profile id, either profile_id or profile_no must be provided'),
+        profile_no: z.string().optional().describe('The profile number, priority will be given to profile_id when profile_id is filled')
+    }).strict().refine(data => data.profile_id || data.profile_no, {
+        message: "Either profile_id or profile_no must be provided"
     }),
 
     getProfileUaSchema: z.object({
-        profileId: z.array(z.string()).optional().describe('The profile id array, either profileId or profileNo must be provided'),
-        profileNo: z.array(z.string()).optional().describe('The profile number array, priority will be given to profileId when profileId is filled')
-    }).refine(data => (data.profileId && data.profileId.length > 0) || (data.profileNo && data.profileNo.length > 0), {
-        message: "Either profileId or profileNo must be provided with at least one element"
+        profile_id: nonEmptyStringArraySchema.optional().describe('The profile id array, either profile_id or profile_no must be provided'),
+        profile_no: nonEmptyStringArraySchema.optional().describe('The profile number array, priority will be given to profile_id when profile_id is filled')
+    }).strict().refine(data => (data.profile_id && data.profile_id.length > 0) || (data.profile_no && data.profile_no.length > 0), {
+        message: "Either profile_id or profile_no must be provided with at least one element"
     }),
 
     closeAllProfilesSchema: z.object({}).strict(),
 
     newFingerprintSchema: z.object({
-        profileId: z.array(z.string()).optional().describe('The profile id array, either profileId or profileNo must be provided'),
-        profileNo: z.array(z.string()).optional().describe('The profile number array, priority will be given to profileId when profileId is filled')
-    }).strict(),
+        profile_id: nonEmptyStringArraySchema.optional().describe('The profile id array, either profile_id or profile_no must be provided'),
+        profile_no: nonEmptyStringArraySchema.optional().describe('The profile number array, priority will be given to profile_id when profile_id is filled')
+    }).strict().refine(data => (data.profile_id && data.profile_id.length > 0) || (data.profile_no && data.profile_no.length > 0), {
+        message: "Either profile_id or profile_no must be provided with at least one element"
+    }),
 
     deleteCacheV2Schema: z.object({
-        profileIds: z.array(z.string()).describe('The profile ids array, it is required'),
+        profile_id: z.array(z.string()).describe('The profile ids array, it is required'),
         type: z.array(z.enum(['local_storage', 'indexeddb', 'extension_cache', 'cookie', 'history', 'image_file'])).describe('Types of cache to clear, it is required')
     }).strict(),
 
     shareProfileSchema: z.object({
-        profileIds: z.array(z.string()).describe('The profile ids array, it is required'),
+        profile_id: z.array(z.string()).describe('The profile ids array, it is required'),
         receiver: z.string().describe('Receiver\'s account email or phone number (no area code), it is required'),
-        shareType: z.number().int().optional().describe('Share type: 1 for email (default), 2 for phone number'),
+        share_type: z.number().int().optional().describe('Share type: 1 for email (default), 2 for phone number'),
         content: z.array(z.enum(['name', 'proxy', 'remark', 'tabs'])).optional().describe('Shared content')
     }).strict(),
 
@@ -365,10 +385,10 @@ export const schemas = {
     }).strict(),
 
     getBrowserActiveSchema: z.object({
-        profileId: z.string().optional().describe('The profile id, either profileId or profileNo must be provided'),
-        profileNo: z.string().optional().describe('The profile number, priority will be given to profileId when profileId is filled')
-    }).refine(data => data.profileId || data.profileNo, {
-        message: "Either profileId or profileNo must be provided"
+        profile_id: z.string().optional().describe('The profile id, either profile_id or profile_no must be provided'),
+        profile_no: z.string().optional().describe('The profile number, priority will be given to profile_id when profile_id is filled')
+    }).strict().refine(data => data.profile_id || data.profile_no, {
+        message: "Either profile_id or profile_no must be provided"
     }),
 
     getCloudActiveSchema: z.object({

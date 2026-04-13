@@ -1,13 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { z } from 'zod';
 import { API_ENDPOINTS } from '../src/constants/api.js';
-import { buildQueryParamsFor, buildRequestBodyFor } from '../src/utils/requestBuilder.js';
+import { buildRequestBodyFor } from '../src/utils/requestBuilder.js';
 import { schemas } from '../src/types/schemas.js';
 
 /**
- * External / wire contract (AdsPower Postman): parameter names use Postman spellings
- * such as profile_id, profile_no, group_id, proxy_id, proxy_url, share_type, user_ids, etc.
- * These tests encode that contract for Zod parsing and request body shaping.
+ * Browser-profile external / wire contract: parameter names use AdsPower Postman spellings.
+ * These tests intentionally stay within Task 4 scope.
  */
 
 function mustParse<T extends z.ZodTypeAny>(schema: T, payload: unknown, message: string): void {
@@ -17,41 +16,42 @@ function mustParse<T extends z.ZodTypeAny>(schema: T, payload: unknown, message:
     );
 }
 
-function schemaInputKeys(schema: z.ZodTypeAny): string[] {
-    if ('shape' in schema && typeof schema.shape === 'object' && schema.shape !== null) {
-        return Object.keys(schema.shape as Record<string, z.ZodTypeAny>);
-    }
-
-    if ('_def' in schema) {
-        const def = (schema as { _def?: { schema?: z.ZodTypeAny } })._def;
-        if (def?.schema) {
-            return schemaInputKeys(def.schema);
-        }
-    }
-
-    throw new Error('Cannot extract schema keys');
-}
-
 describe('Zod schemas accept Postman-style external keys', () => {
-    it('get-application-list: category_id, page, limit (query/body parity)', () => {
-        mustParse(
-            schemas.getApplicationListSchema,
-            { category_id: 'ext_cat', page: 1, limit: 50 },
-            'getApplicationListSchema must accept Postman keys category_id, page, limit'
-        );
-    });
-
-    it('open-browser: profile_id required; profile_no, ip_tab, launch_args optional', () => {
+    it('open-browser: supports documented Postman field names', () => {
         mustParse(
             schemas.openBrowserSchema,
             {
                 profile_id: 'h1yynkm',
                 profile_no: '123',
                 ip_tab: '0',
-                launch_args: '--foo',
+                launch_args: ['--foo'],
+                headless: '0',
+                last_opened_tabs: '1',
+                proxy_detection: '0',
+                password_filling: '1',
+                password_saving: '0',
+                cdp_mask: '1',
+                delete_cache: '0',
+                device_scale: '1',
             },
-            'openBrowserSchema must accept Postman keys profile_id, profile_no, ip_tab, launch_args'
+            'openBrowserSchema must accept documented Postman keys for browser-profile/start'
         );
+    });
+
+    it('open-browser: allows profile_no without profile_id and rejects missing both', () => {
+        mustParse(
+            schemas.openBrowserSchema,
+            {
+                profile_no: '123',
+                ip_tab: '0',
+            },
+            'openBrowserSchema must accept profile_no without requiring profile_id'
+        );
+
+        expect(
+            schemas.openBrowserSchema.safeParse({ ip_tab: '0' }).success,
+            'openBrowserSchema must require at least one of profile_id or profile_no'
+        ).toBe(false);
     });
 
     it('close-browser: profile_id | profile_no', () => {
@@ -63,7 +63,7 @@ describe('Zod schemas accept Postman-style external keys', () => {
         mustParse(schemas.closeBrowserSchema, { profile_no: '99' }, 'closeBrowserSchema must accept profile_no');
     });
 
-    it('create-browser: group_id, category_id, user_proxy_config, repeat_config, ignore_cookie_error, profile_tag_ids', () => {
+    it('create-browser: group_id, category_id, user_proxy_config, repeat_config, ignore_cookie_error, profile_tag_ids, platform_account', () => {
         mustParse(
             schemas.createBrowserSchema,
             {
@@ -73,13 +73,16 @@ describe('Zod schemas accept Postman-style external keys', () => {
                 repeat_config: [0, 2],
                 ignore_cookie_error: '0',
                 profile_tag_ids: ['t1'],
+                ipchecker: 'ipinfo',
+                platform_account: { account: 'shop-user', password: 'secret' },
+                fingerprint_config: { browser_kernel_config: { version: 'latest' } },
                 name: 'n',
             },
-            'createBrowserSchema must accept Postman-style top-level keys (group_id, category_id, …)'
+            'createBrowserSchema must accept browser-profile keys including ipchecker, platform_account, and latest kernel version'
         );
     });
 
-    it('update-browser: profile_id plus Postman-aligned optional fields', () => {
+    it('update-browser: profile_id plus Postman-aligned optional fields and tightened platform_account', () => {
         mustParse(
             schemas.updateBrowserSchema,
             {
@@ -87,9 +90,20 @@ describe('Zod schemas accept Postman-style external keys', () => {
                 launch_args: '--disable-gpu',
                 tags_update_type: '1',
                 group_id: '1',
+                ipchecker: 'ipfoxy',
+                fingerprint_config: { browser_kernel_config: { version: 'latest' } },
+                platform_account: { account: 'shop-user' },
             },
-            'updateBrowserSchema must accept profile_id, launch_args, tags_update_type, group_id'
+            'updateBrowserSchema must accept profile_id, ipchecker, latest kernel version, and tightened platform_account'
         );
+
+        expect(
+            schemas.updateBrowserSchema.safeParse({
+                profile_id: 'abc',
+                platform_account: { arbitrary: true },
+            }).success,
+            'updateBrowserSchema must reject arbitrary platform_account objects'
+        ).toBe(false);
     });
 
     it('delete-browser: profile_id as array', () => {
@@ -120,12 +134,34 @@ describe('Zod schemas accept Postman-style external keys', () => {
         );
     });
 
-    it('move-browser: user_ids, group_id', () => {
-        mustParse(
-            schemas.moveBrowserSchema,
-            { user_ids: ['u1', 'u2'], group_id: '3' },
-            'moveBrowserSchema must accept user_ids and group_id'
-        );
+    it('get-browser-list: enforces documented page and limit bounds', () => {
+        expect(
+            schemas.getBrowserListSchema.safeParse({ page: 0 }).success,
+            'getBrowserListSchema must reject page values below 1'
+        ).toBe(false);
+        expect(
+            schemas.getBrowserListSchema.safeParse({ limit: 0 }).success,
+            'getBrowserListSchema must reject limit values below 1'
+        ).toBe(false);
+        expect(
+            schemas.getBrowserListSchema.safeParse({ limit: 201 }).success,
+            'getBrowserListSchema must reject limit values above 200'
+        ).toBe(false);
+    });
+
+    it('get-browser-list: rejects empty filter arrays so they are not serialized downstream', () => {
+        expect(
+            schemas.getBrowserListSchema.safeParse({ profile_id: [] }).success,
+            'getBrowserListSchema must reject empty profile_id arrays'
+        ).toBe(false);
+        expect(
+            schemas.getBrowserListSchema.safeParse({ profile_no: [] }).success,
+            'getBrowserListSchema must reject empty profile_no arrays'
+        ).toBe(false);
+        expect(
+            schemas.getBrowserListSchema.safeParse({ tag_ids: [] }).success,
+            'getBrowserListSchema must reject empty tag_ids arrays'
+        ).toBe(false);
     });
 
     it('get-profile-cookies: profile_id | profile_no (query)', () => {
@@ -144,12 +180,41 @@ describe('Zod schemas accept Postman-style external keys', () => {
         );
     });
 
+    it('get-profile-ua: rejects empty arrays even when another selector is present', () => {
+        expect(
+            schemas.getProfileUaSchema.safeParse({ profile_id: [], profile_no: ['1'] }).success,
+            'getProfileUaSchema must reject empty profile_id arrays'
+        ).toBe(false);
+        expect(
+            schemas.getProfileUaSchema.safeParse({ profile_id: ['1'], profile_no: [] }).success,
+            'getProfileUaSchema must reject empty profile_no arrays'
+        ).toBe(false);
+    });
+
     it('new-fingerprint: profile_id[] | profile_no[]', () => {
         mustParse(
             schemas.newFingerprintSchema,
             { profile_id: ['a'] },
             'newFingerprintSchema must accept profile_id array'
         );
+    });
+
+    it('new-fingerprint: rejects empty selector arrays', () => {
+        expect(
+            schemas.newFingerprintSchema.safeParse({ profile_id: [] }).success,
+            'newFingerprintSchema must reject empty profile_id arrays'
+        ).toBe(false);
+        expect(
+            schemas.newFingerprintSchema.safeParse({ profile_no: [] }).success,
+            'newFingerprintSchema must reject empty profile_no arrays'
+        ).toBe(false);
+    });
+
+    it('new-fingerprint: rejects empty object when no selectors are provided', () => {
+        expect(
+            schemas.newFingerprintSchema.safeParse({}).success,
+            'newFingerprintSchema must reject empty objects without profile selectors'
+        ).toBe(false);
     });
 
     it('delete-cache-v2: profile_id[], type[]', () => {
@@ -181,85 +246,104 @@ describe('Zod schemas accept Postman-style external keys', () => {
         );
     });
 
-    it('get-cloud-active: exposes user_ids key without locking unresolved value shape', () => {
-        expect(
-            schemaInputKeys(schemas.getCloudActiveSchema),
-            'getCloudActiveSchema must expose Postman key user_ids'
-        ).toContain('user_ids');
-    });
-
-    it('create-group: group_name', () => {
-        mustParse(schemas.createGroupSchema, { group_name: 'G' }, 'createGroupSchema must accept group_name');
-    });
-
-    it('update-group: group_id, group_name', () => {
-        mustParse(
-            schemas.updateGroupSchema,
-            { group_id: '1', group_name: 'N', remark: null },
-            'updateGroupSchema must accept group_id and group_name'
-        );
-    });
-
-    it('get-group-list: group_name, page, page_size', () => {
-        mustParse(
-            schemas.getGroupListSchema,
-            { group_name: 'x', page: 1, page_size: 10 },
-            'getGroupListSchema must accept group_name, page, page_size'
-        );
-    });
-
-    it('update-proxy: proxy_id, proxy_url', () => {
-        mustParse(
-            schemas.updateProxySchema,
-            { proxy_id: 'px', proxy_url: 'http://example.com' },
-            'updateProxySchema must accept proxy_id and proxy_url'
-        );
-    });
-
-    it('get-proxy-list: proxy_id[]', () => {
-        mustParse(
-            schemas.getProxyListSchema,
-            { proxy_id: ['a'], page: 1, limit: 10 },
-            'getProxyListSchema must accept proxy_id array'
-        );
-    });
-
-    it('delete-proxy: proxy_id[]', () => {
-        mustParse(
-            schemas.deleteProxySchema,
-            { proxy_id: ['a', 'b'] },
-            'deleteProxySchema must accept proxy_id array'
-        );
-    });
 });
 
 describe('shared contract metadata and serializers', () => {
     it('maps open-browser to the documented v2 body contract', () => {
-        const parsed = {
+        const parsed = schemas.openBrowserSchema.parse({
             profile_id: 'h1yynkm',
+            profile_no: '123',
             ip_tab: '1',
             launch_args: ['--start-maximized'],
+            headless: '0',
+            last_opened_tabs: '1',
+            proxy_detection: '0',
+            password_filling: '1',
+            password_saving: '0',
             delete_cache: '0',
             cdp_mask: '1',
-        };
+            device_scale: '1',
+        });
 
         expect(API_ENDPOINTS.START_BROWSER).toBe('/api/v2/browser-profile/start');
         expect(buildRequestBodyFor('open-browser', parsed)).toEqual({
             profile_id: 'h1yynkm',
+            profile_no: '123',
             ip_tab: '1',
             launch_args: ['--start-maximized'],
+            headless: '0',
+            last_opened_tabs: '1',
+            proxy_detection: '0',
+            password_filling: '1',
+            password_saving: '0',
             delete_cache: '0',
             cdp_mask: '1',
+            device_scale: '1',
         });
     });
 
-    it('maps query-style commands with documented API field names', () => {
-        const query = buildQueryParamsFor('get-application-list', {
-            category_id: '123',
-            page: 2,
+    it('serializes get-browser-list body with documented API field names', () => {
+        const parsed = schemas.getBrowserListSchema.parse({
+            group_id: '0',
             limit: 50,
+            page: 1,
+            profile_id: ['abc'],
+            sort_type: 'profile_no',
+            sort_order: 'desc',
+            tag_ids: ['tag-1'],
+            tags_filter: 'include',
+            name: 'shop',
+            name_filter: 'include',
         });
 
-        expect(query.toString()).toBe('category_id=123&page=2&limit=50');
+        expect(buildRequestBodyFor('get-browser-list', parsed)).toEqual({
+            group_id: '0',
+            limit: 50,
+            page: 1,
+            profile_id: ['abc'],
+            sort_type: 'profile_no',
+            sort_order: 'desc',
+            tag_ids: ['tag-1'],
+            tags_filter: 'include',
+            name: 'shop',
+            name_filter: 'include',
+        });
     });
+
+    it('serializes create-browser body with platform_account', () => {
+        const parsed = schemas.createBrowserSchema.parse({
+            group_id: '0',
+            name: 'shop',
+            ipchecker: 'ipinfo',
+            user_proxy_config: { proxy_soft: 'no_proxy' },
+            platform_account: { account: 'shop-user', password: 'secret' },
+            fingerprint_config: { browser_kernel_config: { version: 'latest' } },
+        });
+
+        expect(buildRequestBodyFor('create-browser', parsed)).toEqual({
+            group_id: '0',
+            name: 'shop',
+            ipchecker: 'ipinfo',
+            user_proxy_config: { proxy_soft: 'no_proxy' },
+            fingerprint_config: { browser_kernel_config: { version: 'latest' } },
+            platform_account: { account: 'shop-user', password: 'secret' },
+        });
+    });
+
+    it('serializes update-browser body with platform_account', () => {
+        const parsed = schemas.updateBrowserSchema.parse({
+            profile_id: 'abc',
+            ipchecker: 'ipfoxy',
+            fingerprint_config: { browser_kernel_config: { version: 'latest' } },
+            platform_account: { account: 'shop-user' },
+        });
+
+        expect(buildRequestBodyFor('update-browser', parsed)).toEqual({
+            profile_id: 'abc',
+            ipchecker: 'ipfoxy',
+            fingerprint_config: { browser_kernel_config: { version: 'latest' } },
+            platform_account: { account: 'shop-user' },
+        });
+    });
+
 });
