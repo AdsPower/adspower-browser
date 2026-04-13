@@ -14,19 +14,19 @@
 
 **update-proxy** — Update the proxy.
 
-- **proxyId** (required): Unique id after the proxy is added.
+- **proxy_id** (required): Unique id after the proxy is added.
 - **type** (optional): `'http'` | `'https'` | `'ssh'` | `'socks5'`.
 - **host**, **port**, **user**, **password** (optional).
-- **proxyUrl** (optional): URL used to refresh the proxy.
+- **proxy_url** (optional): URL used to refresh the proxy.
 - **remark** (optional).
-- **ipchecker** (optional): `'ip2location'` | `'ipapi'` | `'ipfoxy'`.
+- **ipchecker** (optional): `'ipinfo'` | `'ip2location'` | `'ipapi'` | `'ipfoxy'`.
 
 **get-proxy-list** — Get the list of proxies.
 
 - **limit** (optional): 1–200, default 50. Proxies per page.
 - **page** (optional): Default 1.
-- **proxyId** (optional): Array, e.g. `["proxy1","proxy2"]`.
+- **proxy_id** (optional): Array, e.g. `["proxy1","proxy2"]`.
 
 **delete-proxy** — Delete the proxy/proxies.
 
-- **proxyIds** (required): Array of proxy ids to delete, max 100.
+- **proxy_id** (required): Array of proxy ids to delete, max 100.

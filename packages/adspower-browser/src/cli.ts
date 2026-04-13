@@ -146,14 +146,14 @@ export const STATELESS_HANDLERS: Record<string, Handler> = {
     },
 };
 
-// Commands that accept a single profileId (or profileNo) as shorthand when one non-JSON arg is given
-export const SINGLE_PROFILE_ID_COMMANDS: Record<string, 'profileId' | 'profileNo'> = {
-    'open-browser': 'profileId',
-    'close-browser': 'profileId',
-    'get-profile-cookies': 'profileId',
-    'get-browser-active': 'profileId',
+// Commands that accept a single profile identifier shorthand and expand to Postman field names.
+export const SINGLE_PROFILE_ID_COMMANDS: Record<string, 'profile_id' | 'profile_no'> = {
+    'open-browser': 'profile_id',
+    'close-browser': 'profile_id',
+    'get-profile-cookies': 'profile_id',
+    'get-browser-active': 'profile_id',
 };
-// Commands that accept a single value as profileId array (e.g. get-profile-ua, new-fingerprint)
+// Commands that accept one shorthand token and expand to profile_id[] or profile_no[].
 export const SINGLE_PROFILE_ID_ARRAY_COMMANDS: string[] = ['get-profile-ua', 'new-fingerprint'];
 
 type ResolveCommandArgsResult =
@@ -180,14 +180,18 @@ export function resolveStatelessCommandArgs(commandName: string, params?: string
 
     if (SINGLE_PROFILE_ID_COMMANDS[commandName]) {
         if (!isNaN(Number(trimmed))) {
-            return { ok: true, args: { profileNo: Number(trimmed) } };
+            return { ok: true, args: { profile_no: trimmed } };
         }
 
-        return { ok: true, args: { profileId: trimmed } };
+        return { ok: true, args: { profile_id: trimmed } };
     }
 
     if (SINGLE_PROFILE_ID_ARRAY_COMMANDS.includes(commandName)) {
-        return { ok: true, args: { profileId: [trimmed] } };
+        if (!isNaN(Number(trimmed))) {
+            return { ok: true, args: { profile_no: [trimmed] } };
+        }
+
+        return { ok: true, args: { profile_id: [trimmed] } };
     }
 
     try {

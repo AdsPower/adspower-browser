@@ -1,6 +1,6 @@
-# FingerprintConfig (fingerprint config for create-browser / update-browser)
+# fingerprint_config (fingerprint config for create-browser / update-browser)
 
-**fingerprintConfig** is aligned with AdsPower Local API **fingerprint_config**; all fields are optional. 
+**fingerprint_config** is aligned with AdsPower Local API **fingerprint_config**; all fields are optional. 
 
 - **automatic_timezone** (optional): Auto timezone by IP. `'0'` custom / `'1'` by IP (default)
 - **timezone** (optional): Timezone when automatic_timezone=0, e.g. `Asia/Shanghai`
@@ -46,4 +46,4 @@
 - **tls_switch** (optional): Enable custom TLS. `'0'` (default) / `'1'`
 - **tls** (optional): **Chrome kernel only**. Comma-separated TLS hex codes when tls_switch=1, e.g. `"0xC02C,0xC030"`. See [chrome-tls-cipher.md](chrome-tls-cipher.md)
 
-Example: `"fingerprintConfig":{"timezone":"America/New_York","language":["en-US"],"webrtc":"proxy","browser_kernel_config":{"version":"ua_auto","type":"chrome"}}`
+Example: `"fingerprint_config":{"timezone":"America/New_York","language":["en-US"],"webrtc":"proxy","browser_kernel_config":{"version":"ua_auto","type":"chrome"}}`

@@ -1,6 +1,6 @@
 # Chrome TLS Cipher Suites (tls enum)
 
-**tls** is only supported when the browser kernel is **Chrome**. Use comma-separated hex codes in **fingerprintConfig.tls**, e.g. `"0xC02C,0xC030"`.
+**tls** is only supported when the browser kernel is **Chrome**. Use comma-separated hex codes in **fingerprint_config.tls**, e.g. `"0xC02C,0xC030"`.
 
 | Name | Hex code |
 |------|----------|

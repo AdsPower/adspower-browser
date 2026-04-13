@@ -12,6 +12,17 @@ import {
  */
 
 describe('SINGLE_PROFILE_ID_COMMANDS targets profile_id for string-token shorthand', () => {
+    it('documents shorthand-only commands separately from JSON-only commands', () => {
+        expect(SINGLE_PROFILE_ID_COMMANDS).toEqual({
+            'open-browser': 'profile_id',
+            'close-browser': 'profile_id',
+            'get-profile-cookies': 'profile_id',
+            'get-browser-active': 'profile_id',
+        });
+
+        expect(SINGLE_PROFILE_ID_ARRAY_COMMANDS).toEqual(['get-profile-ua', 'new-fingerprint']);
+    });
+
     it('maps each command to the Postman query/body key profile_id', () => {
         for (const [cmd, key] of Object.entries(SINGLE_PROFILE_ID_COMMANDS)) {
             expect(key, `command ${cmd} must use Postman key profile_id`).toBe('profile_id');
@@ -28,11 +39,19 @@ describe('CLI shorthand resolution uses Postman parameter names', () => {
         });
     });
 
-    it('uses profile_no for numeric single token', () => {
+    it('uses profile_no string for numeric single token', () => {
         const result = resolveStatelessCommandArgs('open-browser', '123');
         expect(result.ok).toBe(true);
-        expect(result.ok && result.args, 'numeric shorthand should resolve to profile_no').toEqual({
-            profile_no: 123
+        expect(result.ok && result.args, 'numeric shorthand should resolve to profile_no string').toEqual({
+            profile_no: '123'
+        });
+    });
+
+    it('preserves numeric shorthand text when mapping to profile_no', () => {
+        const result = resolveStatelessCommandArgs('open-browser', '00123');
+        expect(result.ok).toBe(true);
+        expect(result.ok && result.args, 'numeric shorthand should preserve the original profile_no text').toEqual({
+            profile_no: '00123'
         });
     });
 
@@ -41,6 +60,22 @@ describe('CLI shorthand resolution uses Postman parameter names', () => {
         expect(result.ok).toBe(true);
         expect(result.ok && result.args, 'array shorthand should resolve to profile_id[]').toEqual({
             profile_id: ['abc123']
+        });
+    });
+
+    it('array shorthand uses profile_no list for numeric token', () => {
+        const result = resolveStatelessCommandArgs('get-profile-ua', '123');
+        expect(result.ok).toBe(true);
+        expect(result.ok && result.args, 'numeric array shorthand should resolve to profile_no[]').toEqual({
+            profile_no: ['123']
+        });
+    });
+
+    it('array shorthand preserves numeric text when mapping to profile_no list', () => {
+        const result = resolveStatelessCommandArgs('new-fingerprint', '00123');
+        expect(result.ok).toBe(true);
+        expect(result.ok && result.args, 'numeric array shorthand should preserve profile_no text').toEqual({
+            profile_no: ['00123']
         });
     });
 });

@@ -50,15 +50,15 @@ ads start
 **Two forms for `<arg>`:**
 
 1. **Single value (shorthand)** — for profile-related commands, pass one profile ID or number:
-   - `ads open-browser <ProfileId>`
-   - `ads close-browser <ProfileId>`
-   - `ads get-profile-cookies <ProfileId>`
-   - `ads get-browser-active <ProfileId>`
-   - `ads get-profile-ua <ProfileId>` (single ID)
-   - `ads new-fingerprint <ProfileId>` (single ID)
+   - `ads open-browser <profile_id>`
+   - `ads close-browser <profile_id>`
+   - `ads get-profile-cookies <profile_id>`
+   - `ads get-browser-active <profile_id>`
+   - `ads get-profile-ua <profile_id>` (single ID; a numeric token is treated as `profile_no`)
+   - `ads new-fingerprint <profile_id>` (single ID; a numeric token is treated as `profile_no`)
 
 2. **JSON string** — full parameters for any command (see Command Reference below):
-   - `ads open-browser '{"profileId":"abc123","launchArgs":"..."}'`
+   - `ads open-browser '{"profile_id":"abc123","launch_args":"..."}'`
    - Commands with no params: omit `<arg>` or use `'{}'`.
 
 ## Essential Commands With CLI
@@ -77,56 +77,56 @@ ads status                            # Get the status of the adspower runtime
 ### Browser profile – open/close
 
 ```bash
-ads open-browser <profileId>                    # Or JSON: profileId, profileNo?, ipTab?, launchArgs?, clearCacheAfterClosing?, cdpMask?
-ads close-browser <profileId>                   # Or JSON: profileId? | profileNo? (one required)
+ads open-browser <profile_id>                    # Or JSON: profile_id, profile_no?, ip_tab?, launch_args?, headless?, last_opened_tabs?, proxy_detection?, password_filling?, password_saving?, cdp_mask?, delete_cache?, device_scale?
+ads close-browser <profile_id>                   # Or JSON: profile_id? | profile_no? (one required)
 ```
 
 ### Browser profile – create/update/delete/list
 
 ```bash
-ads create-browser '{"groupId":"0","proxyid":"random",...}'  # groupId + account field + proxy required
-ads update-browser '{"profileId":"...",...}'    # profileId required
-ads delete-browser '{"profileIds":["..."]}'     # profileIds required
-ads get-browser-list '{}'                       # Or groupId?, limit?, page?, profileId?, profileNo?, sortType?, sortOrder?
+ads create-browser '{"group_id":"0","user_proxy_config":{"proxy_soft":"no_proxy"},...}'  # group_id + account field required; proxy optional (defaults to no_proxy; proxyid takes priority over user_proxy_config when both given)
+ads update-browser '{"profile_id":"...",...}'    # profile_id required
+ads delete-browser '{"profile_id":["..."]}'     # profile_id required
+ads get-browser-list '{}'                       # Or group_id?, limit?, page?, profile_id[]?, profile_no[]?, sort_type?, sort_order?, tag_ids?, tags_filter?, name?, name_filter?
 ads get-opened-browser                          # No params
 ```
 
 ### Browser profile – move/cookies/UA/fingerprint/cache/share/active
 
 ```bash
-ads move-browser '{"groupId":"1","userIds":["..."]}'   # groupId + userIds required
-ads get-profile-cookies <profileId>             # Or JSON: profileId? | profileNo?
-ads get-profile-ua <profileId>                  # Or JSON: profileId[]? | profileNo[]? (up to 10)
+ads move-browser '{"group_id":"1","user_ids":["..."]}'   # group_id + user_ids required
+ads get-profile-cookies <profile_id>             # Or JSON: profile_id? | profile_no?
+ads get-profile-ua <profile_id>                  # Or JSON: profile_id[]? | profile_no[]? (up to 10); numeric shorthand maps to profile_no[]
 ads close-all-profiles                          # No params
-ads new-fingerprint <profileId>                 # Or JSON: profileId[]? | profileNo[]? (up to 10)
-ads delete-cache-v2 '{"profileIds":["..."],"type":["cookie","history"]}'  # type: local_storage|indexeddb|extension_cache|cookie|history|image_file
-ads share-profile '{"profileIds":["..."],"receiver":"email@example.com"}' # receiver required; shareType?, content?
-ads get-browser-active <profileId>              # Or JSON: profileId? | profileNo?
-ads get-cloud-active '{"userIds":"id1,id2"}'    # userIds comma-separated, max 100
+ads new-fingerprint <profile_id>                 # Or JSON: profile_id[]? | profile_no[]? (up to 10); numeric shorthand maps to profile_no[]
+ads delete-cache-v2 '{"profile_id":["..."],"type":["cookie","history"]}'  # type: local_storage|indexeddb|extension_cache|cookie|history|image_file
+ads share-profile '{"profile_id":["..."],"receiver":"email@example.com"}' # receiver required; share_type?, content?
+ads get-browser-active <profile_id>              # Or JSON: profile_id? | profile_no?
+ads get-cloud-active '{"user_ids":"id1,id2"}'    # user_ids comma-separated, max 100
 ```
 
 ### Group
 
 ```bash
-ads create-group '{"groupName":"My Group","remark":"..."}'   # groupName required
-ads update-group '{"groupId":"1","groupName":"New Name"}'    # groupId + groupName required; remark? (null to clear)
-ads get-group-list '{}'                         # groupName?, size?, page?
+ads create-group '{"group_name":"My Group","remark":"..."}'   # group_name required
+ads update-group '{"group_id":"1","group_name":"New Name"}'    # group_id + group_name required; remark? (null to clear)
+ads get-group-list '{}'                         # group_name?, page_size?, page?
 ```
 
 ### Application (categories)
 
 ```bash
 ads check-status                                # No params – API availability
-ads get-application-list '{}'                   # category_id?, page?, limit?
+ads get-application-list '{"category_id":"123","page":1,"limit":20}'
 ```
 
 ### Proxy
 
 ```bash
 ads create-proxy '{"proxies":[{"type":"http","host":"127.0.0.1","port":"8080"}]}'  # type, host, port required per item
-ads update-proxy '{"proxyId":"...","host":"..."}'   # proxyId required
-ads get-proxy-list '{}'                         # limit?, page?, proxyId?
-ads delete-proxy '{"proxyIds":["..."]}'        # proxyIds required, max 100
+ads update-proxy '{"proxy_id":"proxy-1","proxy_url":"https://refresh.example.com"}'
+ads get-proxy-list '{}'                         # limit?, page?, proxy_id[]?
+ads delete-proxy '{"proxy_id":["..."]}'        # proxy_id required, max 100
 ```
 
 ### Tag

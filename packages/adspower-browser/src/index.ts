@@ -6,6 +6,7 @@ import { createLoading, getApiKeyAndPort, hasRunning, logError, logInfo, logSucc
 import { green } from 'colors';
 import { updateConfig } from '@adspower/local-api-core';
 import { resolveStatelessCommandArgs, STATELESS_HANDLERS } from "./cli";
+import { resolveStartApiKey } from "./startConfig";
 
 const program = new Command();
 program.name("adspower-browser").description("CLI and runtime for adspower-browser").version(VERSION);
@@ -17,16 +18,12 @@ program.command("start")
     .addOption(new Option("--base-url <baseUrl>", "Set the base URL for the adspower runtime").hideHelp())
     .addOption(new Option("--node-env <nodeEnv>", "Set the node environment for the adspower runtime").hideHelp())
     .action(async (options) => {
-        if (options.apiKey) {
-            store.setStoreValue('apiKey', options.apiKey);
-        } else {
-            const apiKey = process.env.ADS_API_KEY;
-            if (!apiKey) {
-                logError("error: required option '-k, --api-key <apiKey>' not specified");
-                process.exit(1);
-            }
-            store.setStoreValue('apiKey', '');
+        const resolvedApiKey = resolveStartApiKey(options.apiKey, process.env);
+        if (!resolvedApiKey.ok) {
+            logError(resolvedApiKey.error);
+            process.exit(1);
         }
+        store.setStoreValue('apiKey', resolvedApiKey.apiKey);
         if (options.baseUrl) {
             store.setStoreValue('baseUrl', options.baseUrl);
         }
@@ -70,6 +67,7 @@ for (const cmd of Object.keys(STATELESS_HANDLERS)) {
             }
             const { apiKey, port } = getApiKeyAndPort(options);
             updateConfig(apiKey, port);
+            // Preserve the external Local API contract names before handing params to the core handlers.
             const resolved = resolveStatelessCommandArgs(command.name(), params);
             if (!resolved.ok) {
                 logError(resolved.error);
