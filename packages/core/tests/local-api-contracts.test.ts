@@ -1,7 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
 import type { z } from 'zod';
+import * as apiModule from '../src/constants/api.js';
 import { API_ENDPOINTS } from '../src/constants/api.js';
-import { buildRequestBodyFor } from '../src/utils/requestBuilder.js';
+import { browserHandlers } from '../src/handlers/browser.js';
+import { groupHandlers } from '../src/handlers/group.js';
+import type { CreateGroupParams, GetGroupListParams, UpdateGroupParams } from '../src/types/group.js';
+import { buildQueryParamsFor, buildRequestBodyFor } from '../src/utils/requestBuilder.js';
 import { schemas } from '../src/types/schemas.js';
 
 /**
@@ -15,6 +19,10 @@ function mustParse<T extends z.ZodTypeAny>(schema: T, payload: unknown, message:
         true
     );
 }
+
+afterEach(() => {
+    vi.restoreAllMocks();
+});
 
 describe('Zod schemas accept Postman-style external keys', () => {
     it('open-browser: supports documented Postman field names', () => {
@@ -344,6 +352,290 @@ describe('shared contract metadata and serializers', () => {
             fingerprint_config: { browser_kernel_config: { version: 'latest' } },
             platform_account: { account: 'shop-user' },
         });
+    });
+
+    it('serializes get-application-list query using category_id on the wire', () => {
+        const parsed = schemas.getApplicationListSchema.parse({
+            category_id: 'cate-1',
+            page: 2,
+            limit: 20,
+        });
+
+        expect(buildQueryParamsFor('get-application-list', parsed).toString()).toBe(
+            'category_id=cate-1&page=2&limit=20',
+        );
+    });
+
+    it('serializes create-group body using group_name on the wire', () => {
+        const parsed = schemas.createGroupSchema.parse({
+            group_name: 'Ops',
+            remark: 'team',
+        });
+
+        expect(buildRequestBodyFor('create-group', parsed)).toEqual({
+            group_name: 'Ops',
+            remark: 'team',
+        });
+    });
+
+    it('serializes update-group body using group_id and group_name on the wire', () => {
+        const parsed = schemas.updateGroupSchema.parse({
+            group_id: '12',
+            group_name: 'Ops',
+            remark: null,
+        });
+
+        expect(buildRequestBodyFor('update-group', parsed)).toEqual({
+            group_id: '12',
+            group_name: 'Ops',
+            remark: null,
+        });
+    });
+
+    it('serializes get-group-list query using page_size on the wire', () => {
+        const parsed = schemas.getGroupListSchema.parse({
+            group_name: 'Ops',
+            page_size: 25,
+            page: 3,
+        });
+
+        expect(buildQueryParamsFor('get-group-list', parsed).toString()).toBe(
+            'group_name=Ops&page=3&page_size=25',
+        );
+    });
+
+    it('group schemas reject legacy camelCase external keys', () => {
+        expect(
+            schemas.createGroupSchema.safeParse({ groupName: 'Ops' }).success,
+            'createGroupSchema should reject groupName in favor of group_name',
+        ).toBe(false);
+        expect(
+            schemas.updateGroupSchema.safeParse({ groupId: '12', groupName: 'Ops' }).success,
+            'updateGroupSchema should reject camelCase group fields',
+        ).toBe(false);
+        expect(
+            schemas.getGroupListSchema.safeParse({ groupName: 'Ops', size: 10 }).success,
+            'getGroupListSchema should reject groupName and size in favor of group_name/page_size',
+        ).toBe(false);
+    });
+
+    it('group exported parameter types stay aligned with the public schema contract', () => {
+        const createGroupParams: CreateGroupParams = { group_name: 'Ops' };
+        const updateGroupParams: UpdateGroupParams = { group_id: '12', group_name: 'Ops' };
+        const getGroupListParams: GetGroupListParams = { group_name: 'Ops', page_size: 10, page: 1 };
+
+        expectTypeOf(createGroupParams).toEqualTypeOf<z.infer<typeof schemas.createGroupSchema>>();
+        expectTypeOf(updateGroupParams).toEqualTypeOf<z.infer<typeof schemas.updateGroupSchema>>();
+        expectTypeOf(getGroupListParams).toEqualTypeOf<z.infer<typeof schemas.getGroupListSchema>>();
+        expectTypeOf<CreateGroupParams>().toEqualTypeOf<z.infer<typeof schemas.createGroupSchema>>();
+        expectTypeOf<UpdateGroupParams>().toEqualTypeOf<z.infer<typeof schemas.updateGroupSchema>>();
+        expectTypeOf<GetGroupListParams>().toEqualTypeOf<z.infer<typeof schemas.getGroupListSchema>>();
+    });
+
+    it('serializes update-proxy body using proxy_url on the wire', () => {
+        const parsed = schemas.updateProxySchema.parse({
+            proxy_id: 'proxy-1',
+            proxy_url: 'https://refresh.example.com',
+        });
+
+        expect(buildRequestBodyFor('update-proxy', parsed)).toEqual({
+            proxy_id: 'proxy-1',
+            proxy_url: 'https://refresh.example.com',
+        });
+    });
+
+    it('serializes get-proxy-list body using proxy_id on the wire', () => {
+        const parsed = schemas.getProxyListSchema.parse({
+            proxy_id: ['proxy-1', 'proxy-2'],
+            page: 1,
+            limit: 10,
+        });
+
+        expect(buildRequestBodyFor('get-proxy-list', parsed)).toEqual({
+            proxy_id: ['proxy-1', 'proxy-2'],
+            page: 1,
+            limit: 10,
+        });
+    });
+
+    it('serializes delete-proxy body using proxy_id array on the wire', () => {
+        const parsed = schemas.deleteProxySchema.parse({
+            proxy_id: ['proxy-1', 'proxy-2'],
+        });
+
+        expect(buildRequestBodyFor('delete-proxy', parsed)).toEqual({
+            proxy_id: ['proxy-1', 'proxy-2'],
+        });
+    });
+
+    it('proxy schemas reject legacy camelCase external keys', () => {
+        expect(
+            schemas.updateProxySchema.safeParse({ proxyId: 'proxy-1' }).success,
+            'updateProxySchema should reject proxyId in favor of proxy_id',
+        ).toBe(false);
+        expect(
+            schemas.getProxyListSchema.safeParse({ proxyId: ['proxy-1'] }).success,
+            'getProxyListSchema should reject proxyId in favor of proxy_id',
+        ).toBe(false);
+        expect(
+            schemas.deleteProxySchema.safeParse({ proxyIds: ['proxy-1'] }).success,
+            'deleteProxySchema should reject proxyIds in favor of proxy_id',
+        ).toBe(false);
+    });
+
+    it('getProxyListSchema rejects empty proxy_id arrays so they are not serialized downstream', () => {
+        expect(
+            schemas.getProxyListSchema.safeParse({ proxy_id: [] }).success,
+            'getProxyListSchema must reject empty proxy_id arrays',
+        ).toBe(false);
+    });
+
+    it('accepts ipinfo in update-proxy schema to match create-proxy', () => {
+        mustParse(
+            schemas.updateProxySchema,
+            {
+                proxy_id: 'proxy-1',
+                ipchecker: 'ipinfo',
+            },
+            'updateProxySchema must accept ipinfo to match createProxySchema',
+        );
+    });
+
+    it('serializes get-tag-list body using ids on the wire', () => {
+        const parsed = schemas.getTagListSchema.parse({
+            ids: ['tag-1'],
+            page: 2,
+            limit: 10,
+        });
+
+        expect(buildRequestBodyFor('get-tag-list', parsed)).toEqual({
+            ids: ['tag-1'],
+            page: 2,
+            limit: 10,
+        });
+    });
+
+    it('serializes download-kernel body using kernel_type on the wire', () => {
+        const parsed = schemas.downloadKernelSchema.parse({
+            kernel_type: 'Chrome',
+            kernel_version: '141',
+        });
+
+        expect(buildRequestBodyFor('download-kernel', parsed)).toEqual({
+            kernel_type: 'Chrome',
+            kernel_version: '141',
+        });
+    });
+
+    it('serializes get-kernel-list query using kernel_type on the wire', () => {
+        const parsed = schemas.getKernelListSchema.parse({
+            kernel_type: 'Firefox',
+        });
+
+        expect(buildQueryParamsFor('get-kernel-list', parsed).toString()).toBe(
+            'kernel_type=Firefox',
+        );
+    });
+
+    it('serializes update-patch body using version_type on the wire', () => {
+        const parsed = schemas.updatePatchSchema.parse({
+            version_type: 'beta',
+        });
+
+        expect(buildRequestBodyFor('update-patch', parsed)).toEqual({
+            version_type: 'beta',
+        });
+    });
+
+    it('move-browser handler sends user_ids and group_id on the wire', async () => {
+        const parsed = schemas.moveBrowserSchema.parse({
+            user_ids: ['profile-1', 'profile-2'],
+            group_id: '12',
+        });
+        const post = vi.fn().mockResolvedValue({
+            data: {
+                code: 0,
+                data: {},
+            },
+        });
+
+        vi.spyOn(apiModule, 'getApiClient').mockReturnValue({ post } as any);
+
+        await browserHandlers.moveBrowser(parsed as any);
+
+        expect(post).toHaveBeenCalledWith(
+            `${apiModule.getLocalApiBase()}${API_ENDPOINTS.MOVE_BROWSER}`,
+            {
+                group_id: '12',
+                user_ids: ['profile-1', 'profile-2'],
+            },
+        );
+    });
+
+    it('get-cloud-active handler sends user_ids on the wire', async () => {
+        const parsed = schemas.getCloudActiveSchema.parse({
+            user_ids: 'profile-1,profile-2',
+        });
+        const post = vi.fn().mockResolvedValue({
+            data: {
+                code: 0,
+                data: {},
+            },
+        });
+
+        vi.spyOn(apiModule, 'getApiClient').mockReturnValue({ post } as any);
+
+        await browserHandlers.getCloudActive(parsed as any);
+
+        expect(post).toHaveBeenCalledWith(
+            `${apiModule.getLocalApiBase()}${API_ENDPOINTS.GET_CLOUD_ACTIVE}`,
+            {
+                user_ids: 'profile-1,profile-2',
+            },
+        );
+    });
+
+    it('get-group-list handler returns the list only when response code is 0', async () => {
+        const parsed = schemas.getGroupListSchema.parse({
+            group_name: 'Ops',
+            page: 1,
+            page_size: 10,
+        });
+        const get = vi.fn().mockResolvedValue({
+            data: {
+                code: 0,
+                data: {
+                    list: [{ group_id: '1', group_name: 'Ops' }],
+                },
+            },
+        });
+
+        vi.spyOn(apiModule, 'getApiClient').mockReturnValue({ get } as any);
+
+        await expect(groupHandlers.getGroupList(parsed as any)).resolves.toBe(
+            'Group list: [\n  {\n    "group_id": "1",\n    "group_name": "Ops"\n  }\n]'
+        );
+    });
+
+    it('get-group-list handler throws when response code is not 0', async () => {
+        const parsed = schemas.getGroupListSchema.parse({
+            group_name: 'Ops',
+        });
+        const get = vi.fn().mockResolvedValue({
+            data: {
+                code: 1,
+                msg: 'group list failed',
+                data: {
+                    list: [],
+                },
+            },
+        });
+
+        vi.spyOn(apiModule, 'getApiClient').mockReturnValue({ get } as any);
+
+        await expect(groupHandlers.getGroupList(parsed as any)).rejects.toThrow(
+            'Failed to get group list: group list failed'
+        );
     });
 
 });

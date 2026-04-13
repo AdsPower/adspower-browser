@@ -318,10 +318,10 @@ export const schemas = {
     }).strict(),
 
     moveBrowserSchema: z.object({
-        groupId: z.string()
+        group_id: z.string()
             .regex(/^\d+$/, "Group ID must be a numeric string")
             .describe('The target group id, must be a numeric string (e.g., "123"). You can use the get-group-list tool to get the group list'),
-        userIds: z.array(z.string()).describe('The browser Profile ids to move')
+        user_ids: z.array(z.string()).describe('The browser Profile ids to move')
     }).strict(),
 
     getProfileCookiesSchema: z.object({
@@ -360,21 +360,21 @@ export const schemas = {
     }).strict(),
 
     createGroupSchema: z.object({
-        groupName: z.string().describe('The name of the group to create'),
+        group_name: z.string().describe('The name of the group to create'),
         remark: z.string().optional().describe('The remark of the group')
     }).strict(),
 
     updateGroupSchema: z.object({
-        groupId: z.string()
+        group_id: z.string()
             .regex(/^\d+$/, "Group ID must be a numeric string")
             .describe('The id of the group to update, must be a numeric string (e.g., "123"). You can use the get-group-list tool to get the group list'),
-        groupName: z.string().describe('The new name of the group'),
+        group_name: z.string().describe('The new name of the group'),
         remark: z.string().nullable().optional().describe('The new remark of the group')
     }).strict(),
 
     getGroupListSchema: z.object({
-        groupName: z.string().optional().describe('The name of the group to search, use like to search'),
-        size: z.number().optional().describe('The size of the page, max is 100, default is 10'),
+        group_name: z.string().optional().describe('The name of the group to search, use like to search'),
+        page_size: z.number().optional().describe('The size of the page, max is 100, default is 10'),
         page: z.number().optional().describe('The page of the group, default is 1')
     }).strict(),
 
@@ -392,8 +392,8 @@ export const schemas = {
     }),
 
     getCloudActiveSchema: z.object({
-        userIds: z.string().describe('Profile IDs string to check (split by comma, max 100 per request). Unique profile ID, generated after creating the profile.')
-    }).refine(data => data.userIds.split(',').length <= 100, {
+        user_ids: z.string().describe('Profile IDs string to check (split by comma, max 100 per request). Unique profile ID, generated after creating the profile.')
+    }).refine(data => data.user_ids.split(',').length <= 100, {
         message: "The number of profile ids is too many, the maximum is 100"
     }),
 
@@ -411,25 +411,25 @@ export const schemas = {
     }).strict(),
 
     updateProxySchema: z.object({
-        proxyId: z.string().describe('The unique id after the proxy is added'),
+        proxy_id: z.string().describe('The unique id after the proxy is added'),
         type: z.enum(['http', 'https', 'ssh', 'socks5']).optional().describe('Proxy type, support: http/https/ssh/socks5'),
         host: z.string().optional().describe('Proxy host, support: ipV4, ipV6, eg: 192.168.0.1'),
         port: z.string().optional().describe('Port, range: 0-65536, eg: 8000'),
         user: z.string().optional().describe('Proxy username, eg: user12345678'),
         password: z.string().optional().describe('Proxy password, eg: password'),
-        proxyUrl: z.string().optional().describe('URL used to refresh the proxy, eg: https://www.baidu.com/'),
+        proxy_url: z.string().optional().describe('URL used to refresh the proxy, eg: https://www.baidu.com/'),
         remark: z.string().optional().describe('Remark/description for the proxy'),
-        ipchecker: z.enum(['ip2location', 'ipapi', 'ipfoxy']).optional().describe('IP checker.')
+        ipchecker: z.enum(['ipinfo', 'ip2location', 'ipapi', 'ipfoxy']).optional().describe('IP checker.')
     }).strict(),
 
     getProxyListSchema: z.object({
         limit: z.number().optional().describe('Profiles per page. Number of proxies returned per page, range 1 ~ 200, default is 50'),
         page: z.number().optional().describe('Page number for results, default is 1'),
-        proxyId: z.array(z.string()).optional().describe('Query by proxy ID. Example: ["proxy1","proxy2"]')
+        proxy_id: nonEmptyStringArraySchema.optional().describe('Query by proxy ID. Example: ["proxy1","proxy2"]')
     }).strict(),
 
     deleteProxySchema: z.object({
-        proxyIds: z.array(z.string()).describe('The proxy ids of the proxies to delete, it is required when you want to delete the proxy. The maximum is 100. ')
+        proxy_id: z.array(z.string()).describe('The proxy ids of the proxies to delete, it is required when you want to delete the proxy. The maximum is 100. ')
     }).strict(),
 
     getTagListSchema: z.object({

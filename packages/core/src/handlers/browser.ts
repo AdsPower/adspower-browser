@@ -92,14 +92,13 @@ export const browserHandlers = {
         throw new Error(`Failed to get opened browsers: ${response.data.msg}`);
     },
 
-    async moveBrowser({ groupId, userIds }: MoveBrowserParams) {
-        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.MOVE_BROWSER}`, {
-            group_id: groupId,
-            user_ids: userIds
-        });
+    async moveBrowser(params: MoveBrowserParams) {
+        const requestBody = buildRequestBodyFor('move-browser', params as Record<string, unknown>);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.MOVE_BROWSER}`, requestBody);
+        const { group_id, user_ids } = params as MoveBrowserParams & { group_id: string; user_ids: string[] };
 
         if (response.data.code === 0) {
-            return `Browsers moved successfully to group ${groupId}: ${userIds.join(', ')}`;
+            return `Browsers moved successfully to group ${group_id}: ${user_ids.join(', ')}`;
         }
         throw new Error(`Failed to move browsers: ${response.data.msg}`);
     },
@@ -168,10 +167,9 @@ export const browserHandlers = {
         throw new Error(`Failed to get browser active: ${response.data.msg}`);
     },
 
-    async getCloudActive({ userIds }: GetCloudActiveParams) {
-        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.GET_CLOUD_ACTIVE}`, {
-            user_ids: userIds
-        });
+    async getCloudActive(params: GetCloudActiveParams) {
+        const requestBody = buildRequestBodyFor('get-cloud-active', params as Record<string, unknown>);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.GET_CLOUD_ACTIVE}`, requestBody);
         if (response.data.code === 0) {
             return `Cloud active browsers: ${JSON.stringify(response.data.data, null, 2)}`;
         }

@@ -1,16 +1,6 @@
-export interface CreateGroupParams {
-    groupName: string;
-    remark?: string;
-}
+import { z } from 'zod';
+import { schemas } from './schemas.js';
 
-export interface UpdateGroupParams {
-    groupId: string;
-    groupName: string;
-    remark?: string | null;
-}
-
-export interface GetGroupListParams {
-    groupName?: string;
-    size?: number;
-    page?: number;
-}
+export type CreateGroupParams = z.infer<typeof schemas.createGroupSchema>;
+export type UpdateGroupParams = z.infer<typeof schemas.updateGroupSchema>;
+export type GetGroupListParams = z.infer<typeof schemas.getGroupListSchema>;

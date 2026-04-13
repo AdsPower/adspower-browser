@@ -29,7 +29,7 @@ function getSchemaShape(schema: z.ZodTypeAny): Record<string, z.ZodTypeAny> {
 }
 
 export function registerTools(server: McpServer) {
-    server.tool('open-browser', 'Open the browser, both environment and profile mean browser', schemas.openBrowserSchema.shape,
+    server.tool('open-browser', 'Open the browser, both environment and profile mean browser', getSchemaShape(schemas.openBrowserSchema),
         wrapHandler(browserHandlers.openBrowser));
 
     server.tool('close-browser', 'Close the browser', getSchemaShape(schemas.closeBrowserSchema),
@@ -62,7 +62,7 @@ export function registerTools(server: McpServer) {
     server.tool('close-all-profiles', 'Close all opened profiles on the current device', schemas.closeAllProfilesSchema.shape,
         wrapHandler(browserHandlers.closeAllProfiles));
 
-    server.tool('new-fingerprint', 'Generate a new fingerprint for specified profiles. Up to 10 profiles are supported per request.', schemas.newFingerprintSchema.shape,
+    server.tool('new-fingerprint', 'Generate a new fingerprint for specified profiles. Up to 10 profiles are supported per request.', getSchemaShape(schemas.newFingerprintSchema),
         wrapHandler(browserHandlers.newFingerprint));
 
     server.tool('delete-cache-v2', 'Clear local cache of specific profiles.For account security, please ensure that there are no open browsers on the device when using this interface.', schemas.deleteCacheV2Schema.shape,
@@ -89,7 +89,7 @@ export function registerTools(server: McpServer) {
     server.tool('check-status', 'Check the availability of the current device API interface (Connection Status)', schemas.emptySchema.shape,
         wrapHandler(applicationHandlers.checkStatus));
 
-    server.tool('get-application-list', 'Get the list of applications (categories)', schemas.getApplicationListSchema.shape,
+    server.tool('get-application-list', 'Get application categories with optional category_id filtering and page/limit pagination.', schemas.getApplicationListSchema.shape,
         wrapHandler(applicationHandlers.getApplicationList));
 
     server.tool('create-proxy', 'Create a proxy', getSchemaShape(schemas.createProxySchema),

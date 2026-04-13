@@ -61,4 +61,10 @@ describe('registerTools wires MCP input schemas with Postman external keys', () 
             expect(keys, `tool ${tool} must accept Postman key "${key}"`).toContain(key);
         }
     });
+
+    it('describes get-application-list with category_id, page, and limit semantics', () => {
+        expect(registered['get-application-list']?.description).toContain('category_id');
+        expect(registered['get-application-list']?.description).toContain('page');
+        expect(registered['get-application-list']?.description).toContain('limit');
+    });
 });
