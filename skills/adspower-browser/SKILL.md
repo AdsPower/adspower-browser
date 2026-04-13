@@ -154,7 +154,7 @@ ads get-application-list '{"category_id":"123","page":1,"limit":20}'
 ### Proxy
 
 ```bash
-ads create-proxy '{"proxies":[{"type":"http","host":"127.0.0.1","port":"8080"}]}'  # type, host, port required per item
+ads create-proxy '[{"type":"http","host":"127.0.0.1","port":"8080"}]'  # top-level array; type, host, port required per item
 ads update-proxy '{"proxy_id":"proxy-1","proxy_url":"https://refresh.example.com"}'
 ads get-proxy-list '{}'                         # limit?, page?, proxy_id[]?
 ads delete-proxy '{"proxy_id":["..."]}'        # proxy_id required, max 100

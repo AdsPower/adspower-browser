@@ -801,9 +801,8 @@ var LOCAL_API_CONTRACTS = {
   "create-proxy": {
     method: "POST",
     path: "/api/v2/proxy-list/create",
-    params: {
-      proxies: { apiName: "proxies", location: "body" }
-    }
+    params: {},
+    bodyShape: "array"
   },
   "update-proxy": {
     method: "POST",
@@ -1204,7 +1203,7 @@ function buildCreateProxyRequestBody(proxy) {
 }
 var proxyHandlers = {
   async createProxy(params) {
-    const requestBody = params.proxies.map((proxy) => buildCreateProxyRequestBody(proxy));
+    const requestBody = params.map((proxy) => buildCreateProxyRequestBody(proxy));
     const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.CREATE_PROXY}`, requestBody);
     if (response.data.code === 0) {
       return `Proxy created successfully with: ${Object.entries(response.data.data || {}).map(([key, value]) => `${key}: ${value}`).join("\n")}`;
@@ -1865,6 +1864,16 @@ var fingerprintConfigSchema = import_zod.z.object({
     }
   }
 }).describe("Fingerprint config (fingerprint_config). All fields optional. See AdsPower Local API fingerprint_config.");
+var createProxyItemSchema = import_zod.z.object({
+  type: import_zod.z.enum(["http", "https", "ssh", "socks5"]).describe("Proxy type, support: http/https/ssh/socks5"),
+  host: import_zod.z.string().describe("Proxy host, support: ipV4, ipV6, eg: 192.168.0.1"),
+  port: import_zod.z.string().describe("Port, range: 0-65536, eg: 8000"),
+  user: import_zod.z.string().optional().describe("Proxy username, eg: user12345678"),
+  password: import_zod.z.string().optional().describe("Proxy password, eg: password"),
+  proxy_url: import_zod.z.string().optional().describe("URL used to refresh the proxy, eg: https://www.baidu.com/"),
+  remark: import_zod.z.string().optional().describe("Remark/description for the proxy"),
+  ipchecker: import_zod.z.enum(["ipinfo", "ip2location", "ipapi", "ipfoxy"]).optional().describe("IP checker.")
+}).strict();
 var schemas = {
   createBrowserSchema: import_zod.z.object({
     group_id: import_zod.z.string().regex(/^\d+$/, "Group ID must be a numeric string").describe('The group id of the browser, must be a numeric string (e.g., "123"). You can use the get-group-list tool to get the group list or create a new group, use 0 for Ungrouped'),
@@ -2017,17 +2026,9 @@ var schemas = {
   }).refine((data) => data.user_ids.split(",").length <= 100, {
     message: "The number of profile ids is too many, the maximum is 100"
   }),
-  createProxySchema: import_zod.z.object({
-    proxies: import_zod.z.array(import_zod.z.object({
-      type: import_zod.z.enum(["http", "https", "ssh", "socks5"]).describe("Proxy type, support: http/https/ssh/socks5"),
-      host: import_zod.z.string().describe("Proxy host, support: ipV4, ipV6, eg: 192.168.0.1"),
-      port: import_zod.z.string().describe("Port, range: 0-65536, eg: 8000"),
-      user: import_zod.z.string().optional().describe("Proxy username, eg: user12345678"),
-      password: import_zod.z.string().optional().describe("Proxy password, eg: password"),
-      proxy_url: import_zod.z.string().optional().describe("URL used to refresh the proxy, eg: https://www.baidu.com/"),
-      remark: import_zod.z.string().optional().describe("Remark/description for the proxy"),
-      ipchecker: import_zod.z.enum(["ipinfo", "ip2location", "ipapi", "ipfoxy"]).optional().describe("IP checker.")
-    }).strict()).describe("Array of proxy configurations to create")
+  createProxySchema: import_zod.z.array(createProxyItemSchema).describe("Top-level array of proxy configurations to create"),
+  createProxyMcpSchema: import_zod.z.object({
+    proxies: import_zod.z.array(createProxyItemSchema).describe("Compatibility wrapper for MCP create-proxy input. Core and CLI accept a top-level array.")
   }).strict(),
   updateProxySchema: import_zod.z.object({
     proxy_id: import_zod.z.string().describe("The unique id after the proxy is added"),

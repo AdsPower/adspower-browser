@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { proxyHandlers } from '@adspower/local-api-core';
 import { registerTools } from '../src/utils/toolRegister.js';
 
 type RegisteredTool = {
@@ -19,6 +20,10 @@ function captureRegisteredTools(): Record<string, RegisteredTool> {
     return registered;
 }
 
+afterEach(() => {
+    vi.restoreAllMocks();
+});
+
 const localApiToolExpectations: Array<{ tool: string; mustInclude: string[] }> = [
     { tool: 'open-browser', mustInclude: ['profile_id', 'profile_no'] },
     { tool: 'close-browser', mustInclude: ['profile_id', 'profile_no'] },
@@ -38,6 +43,7 @@ const localApiToolExpectations: Array<{ tool: string; mustInclude: string[] }> =
     { tool: 'update-group', mustInclude: ['group_id', 'group_name'] },
     { tool: 'get-group-list', mustInclude: ['group_name', 'page_size'] },
     { tool: 'get-application-list', mustInclude: ['category_id'] },
+    { tool: 'create-proxy', mustInclude: ['proxies'] },
     { tool: 'update-proxy', mustInclude: ['proxy_id', 'proxy_url'] },
     { tool: 'get-proxy-list', mustInclude: ['proxy_id'] },
     { tool: 'delete-proxy', mustInclude: ['proxy_id'] },
@@ -66,5 +72,29 @@ describe('registerTools wires MCP input schemas with Postman external keys', () 
         expect(registered['get-application-list']?.description).toContain('category_id');
         expect(registered['get-application-list']?.description).toContain('page');
         expect(registered['get-application-list']?.description).toContain('limit');
+    });
+
+    it('keeps create-proxy on the MCP compatibility wrapper until the SDK can expose root arrays safely', () => {
+        const keys = Object.keys(registered['create-proxy']?.inputSchema ?? {});
+        expect(keys).toContain('proxies');
+        expect(keys).not.toContain('type');
+        expect(keys).not.toContain('host');
+    });
+
+    it('unwraps the MCP compatibility wrapper before calling createProxy', async () => {
+        const createProxy = vi.spyOn(proxyHandlers, 'createProxy').mockResolvedValue('ok');
+        const payload = {
+            proxies: [
+                {
+                    type: 'http',
+                    host: '127.0.0.1',
+                    port: '8080',
+                },
+            ],
+        };
+
+        await registered['create-proxy']?.handler(payload);
+
+        expect(createProxy).toHaveBeenCalledWith(payload.proxies);
     });
 });

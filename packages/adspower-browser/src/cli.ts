@@ -78,7 +78,7 @@ export const STATELESS_HANDLERS: Record<string, Handler> = {
     },
     'get-cloud-active': {
         fn: browserHandlers.getCloudActive as HandlerFn,
-        description: 'Query the status of browser profiles by user_id, up to 100 profiles per request. If the team has enabled "Multi device mode," specific statuses cannot be retrieved and the response will indicate "Profile not opened."'
+        description: 'Query the status of browser profiles by user_ids, up to 100 profiles per request. If the team has enabled "Multi device mode," specific statuses cannot be retrieved and the response will indicate "Profile not opened."'
     },
     'create-group': {
         fn: groupHandlers.createGroup as HandlerFn,

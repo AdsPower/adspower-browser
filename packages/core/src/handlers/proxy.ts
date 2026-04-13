@@ -7,7 +7,7 @@ import type {
 } from '../types/proxy.js';
 import { buildRequestBodyFor } from '../utils/requestBuilder.js';
 
-type ProxyItem = CreateProxyParams['proxies'][number];
+type ProxyItem = CreateProxyParams[number];
 
 function buildCreateProxyRequestBody(proxy: ProxyItem): Record<string, any> {
     const requestBody: Record<string, any> = {};
@@ -37,7 +37,7 @@ function buildCreateProxyRequestBody(proxy: ProxyItem): Record<string, any> {
 
 export const proxyHandlers = {
     async createProxy(params: CreateProxyParams) {
-        const requestBody = params.proxies.map(proxy => buildCreateProxyRequestBody(proxy));
+        const requestBody = params.map(proxy => buildCreateProxyRequestBody(proxy));
         const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.CREATE_PROXY}`, requestBody);
 
         if (response.data.code === 0) {

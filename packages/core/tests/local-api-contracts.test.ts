@@ -2,8 +2,10 @@ import { afterEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
 import type { z } from 'zod';
 import * as apiModule from '../src/constants/api.js';
 import { API_ENDPOINTS } from '../src/constants/api.js';
+import { LOCAL_API_CONTRACTS } from '../src/constants/localApiContracts.js';
 import { browserHandlers } from '../src/handlers/browser.js';
 import { groupHandlers } from '../src/handlers/group.js';
+import { proxyHandlers } from '../src/handlers/proxy.js';
 import type { CreateGroupParams, GetGroupListParams, UpdateGroupParams } from '../src/types/group.js';
 import { buildQueryParamsFor, buildRequestBodyFor } from '../src/utils/requestBuilder.js';
 import { schemas } from '../src/types/schemas.js';
@@ -468,6 +470,48 @@ describe('shared contract metadata and serializers', () => {
         });
     });
 
+    it('accepts create-proxy as a top-level proxy array', () => {
+        const parsed = schemas.createProxySchema.parse([
+            {
+                type: 'http',
+                host: '127.0.0.1',
+                port: '8080',
+                proxy_url: 'https://refresh.example.com',
+            },
+        ]);
+
+        expect(parsed).toEqual([
+            {
+                type: 'http',
+                host: '127.0.0.1',
+                port: '8080',
+                proxy_url: 'https://refresh.example.com',
+            },
+        ]);
+    });
+
+    it('marks create-proxy contract metadata as a top-level body array', () => {
+        expect(LOCAL_API_CONTRACTS['create-proxy']).toMatchObject({
+            bodyShape: 'array',
+            params: {},
+        });
+    });
+
+    it('rejects legacy create-proxy wrapper objects', () => {
+        expect(
+            schemas.createProxySchema.safeParse({
+                proxies: [
+                    {
+                        type: 'http',
+                        host: '127.0.0.1',
+                        port: '8080',
+                    },
+                ],
+            }).success,
+            'createProxySchema should reject the legacy proxies wrapper in favor of a top-level array',
+        ).toBe(false);
+    });
+
     it('proxy schemas reject legacy camelCase external keys', () => {
         expect(
             schemas.updateProxySchema.safeParse({ proxyId: 'proxy-1' }).success,
@@ -592,6 +636,39 @@ describe('shared contract metadata and serializers', () => {
             {
                 user_ids: 'profile-1,profile-2',
             },
+        );
+    });
+
+    it('create-proxy handler sends a top-level proxy array on the wire', async () => {
+        const parsed = schemas.createProxySchema.parse([
+            {
+                type: 'http',
+                host: '127.0.0.1',
+                port: '8080',
+                proxy_url: 'https://refresh.example.com',
+            },
+        ]);
+        const post = vi.fn().mockResolvedValue({
+            data: {
+                code: 0,
+                data: {},
+            },
+        });
+
+        vi.spyOn(apiModule, 'getApiClient').mockReturnValue({ post } as any);
+
+        await proxyHandlers.createProxy(parsed as any);
+
+        expect(post).toHaveBeenCalledWith(
+            `${apiModule.getLocalApiBase()}${API_ENDPOINTS.CREATE_PROXY}`,
+            [
+                {
+                    type: 'http',
+                    host: '127.0.0.1',
+                    port: '8080',
+                    proxy_url: 'https://refresh.example.com',
+                },
+            ],
         );
     });
 

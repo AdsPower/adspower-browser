@@ -43,6 +43,7 @@ export type LocalApiContract = {
     method: 'GET' | 'POST';
     path: string;
     params: Record<string, ContractParam>;
+    bodyShape?: 'object' | 'array';
 };
 
 export const LOCAL_API_CONTRACTS: Record<ContractCommand, LocalApiContract> = {
@@ -273,9 +274,8 @@ export const LOCAL_API_CONTRACTS: Record<ContractCommand, LocalApiContract> = {
     'create-proxy': {
         method: 'POST',
         path: '/api/v2/proxy-list/create',
-        params: {
-            proxies: { apiName: 'proxies', location: 'body' },
-        },
+        params: {},
+        bodyShape: 'array',
     },
     'update-proxy': {
         method: 'POST',

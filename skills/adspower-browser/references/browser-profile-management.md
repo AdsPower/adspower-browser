@@ -108,6 +108,6 @@
 
 - **profile_id** (optional) or **profile_no** (optional): One required.
 
-**get-cloud-active** — Query status of browser profiles by user_id. Up to 100 per request.
+**get-cloud-active** — Query status of browser profiles by user_ids. Up to 100 per request.
 
 - **user_ids** (required): Comma-separated profile IDs string, max 100. Unique profile ID generated after creating profile.

@@ -2,7 +2,7 @@
 
 **create-proxy** — Create a proxy.
 
-- **proxies** (required): Array of proxy configs. Each item:
+- Provide a top-level JSON array of proxy configs. Each item:
   - **type** (required): `'http'` | `'https'` | `'ssh'` | `'socks5'`.
   - **host** (required): Proxy host, ipV4/ipV6, e.g. 192.168.0.1.
   - **port** (required): 0–65536, e.g. 8000.

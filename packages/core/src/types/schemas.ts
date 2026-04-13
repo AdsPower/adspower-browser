@@ -208,6 +208,17 @@ const fingerprintConfigSchema = z.object({
     }
 }).describe('Fingerprint config (fingerprint_config). All fields optional. See AdsPower Local API fingerprint_config.');
 
+const createProxyItemSchema = z.object({
+    type: z.enum(['http', 'https', 'ssh', 'socks5']).describe('Proxy type, support: http/https/ssh/socks5'),
+    host: z.string().describe('Proxy host, support: ipV4, ipV6, eg: 192.168.0.1'),
+    port: z.string().describe('Port, range: 0-65536, eg: 8000'),
+    user: z.string().optional().describe('Proxy username, eg: user12345678'),
+    password: z.string().optional().describe('Proxy password, eg: password'),
+    proxy_url: z.string().optional().describe('URL used to refresh the proxy, eg: https://www.baidu.com/'),
+    remark: z.string().optional().describe('Remark/description for the proxy'),
+    ipchecker: z.enum(['ipinfo', 'ip2location', 'ipapi', 'ipfoxy']).optional().describe('IP checker.')
+}).strict();
+
 export const schemas = {
     createBrowserSchema: z.object({
         group_id: z.string()
@@ -397,17 +408,10 @@ export const schemas = {
         message: "The number of profile ids is too many, the maximum is 100"
     }),
 
-    createProxySchema: z.object({
-        proxies: z.array(z.object({
-            type: z.enum(['http', 'https', 'ssh', 'socks5']).describe('Proxy type, support: http/https/ssh/socks5'),
-            host: z.string().describe('Proxy host, support: ipV4, ipV6, eg: 192.168.0.1'),
-            port: z.string().describe('Port, range: 0-65536, eg: 8000'),
-            user: z.string().optional().describe('Proxy username, eg: user12345678'),
-            password: z.string().optional().describe('Proxy password, eg: password'),
-            proxy_url: z.string().optional().describe('URL used to refresh the proxy, eg: https://www.baidu.com/'),
-            remark: z.string().optional().describe('Remark/description for the proxy'),
-            ipchecker: z.enum(['ipinfo', 'ip2location', 'ipapi', 'ipfoxy']).optional().describe('IP checker.')
-        }).strict()).describe('Array of proxy configurations to create')
+    createProxySchema: z.array(createProxyItemSchema).describe('Top-level array of proxy configurations to create'),
+
+    createProxyMcpSchema: z.object({
+        proxies: z.array(createProxyItemSchema).describe('Compatibility wrapper for MCP create-proxy input. Core and CLI accept a top-level array.')
     }).strict(),
 
     updateProxySchema: z.object({

@@ -74,7 +74,7 @@ export function registerTools(server: McpServer) {
     server.tool('get-browser-active', 'Get active browser profile information', getSchemaShape(schemas.getBrowserActiveSchema),
         wrapHandler(browserHandlers.getBrowserActive));
 
-    server.tool('get-cloud-active', 'Query the status of browser profiles by user_id, up to 100 profiles per request. If the team has enabled "Multi device mode," specific statuses cannot be retrieved and the response will indicate "Profile not opened."', getSchemaShape(schemas.getCloudActiveSchema),
+    server.tool('get-cloud-active', 'Query the status of browser profiles by user_ids, up to 100 profiles per request. If the team has enabled "Multi device mode," specific statuses cannot be retrieved and the response will indicate "Profile not opened."', getSchemaShape(schemas.getCloudActiveSchema),
         wrapHandler(browserHandlers.getCloudActive));
 
     server.tool('create-group', 'Create a browser group', schemas.createGroupSchema.shape,
@@ -92,8 +92,8 @@ export function registerTools(server: McpServer) {
     server.tool('get-application-list', 'Get application categories with optional category_id filtering and page/limit pagination.', schemas.getApplicationListSchema.shape,
         wrapHandler(applicationHandlers.getApplicationList));
 
-    server.tool('create-proxy', 'Create a proxy', getSchemaShape(schemas.createProxySchema),
-        wrapHandler(proxyHandlers.createProxy));
+    server.tool('create-proxy', 'Create a proxy', getSchemaShape(schemas.createProxyMcpSchema),
+        wrapHandler((params: { proxies: Parameters<typeof proxyHandlers.createProxy>[0] }) => proxyHandlers.createProxy(params.proxies)));
 
     server.tool('update-proxy', 'Update the proxy', getSchemaShape(schemas.updateProxySchema),
         wrapHandler(proxyHandlers.updateProxy));
