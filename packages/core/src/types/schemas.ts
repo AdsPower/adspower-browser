@@ -278,11 +278,17 @@ export const schemas = {
     }).strict(),
 
     openBrowserSchema: z.object({
-        profile_no: z.string().optional().describe('Priority will be given to user id when profile_id is filled.'),
-        profile_id: z.string().optional().describe('Unique profile ID, generated after creating profile. The profile id of the browser to open'),
+        profile_no: z.string().optional().describe(
+            'Profile serial number (environment number). 环境序号/编号。At least one of profile_id or profile_no is required; if both are provided, profile_id takes priority (AdsPower API). profile_id 与 profile_no 至少填其一；同时填写时 profile_id 优先（与 AdsPower API 一致）。'
+        ),
+        profile_id: z.string().optional().describe(
+            'Unique profile ID generated after creating a profile; identifies which browser to open. 创建环境后生成的唯一 profile ID，用于指定要打开的环境。At least one of profile_id or profile_no is required; if both are provided, profile_id takes priority (AdsPower API). profile_id 与 profile_no 至少填其一；同时填写时 profile_id 优先（与 AdsPower API 一致）。'
+        ),
         ip_tab: z.enum(['0', '1']).optional().describe('The ip tab of the browser, 0 is not use ip tab, 1 is use ip tab, default is 0'),
         launch_args: z.union([z.string(), z.array(z.string())]).optional().describe('The launch args of the browser, use chrome launch args, or vista url'),
-        headless: z.enum(['0', '1']).optional().describe('Headless browser switch, 0 disabled, 1 enabled.'),
+        headless: z.enum(['0', '1']).optional().describe(
+            'Headless: "0" visible window, "1" headless. 无头模式开关。If omitted, the runtime may auto-set "1" when no graphical session is detected (Linux without DISPLAY/WAYLAND, or CI). Explicit "0"/"1" is always sent as-is.'
+        ),
         last_opened_tabs: z.enum(['0', '1']).optional().describe('Whether to restore the last opened tabs.'),
         proxy_detection: z.enum(['0', '1']).optional().describe('Whether to enable proxy detection.'),
         password_filling: z.enum(['0', '1']).optional().describe('Whether to enable password auto-filling.'),
