@@ -1,5 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import {
+    buildMcpToolDescription,
     browserHandlers,
     groupHandlers,
     applicationHandlers,
@@ -29,144 +30,144 @@ function getSchemaShape(schema: z.ZodTypeAny): Record<string, z.ZodTypeAny> {
 }
 
 export function registerTools(server: McpServer) {
-    server.tool('open-browser', 'Open the browser, both environment and profile mean browser', getSchemaShape(schemas.openBrowserSchema),
+    server.tool('open-browser', buildMcpToolDescription('open-browser', 'Open the browser, both environment and profile mean browser'), getSchemaShape(schemas.openBrowserSchema),
         wrapHandler(browserHandlers.openBrowser));
 
-    server.tool('close-browser', 'Close the browser', getSchemaShape(schemas.closeBrowserSchema),
+    server.tool('close-browser', buildMcpToolDescription('close-browser', 'Close the browser'), getSchemaShape(schemas.closeBrowserSchema),
         wrapHandler(browserHandlers.closeBrowser));
 
-    server.tool('create-browser', 'Create a browser', getSchemaShape(schemas.createBrowserSchema),
+    server.tool('create-browser', buildMcpToolDescription('create-browser', 'Create a browser'), getSchemaShape(schemas.createBrowserSchema),
         wrapHandler(browserHandlers.createBrowser));
 
-    server.tool('update-browser', 'Update the browser', schemas.updateBrowserSchema.shape,
+    server.tool('update-browser', buildMcpToolDescription('update-browser', 'Update the browser'), schemas.updateBrowserSchema.shape,
         wrapHandler(browserHandlers.updateBrowser));
 
-    server.tool('delete-browser', 'Delete the browser', schemas.deleteBrowserSchema.shape,
+    server.tool('delete-browser', buildMcpToolDescription('delete-browser', 'Delete the browser'), schemas.deleteBrowserSchema.shape,
         wrapHandler(browserHandlers.deleteBrowser));
 
-    server.tool('get-browser-list', 'Get the list of browsers', schemas.getBrowserListSchema.shape,
+    server.tool('get-browser-list', buildMcpToolDescription('get-browser-list', 'Get the list of browsers'), schemas.getBrowserListSchema.shape,
         wrapHandler(browserHandlers.getBrowserList));
 
-    server.tool('get-opened-browser', 'Get the list of opened browsers', schemas.emptySchema.shape,
+    server.tool('get-opened-browser', buildMcpToolDescription('get-opened-browser', 'Get the list of opened browsers'), schemas.emptySchema.shape,
         wrapHandler(browserHandlers.getOpenedBrowser));
 
-    server.tool('move-browser', 'Move browsers to a group', schemas.moveBrowserSchema.shape,
+    server.tool('move-browser', buildMcpToolDescription('move-browser', 'Move browsers to a group'), schemas.moveBrowserSchema.shape,
         wrapHandler(browserHandlers.moveBrowser));
 
-    server.tool('get-profile-cookies', 'Query and return cookies of the specified profile. Only one profile can be queried per request.', getSchemaShape(schemas.getProfileCookiesSchema),
+    server.tool('get-profile-cookies', buildMcpToolDescription('get-profile-cookies', 'Query and return cookies of the specified profile. Only one profile can be queried per request.'), getSchemaShape(schemas.getProfileCookiesSchema),
         wrapHandler(browserHandlers.getProfileCookies));
 
-    server.tool('get-profile-ua', 'Query and return the User-Agent of specified profiles. Up to 10 profiles can be queried per request.', getSchemaShape(schemas.getProfileUaSchema),
+    server.tool('get-profile-ua', buildMcpToolDescription('get-profile-ua', 'Query and return the User-Agent of specified profiles. Up to 10 profiles can be queried per request.'), getSchemaShape(schemas.getProfileUaSchema),
         wrapHandler(browserHandlers.getProfileUa));
 
-    server.tool('close-all-profiles', 'Close all opened profiles on the current device', schemas.closeAllProfilesSchema.shape,
+    server.tool('close-all-profiles', buildMcpToolDescription('close-all-profiles', 'Close all opened profiles on the current device'), schemas.closeAllProfilesSchema.shape,
         wrapHandler(browserHandlers.closeAllProfiles));
 
-    server.tool('new-fingerprint', 'Generate a new fingerprint for specified profiles. Up to 10 profiles are supported per request.', getSchemaShape(schemas.newFingerprintSchema),
+    server.tool('new-fingerprint', buildMcpToolDescription('new-fingerprint', 'Generate a new fingerprint for specified profiles. Up to 10 profiles are supported per request.'), getSchemaShape(schemas.newFingerprintSchema),
         wrapHandler(browserHandlers.newFingerprint));
 
-    server.tool('delete-cache-v2', 'Clear local cache of specific profiles.For account security, please ensure that there are no open browsers on the device when using this interface.', schemas.deleteCacheV2Schema.shape,
+    server.tool('delete-cache-v2', buildMcpToolDescription('delete-cache-v2', 'Clear local cache of specific profiles.For account security, please ensure that there are no open browsers on the device when using this interface.'), schemas.deleteCacheV2Schema.shape,
         wrapHandler(browserHandlers.deleteCacheV2));
 
-    server.tool('share-profile', 'Share profiles via account email or phone number. The maximum number of profiles that can be shared at one time is 200.', schemas.shareProfileSchema.shape,
+    server.tool('share-profile', buildMcpToolDescription('share-profile', 'Share profiles via account email or phone number. The maximum number of profiles that can be shared at one time is 200.'), schemas.shareProfileSchema.shape,
         wrapHandler(browserHandlers.shareProfile));
 
-    server.tool('get-browser-active', 'Get active browser profile information', getSchemaShape(schemas.getBrowserActiveSchema),
+    server.tool('get-browser-active', buildMcpToolDescription('get-browser-active', 'Get active browser profile information'), getSchemaShape(schemas.getBrowserActiveSchema),
         wrapHandler(browserHandlers.getBrowserActive));
 
-    server.tool('get-cloud-active', 'Query the status of browser profiles by user_ids, up to 100 profiles per request. If the team has enabled "Multi device mode," specific statuses cannot be retrieved and the response will indicate "Profile not opened."', getSchemaShape(schemas.getCloudActiveSchema),
+    server.tool('get-cloud-active', buildMcpToolDescription('get-cloud-active', 'Query the status of browser profiles by user_ids, up to 100 profiles per request. If the team has enabled "Multi device mode," specific statuses cannot be retrieved and the response will indicate "Profile not opened."'), getSchemaShape(schemas.getCloudActiveSchema),
         wrapHandler(browserHandlers.getCloudActive));
 
-    server.tool('create-group', 'Create a browser group', schemas.createGroupSchema.shape,
+    server.tool('create-group', buildMcpToolDescription('create-group', 'Create a browser group'), schemas.createGroupSchema.shape,
         wrapHandler(groupHandlers.createGroup));
 
-    server.tool('update-group', 'Update the browser group', schemas.updateGroupSchema.shape,
+    server.tool('update-group', buildMcpToolDescription('update-group', 'Update the browser group'), schemas.updateGroupSchema.shape,
         wrapHandler(groupHandlers.updateGroup));
 
-    server.tool('get-group-list', 'Get the list of groups', schemas.getGroupListSchema.shape,
+    server.tool('get-group-list', buildMcpToolDescription('get-group-list', 'Get the list of groups'), schemas.getGroupListSchema.shape,
         wrapHandler(groupHandlers.getGroupList));
 
-    server.tool('check-status', 'Check the availability of the current device API interface (Connection Status)', schemas.emptySchema.shape,
+    server.tool('check-status', buildMcpToolDescription('check-status', 'Check the availability of the current device API interface (Connection Status)'), schemas.emptySchema.shape,
         wrapHandler(applicationHandlers.checkStatus));
 
-    server.tool('get-application-list', 'Get application categories with optional category_id filtering and page/limit pagination.', schemas.getApplicationListSchema.shape,
+    server.tool('get-application-list', buildMcpToolDescription('get-application-list', 'Get application categories with optional category_id filtering and page/limit pagination.'), schemas.getApplicationListSchema.shape,
         wrapHandler(applicationHandlers.getApplicationList));
 
-    server.tool('create-proxy', 'Create a proxy', getSchemaShape(schemas.createProxyMcpSchema),
+    server.tool('create-proxy', buildMcpToolDescription('create-proxy', 'Create a proxy'), getSchemaShape(schemas.createProxyMcpSchema),
         wrapHandler((params: { proxies: Parameters<typeof proxyHandlers.createProxy>[0] }) => proxyHandlers.createProxy(params.proxies)));
 
-    server.tool('update-proxy', 'Update the proxy', getSchemaShape(schemas.updateProxySchema),
+    server.tool('update-proxy', buildMcpToolDescription('update-proxy', 'Update the proxy'), getSchemaShape(schemas.updateProxySchema),
         wrapHandler(proxyHandlers.updateProxy));
 
-    server.tool('get-proxy-list', 'Get the list of proxies', schemas.getProxyListSchema.shape,
+    server.tool('get-proxy-list', buildMcpToolDescription('get-proxy-list', 'Get the list of proxies'), schemas.getProxyListSchema.shape,
         wrapHandler(proxyHandlers.getProxyList));
 
-    server.tool('delete-proxy', 'Delete the proxy', schemas.deleteProxySchema.shape,
+    server.tool('delete-proxy', buildMcpToolDescription('delete-proxy', 'Delete the proxy'), schemas.deleteProxySchema.shape,
         wrapHandler(proxyHandlers.deleteProxy));
 
-    server.tool('get-tag-list', 'Get the list of browser tags', schemas.getTagListSchema.shape,
+    server.tool('get-tag-list', buildMcpToolDescription('get-tag-list', 'Get the list of browser tags'), schemas.getTagListSchema.shape,
         wrapHandler(tagHandlers.getTagList));
 
-    server.tool('create-tag', 'Create browser tags (batch supported)', schemas.createTagSchema.shape,
+    server.tool('create-tag', buildMcpToolDescription('create-tag', 'Create browser tags (batch supported)'), schemas.createTagSchema.shape,
         wrapHandler(tagHandlers.createTag));
 
-    server.tool('update-tag', 'Update browser tags (batch supported)', schemas.updateTagSchema.shape,
+    server.tool('update-tag', buildMcpToolDescription('update-tag', 'Update browser tags (batch supported)'), schemas.updateTagSchema.shape,
         wrapHandler(tagHandlers.updateTag));
 
-    server.tool('delete-tag', 'Delete browser tags', schemas.deleteTagSchema.shape,
+    server.tool('delete-tag', buildMcpToolDescription('delete-tag', 'Delete browser tags'), schemas.deleteTagSchema.shape,
         wrapHandler(tagHandlers.deleteTag));
 
-    server.tool('download-kernel', 'Download or update a browser kernel version', schemas.downloadKernelSchema.shape,
+    server.tool('download-kernel', buildMcpToolDescription('download-kernel', 'Download or update a browser kernel version'), schemas.downloadKernelSchema.shape,
         wrapHandler(kernelHandlers.downloadKernel));
 
-    server.tool('get-kernel-list', 'Get browser kernel list by type or all', schemas.getKernelListSchema.shape,
+    server.tool('get-kernel-list', buildMcpToolDescription('get-kernel-list', 'Get browser kernel list by type or all'), schemas.getKernelListSchema.shape,
         wrapHandler(kernelHandlers.getKernelList));
 
-    server.tool('update-patch', 'Update AdsPower to latest patch version', schemas.updatePatchSchema.shape,
+    server.tool('update-patch', buildMcpToolDescription('update-patch', 'Update AdsPower to latest patch version'), schemas.updatePatchSchema.shape,
         wrapHandler(patchHandlers.updatePatch));
 
-    server.tool('connect-browser-with-ws', 'Connect the browser with the ws url', schemas.createAutomationSchema.shape,
+    server.tool('connect-browser-with-ws', buildMcpToolDescription('connect-browser-with-ws', 'Connect the browser with the ws url'), schemas.createAutomationSchema.shape,
         wrapHandler(automationHandlers.connectBrowserWithWs));
 
-    server.tool('open-new-page', 'Open a new page', schemas.emptySchema.shape,
+    server.tool('open-new-page', buildMcpToolDescription('open-new-page', 'Open a new page'), schemas.emptySchema.shape,
         wrapHandler(automationHandlers.openNewPage));
 
-    server.tool('navigate', 'Navigate to the url', schemas.navigateSchema.shape,
+    server.tool('navigate', buildMcpToolDescription('navigate', 'Navigate to the url'), schemas.navigateSchema.shape,
         wrapHandler(automationHandlers.navigate));
 
-    server.tool('screenshot', 'Get the screenshot of the page', schemas.screenshotSchema.shape,
+    server.tool('screenshot', buildMcpToolDescription('screenshot', 'Get the screenshot of the page'), schemas.screenshotSchema.shape,
         wrapHandler(automationHandlers.screenshot));
 
-    server.tool('get-page-visible-text', 'Get the visible text content of the page', schemas.emptySchema.shape,
+    server.tool('get-page-visible-text', buildMcpToolDescription('get-page-visible-text', 'Get the visible text content of the page'), schemas.emptySchema.shape,
         wrapHandler(automationHandlers.getPageVisibleText));
 
-    server.tool('get-page-html', 'Get the html content of the page', schemas.emptySchema.shape,
+    server.tool('get-page-html', buildMcpToolDescription('get-page-html', 'Get the html content of the page'), schemas.emptySchema.shape,
         wrapHandler(automationHandlers.getPageHtml));
 
-    server.tool('click-element', 'Click the element', schemas.clickElementSchema.shape,
+    server.tool('click-element', buildMcpToolDescription('click-element', 'Click the element'), schemas.clickElementSchema.shape,
         wrapHandler(automationHandlers.clickElement));
 
-    server.tool('fill-input', 'Fill the input', schemas.fillInputSchema.shape,
+    server.tool('fill-input', buildMcpToolDescription('fill-input', 'Fill the input'), schemas.fillInputSchema.shape,
         wrapHandler(automationHandlers.fillInput));
 
-    server.tool('select-option', 'Select the option', schemas.selectOptionSchema.shape,
+    server.tool('select-option', buildMcpToolDescription('select-option', 'Select the option'), schemas.selectOptionSchema.shape,
         wrapHandler(automationHandlers.selectOption));
 
-    server.tool('hover-element', 'Hover the element', schemas.hoverElementSchema.shape,
+    server.tool('hover-element', buildMcpToolDescription('hover-element', 'Hover the element'), schemas.hoverElementSchema.shape,
         wrapHandler(automationHandlers.hoverElement));
 
-    server.tool('scroll-element', 'Scroll the element', schemas.scrollElementSchema.shape,
+    server.tool('scroll-element', buildMcpToolDescription('scroll-element', 'Scroll the element'), schemas.scrollElementSchema.shape,
         wrapHandler(automationHandlers.scrollElement));
 
-    server.tool('press-key', 'Press the key', schemas.pressKeySchema.shape,
+    server.tool('press-key', buildMcpToolDescription('press-key', 'Press the key'), schemas.pressKeySchema.shape,
         wrapHandler(automationHandlers.pressKey));
 
-    server.tool('evaluate-script', 'Evaluate the script', schemas.evaluateScriptSchema.shape,
+    server.tool('evaluate-script', buildMcpToolDescription('evaluate-script', 'Evaluate the script'), schemas.evaluateScriptSchema.shape,
         wrapHandler(automationHandlers.evaluateScript));
 
-    server.tool('drag-element', 'Drag the element', schemas.dragElementSchema.shape,
+    server.tool('drag-element', buildMcpToolDescription('drag-element', 'Drag the element'), schemas.dragElementSchema.shape,
         wrapHandler(automationHandlers.dragElement));
 
-    server.tool('iframe-click-element', 'Click the element in the iframe', schemas.iframeClickElementSchema.shape,
+    server.tool('iframe-click-element', buildMcpToolDescription('iframe-click-element', 'Click the element in the iframe'), schemas.iframeClickElementSchema.shape,
         wrapHandler(automationHandlers.iframeClickElement));
 }

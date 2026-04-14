@@ -68,10 +68,28 @@ describe('registerTools wires MCP input schemas with Postman external keys', () 
         }
     });
 
-    it('describes get-application-list with category_id, page, and limit semantics', () => {
-        expect(registered['get-application-list']?.description).toContain('category_id');
-        expect(registered['get-application-list']?.description).toContain('page');
-        expect(registered['get-application-list']?.description).toContain('limit');
+    it('describes get-application-list via buildMcpToolDescription (intent + Triggers)', () => {
+        const desc = registered['get-application-list']?.description ?? '';
+        expect(desc).toContain('Triggers');
+        expect(desc).toMatch(/application|分页/);
+    });
+
+    it('describes open-browser with English and Chinese trigger phrases from metadata', () => {
+        const desc = registered['open-browser']?.description ?? '';
+        expect(desc).toMatch(/open browser|launch profile/i);
+        expect(desc).toMatch(/打开浏览器|profile/);
+    });
+
+    it('describes get-browser-list with list/search semantics from metadata', () => {
+        const desc = registered['get-browser-list']?.description ?? '';
+        expect(desc).toMatch(/list|search/i);
+        expect(desc).toMatch(/列表|查询|搜索/);
+    });
+
+    it('describes connect-browser-with-ws with ws / Playwright / automation from metadata', () => {
+        const desc = registered['connect-browser-with-ws']?.description ?? '';
+        expect(desc).toMatch(/ws|Playwright|automation/i);
+        expect(desc).toMatch(/Playwright|自动化|ws/);
     });
 
     it('keeps create-proxy on the MCP compatibility wrapper until the SDK can expose root arrays safely', () => {
