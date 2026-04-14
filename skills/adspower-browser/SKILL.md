@@ -1,6 +1,6 @@
 ---
 name: adspower-browser
-description: Runs AdsPower Local API operations via the adspower-browser CLI (no MCP required). Use when the user asks to create or manage AdsPower browsers, groups, tags, proxies, or check status; run Node CLI commands that call the same handlers as the MCP server.
+description: "AdsPower Local API via adspower-browser CLI when MCP is unavailable or not desired; same handlers as the MCP server. EN triggers: open/launch/start browser or profile, environment, config profile, AdsPower; create/update/delete/list profiles; groups, tags, proxies; kernel download/list; client patch; API check-status. ZH triggers: 打开浏览器、启动环境、打开配置文件、打开profile、拉起AdsPower、指纹浏览器; 新建/修改/删除/列出环境; 分组、标签、代理; 内核下载/列表; 客户端补丁; 检测接口。User phrases like open environment or 打开配置 map to commands such as open-browser."
 ---
 
 # AdsPower Local API with adspower-browser
@@ -30,6 +30,7 @@ ads
 Apply when the user:
 
 - Asks to create, update, delete, or list AdsPower browser profiles
+- Says 打开环境、配置文件、profile、AdsPower 等意指**启动已有**浏览器环境 → 使用 `open-browser`（CLI 或 MCP）；完整说法与工具映射见 [references/tool-intent-map.md](references/tool-intent-map.md)
 - Mentions opening or closing browsers/profiles, fingerprint, UA, or proxy
 - Wants to manage groups, tags, proxies, or check API status
 - Refers to AdsPower or adspower-browser (and MCP is not running or not desired)
@@ -210,6 +211,7 @@ Reference docs with full enum values and field lists:
 
 | Reference | Description | When to use |
 |-----------|-------------|-------------|
+| [references/tool-intent-map.md](references/tool-intent-map.md) | MCP/CLI 工具名与中英 **intent**、**triggers** 对照表（与 `toolIntentMetadata.ts` 同源）。 | 根据用户自然语言选择对应 CLI 命令或 MCP 工具（尤其 `open-browser`）。 |
 | [references/browser-profile-management.md](references/browser-profile-management.md) | **open-browser**, **close-browser**, **create-browser**, **update-browser**, **delete-browser**, **get-browser-list**, **get-opened-browser**, **move-browser**, **get-profile-cookies**, **get-profile-ua**, **close-all-profiles**, **new-fingerprint**, **delete-cache-v2**, **share-profile**, **get-browser-active**, **get-cloud-active** parameters. | Any browser profile operation (open, create, update, delete, list, move, cookies, UA, cache, share, status). |
 | [references/group-management.md](references/group-management.md) | **create-group**, **update-group**, **get-group-list** parameters. | Creating, updating, or listing browser groups. |
 | [references/application-management.md](references/application-management.md) | **check-status**, **get-application-list** parameters. | Checking API availability or listing applications (categories). |
