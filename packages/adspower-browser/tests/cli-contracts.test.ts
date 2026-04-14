@@ -81,6 +81,11 @@ describe('CLI shorthand resolution uses Postman parameter names', () => {
 });
 
 describe('Local API commands remain registered for CLI', () => {
+    it('open-browser CLI description includes Chinese intent from metadata (打开 or 环境)', () => {
+        const desc = STATELESS_HANDLERS['open-browser'].description;
+        expect(desc).toMatch(/打开|环境/);
+    });
+
     it('includes handlers that the contract matrix tracks', () => {
         expect(STATELESS_HANDLERS['open-browser']).toBeDefined();
         expect(STATELESS_HANDLERS['update-proxy']).toBeDefined();

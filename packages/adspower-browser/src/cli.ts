@@ -5,7 +5,8 @@ import {
     proxyHandlers,
     tagHandlers,
     kernelHandlers,
-    patchHandlers
+    patchHandlers,
+    buildCliCommandDescription
 } from '@adspower/local-api-core';
 
 type HandlerFn = (params: any) => Promise<string | unknown>;
@@ -18,131 +19,164 @@ type Handler = {
 export const STATELESS_HANDLERS: Record<string, Handler> = {
     'open-browser': {
         fn: browserHandlers.openBrowser as HandlerFn,
-        description: 'Open the browser, both environment and profile mean browser'
+        description: buildCliCommandDescription(
+            'open-browser',
+            'Open the browser, both environment and profile mean browser'
+        )
     },
     'close-browser': {
         fn: browserHandlers.closeBrowser as HandlerFn,
-        description: 'Close the browser'
-    },  
+        description: buildCliCommandDescription('close-browser', 'Close the browser')
+    },
     'create-browser': {
         fn: browserHandlers.createBrowser as HandlerFn,
-        description: 'Create a browser'
+        description: buildCliCommandDescription('create-browser', 'Create a browser')
     },
     'update-browser': {
         fn: browserHandlers.updateBrowser as HandlerFn,
-        description: 'Update the browser'
+        description: buildCliCommandDescription('update-browser', 'Update the browser')
     },
     'delete-browser': {
         fn: browserHandlers.deleteBrowser as HandlerFn,
-        description: 'Delete the browser'
+        description: buildCliCommandDescription('delete-browser', 'Delete the browser')
     },
     'get-browser-list': {
         fn: browserHandlers.getBrowserList as HandlerFn,
-        description: 'Get the list of browsers'
+        description: buildCliCommandDescription('get-browser-list', 'Get the list of browsers')
     },
     'get-opened-browser': {
         fn: browserHandlers.getOpenedBrowser as HandlerFn,
-        description: 'Get the list of opened browsers'
+        description: buildCliCommandDescription('get-opened-browser', 'Get the list of opened browsers')
     },
     'move-browser': {
         fn: browserHandlers.moveBrowser as HandlerFn,
-        description: 'Move browsers to a group'
+        description: buildCliCommandDescription('move-browser', 'Move browsers to a group')
     },
     'get-profile-cookies': {
         fn: browserHandlers.getProfileCookies as HandlerFn,
-        description: 'Query and return cookies of the specified profile. Only one profile can be queried per request.'
+        description: buildCliCommandDescription(
+            'get-profile-cookies',
+            'Query and return cookies of the specified profile. Only one profile can be queried per request.'
+        )
     },
     'get-profile-ua': {
         fn: browserHandlers.getProfileUa as HandlerFn,
-        description: 'Query and return the User-Agent of specified profiles. Up to 10 profiles can be queried per request.'
+        description: buildCliCommandDescription(
+            'get-profile-ua',
+            'Query and return the User-Agent of specified profiles. Up to 10 profiles can be queried per request.'
+        )
     },
     'close-all-profiles': {
         fn: browserHandlers.closeAllProfiles as HandlerFn,
-        description: 'Close all opened profiles on the current device'
+        description: buildCliCommandDescription(
+            'close-all-profiles',
+            'Close all opened profiles on the current device'
+        )
     },
     'new-fingerprint': {
         fn: browserHandlers.newFingerprint as HandlerFn,
-        description: 'Generate a new fingerprint for specified profiles. Up to 10 profiles are supported per request.'
+        description: buildCliCommandDescription(
+            'new-fingerprint',
+            'Generate a new fingerprint for specified profiles. Up to 10 profiles are supported per request.'
+        )
     },
     'delete-cache-v2': {
         fn: browserHandlers.deleteCacheV2 as HandlerFn,
-        description: 'Clear local cache of specific profiles.For account security, please ensure that there are no open browsers on the device when using this interface.'
+        description: buildCliCommandDescription(
+            'delete-cache-v2',
+            'Clear local cache of specific profiles.For account security, please ensure that there are no open browsers on the device when using this interface.'
+        )
     },
     'share-profile': {
         fn: browserHandlers.shareProfile as HandlerFn,
-        description: 'Share profiles via account email or phone number. The maximum number of profiles that can be shared at one time is 200.'
+        description: buildCliCommandDescription(
+            'share-profile',
+            'Share profiles via account email or phone number. The maximum number of profiles that can be shared at one time is 200.'
+        )
     },
     'get-browser-active': {
         fn: browserHandlers.getBrowserActive as HandlerFn,
-        description: 'Get active browser profile information'
+        description: buildCliCommandDescription('get-browser-active', 'Get active browser profile information')
     },
     'get-cloud-active': {
         fn: browserHandlers.getCloudActive as HandlerFn,
-        description: 'Query the status of browser profiles by user_ids, up to 100 profiles per request. If the team has enabled "Multi device mode," specific statuses cannot be retrieved and the response will indicate "Profile not opened."'
+        description: buildCliCommandDescription(
+            'get-cloud-active',
+            'Query the status of browser profiles by user_ids, up to 100 profiles per request. If the team has enabled "Multi device mode," specific statuses cannot be retrieved and the response will indicate "Profile not opened."'
+        )
     },
     'create-group': {
         fn: groupHandlers.createGroup as HandlerFn,
-        description: 'Create a browser group'
+        description: buildCliCommandDescription('create-group', 'Create a browser group')
     },
     'update-group': {
         fn: groupHandlers.updateGroup as HandlerFn,
-        description: 'Update the browser group'
+        description: buildCliCommandDescription('update-group', 'Update the browser group')
     },
     'get-group-list': {
         fn: groupHandlers.getGroupList as HandlerFn,
-        description: 'Get the list of groups'
+        description: buildCliCommandDescription('get-group-list', 'Get the list of groups')
     },
     'check-status': {
         fn: applicationHandlers.checkStatus as HandlerFn,
-        description: 'Check the availability of the current device API interface (Connection Status)'
+        description: buildCliCommandDescription(
+            'check-status',
+            'Check the availability of the current device API interface (Connection Status)'
+        )
     },
     'get-application-list': {
         fn: applicationHandlers.getApplicationList as HandlerFn,
-        description: 'Get the list of applications (categories)'
+        description: buildCliCommandDescription(
+            'get-application-list',
+            'Get the list of applications (categories)'
+        )
     },
     'create-proxy': {
         fn: proxyHandlers.createProxy as HandlerFn,
-        description: 'Create the proxy'
+        description: buildCliCommandDescription('create-proxy', 'Create the proxy')
     },
     'update-proxy': {
         fn: proxyHandlers.updateProxy as HandlerFn,
-        description: 'Update the proxy'
+        description: buildCliCommandDescription('update-proxy', 'Update the proxy')
     },
     'get-proxy-list': {
         fn: proxyHandlers.getProxyList as HandlerFn,
-        description: 'Get the list of proxies'
+        description: buildCliCommandDescription('get-proxy-list', 'Get the list of proxies')
     },
     'delete-proxy': {
         fn: proxyHandlers.deleteProxy as HandlerFn,
-        description: 'Delete the proxy'
+        description: buildCliCommandDescription('delete-proxy', 'Delete the proxy')
     },
     'get-tag-list': {
         fn: tagHandlers.getTagList as HandlerFn,
-        description: 'Get the list of browser tags'
+        description: buildCliCommandDescription('get-tag-list', 'Get the list of browser tags')
     },
     'create-tag': {
         fn: tagHandlers.createTag as HandlerFn,
-        description: 'Create browser tags (batch supported)'
+        description: buildCliCommandDescription('create-tag', 'Create browser tags (batch supported)')
     },
     'update-tag': {
         fn: tagHandlers.updateTag as HandlerFn,
-        description: 'Update browser tags (batch supported)'
+        description: buildCliCommandDescription('update-tag', 'Update browser tags (batch supported)')
     },
     'delete-tag': {
         fn: tagHandlers.deleteTag as HandlerFn,
-        description: 'Delete browser tags'
+        description: buildCliCommandDescription('delete-tag', 'Delete browser tags')
     },
     'download-kernel': {
         fn: kernelHandlers.downloadKernel as HandlerFn,
-        description: 'Download or update a browser kernel version'
+        description: buildCliCommandDescription(
+            'download-kernel',
+            'Download or update a browser kernel version'
+        )
     },
     'get-kernel-list': {
         fn: kernelHandlers.getKernelList as HandlerFn,
-        description: 'Get browser kernel list by type or all'
+        description: buildCliCommandDescription('get-kernel-list', 'Get browser kernel list by type or all')
     },
     'update-patch': {
         fn: patchHandlers.updatePatch as HandlerFn,
-        description: 'Update AdsPower to latest patch version'
+        description: buildCliCommandDescription('update-patch', 'Update AdsPower to latest patch version')
     },
 };
 
