@@ -1,5 +1,7 @@
+import os from 'node:os';
 import { getApiClient, getLocalApiBase, API_ENDPOINTS } from '../constants/api.js';
 import { buildQueryParamsFor, buildRequestBodyFor } from '../utils/requestBuilder.js';
+import { resolveOpenBrowserHeadless } from '../utils/openBrowserHeadless.js';
 import type {
     OpenBrowserParams,
     CloseBrowserParams,
@@ -20,15 +22,23 @@ import type {
 
 export const browserHandlers = {
     async openBrowser(params: OpenBrowserParams) {
-        const requestBody = buildRequestBodyFor('open-browser', params);
+        const { params: resolvedParams, didAutoSetHeadless } = resolveOpenBrowserHeadless(
+            params,
+            process.env,
+            os.platform()
+        );
+        const requestBody = buildRequestBodyFor('open-browser', resolvedParams);
         const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.START_BROWSER}`, requestBody);
         if (response.data.code === 0) {
+            const autoNote = didAutoSetHeadless
+                ? '\n已根据运行环境自动使用 headless=1（无可用图形会话）。\nAuto-set headless=1 (no graphical session detected).'
+                : '';
             return `Browser opened successfully with: ${Object.entries(response.data.data).map(([key, value]) => {
                 if (value && typeof value === 'object') {
                     return Object.entries(value).map(([key, value]) => `ws.${key}: ${value}`).join('\n');
                 }
                 return `${key}: ${value}`;
-            }).join('\n')}`;
+            }).join('\n')}${autoNote}`;
         }
         throw new Error(`Failed to open browser: ${response.data.msg}`);
     },
