@@ -1,4 +1,4 @@
-import { Browser, Page, chromium } from 'playwright';
+import { Browser, Page, chromium } from 'playwright-core';
 
 class BrowserBase {
     private browser: Browser | null;

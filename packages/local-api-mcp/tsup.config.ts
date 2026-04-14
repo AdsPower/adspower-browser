@@ -7,5 +7,5 @@ export default defineConfig({
   sourcemap: false,
   clean: true,
   // Bundle @adspower/local-api-core from workspace (source); keep runtime deps external
-  external: ['axios', 'playwright', 'zod', '@modelcontextprotocol/sdk'],
+  external: ['axios', 'playwright-core', 'zod', '@modelcontextprotocol/sdk'],
 });
