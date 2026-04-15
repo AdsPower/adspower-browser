@@ -15,3 +15,9 @@ export interface E2EEnv {
     timeoutMs: number;
     retryCount: number;
 }
+
+/** Per-tool parameter coverage: minimal positive-case keys + full optional key set from Zod. */
+export interface ToolMatrixEntry {
+    requiredMin: string[];
+    optionalAll: string[];
+}
