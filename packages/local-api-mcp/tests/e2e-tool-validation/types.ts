@@ -2,6 +2,9 @@ import type { CallToolResult, Tool } from '@modelcontextprotocol/sdk/types.js';
 
 export type ToolCaseResultStatus = 'passed' | 'failed' | 'blocked';
 
+/** Result of a registered e2e case (`runOneCase`). */
+export type CaseRunResult = { passed: boolean; details: string[] };
+
 /** Stdio MCP client used by e2e contract tests (see `runner/mcpClient.ts`). */
 export interface McpTestClient {
     listTools(): Promise<Tool[]>;

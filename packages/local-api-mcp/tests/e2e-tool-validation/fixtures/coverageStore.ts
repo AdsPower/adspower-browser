@@ -26,3 +26,13 @@ export function getParameterCoverage(tool: string): {
         passedOptionalParams: [...(optionalCoveredByTool.get(tool) ?? [])],
     };
 }
+
+/** Optional matrix keys not yet marked covered for this tool. */
+export function getMissingOptionalForTool(tool: string): string[] {
+    const entry = toolMatrix[tool];
+    if (!entry) {
+        throw new Error(`Unknown tool in matrix: ${tool}`);
+    }
+    const covered = optionalCoveredByTool.get(tool) ?? new Set<string>();
+    return entry.optionalAll.filter((p) => !covered.has(p));
+}

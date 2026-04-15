@@ -5,6 +5,7 @@ import { getOptionalFieldsFromSchema } from './config/schemaIntrospector';
 import { toolMatrix } from './config/toolMatrix';
 import { getParameterCoverage, resetOptionalCoverage } from './fixtures/coverageStore';
 import { runCase } from './runner/caseRunner';
+import { runAllCasesAndBuildReport } from './runner/reporter';
 import { createMcpClient } from './runner/mcpClient';
 
 describe('readE2EEnv', () => {
@@ -115,5 +116,27 @@ describe.skipIf(!isE2ERealApiEnabled())('e2e real Local API (Task 5)', () => {
     it('browser: create → open headless → close → delete', async () => {
         const result = await runOneCase('browser.open.headless');
         expect(result.passed).toBe(true);
+    });
+});
+
+describe.skipIf(!isE2ERealApiEnabled())('e2e parameter report (Task 6)', () => {
+    it('report has tool → case → parameter structure', async () => {
+        const report = await runAllCasesAndBuildReport();
+        expect(report.tools.length).toBeGreaterThan(0);
+
+        const withCases = report.tools.filter((t) => t.cases.length > 0);
+        expect(withCases.length).toBeGreaterThan(0);
+
+        const first = withCases[0].cases[0];
+        expect(first.parameters[0]).toMatchObject({
+            name: expect.any(String),
+            status: expect.any(String),
+        });
+    });
+
+    it('create-group has no missing optional parameters after full case run', async () => {
+        const report = await runAllCasesAndBuildReport();
+        const row = report.tools.find((t) => t.name === 'create-group');
+        expect(row?.missingOptionalParameters).toEqual([]);
     });
 });
