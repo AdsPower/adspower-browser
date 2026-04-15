@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { readE2EEnv } from './config/env';
 import { getOptionalFieldsFromSchema } from './config/schemaIntrospector';
 import { toolMatrix } from './config/toolMatrix';
+import { runCase } from './runner/caseRunner';
 import { createMcpClient } from './runner/mcpClient';
 
 describe('readE2EEnv', () => {
@@ -44,5 +45,39 @@ describe('toolMatrix', () => {
             const optionalFromSchema = getOptionalFieldsFromSchema(tool);
             expect(new Set(entry.optionalAll)).toEqual(new Set(optionalFromSchema));
         }
+    });
+});
+
+describe('runCase cleanup', () => {
+    it('always runs cleanup after assert', async () => {
+        const cleanup = vi.fn(async () => {});
+
+        await runCase({
+            name: 'x',
+            prepare: async () => ({}),
+            invoke: async () => ({}),
+            assertState: async () => ({ passed: true, details: [] }),
+            cleanup,
+        });
+
+        expect(cleanup).toHaveBeenCalledTimes(1);
+    });
+
+    it('runs cleanup when assertState throws', async () => {
+        const cleanup = vi.fn(async () => {});
+
+        await expect(
+            runCase({
+                name: 'fail-assert',
+                prepare: async () => ({ marker: 1 }),
+                invoke: async () => ({}),
+                assertState: async () => {
+                    throw new Error('assert boom');
+                },
+                cleanup,
+            }),
+        ).rejects.toThrow(/assert boom/);
+
+        expect(cleanup).toHaveBeenCalledTimes(1);
     });
 });
