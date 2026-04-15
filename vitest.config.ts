@@ -3,6 +3,7 @@ import { defineConfig } from 'vitest/config';
 /**
  * Contract tests live under each package in `packages/<name>/tests/`.
  * Run from repo root: pnpm test:contracts
+ * E2E-only entry: pnpm test:e2e:local-api-mcp
  */
 export default defineConfig({
     test: {

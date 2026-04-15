@@ -7,7 +7,8 @@
     "adspower-local-api-mcp": "./build/index.js"
   },
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "test:e2e:local-api-mcp": "pnpm -w test:e2e:local-api-mcp"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",

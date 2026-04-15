@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { runOneCase } from './cases/registry';
 import { readE2EEnv } from './config/env';
@@ -7,6 +9,24 @@ import { getParameterCoverage, resetOptionalCoverage } from './fixtures/coverage
 import { runCase } from './runner/caseRunner';
 import { runAllCasesAndBuildReport } from './runner/reporter';
 import { createMcpClient } from './runner/mcpClient';
+
+const repoRoot = path.resolve(__dirname, '..', '..', '..', '..');
+
+describe('scripts wiring', () => {
+    it('root package.json exposes test:e2e:local-api-mcp', () => {
+        const pkg = JSON.parse(fs.readFileSync(path.join(repoRoot, 'package.json'), 'utf8')) as {
+            scripts?: Record<string, string>;
+        };
+        expect(pkg.scripts?.['test:e2e:local-api-mcp']).toBeTruthy();
+    });
+
+    it('local-api-mcp package.json exposes test:e2e:local-api-mcp', () => {
+        const pkg = JSON.parse(
+            fs.readFileSync(path.join(repoRoot, 'packages', 'local-api-mcp', 'package.json'), 'utf8'),
+        ) as { scripts?: Record<string, string> };
+        expect(pkg.scripts?.['test:e2e:local-api-mcp']).toBeTruthy();
+    });
+});
 
 describe('readE2EEnv', () => {
     it('missing required env should throw readable error', () => {
