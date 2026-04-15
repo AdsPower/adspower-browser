@@ -7,7 +7,10 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
     test: {
         environment: 'node',
-        include: ['packages/*/tests/*contracts.test.ts'],
+        include: [
+            'packages/*/tests/*contracts.test.ts',
+            'packages/local-api-mcp/tests/e2e-tool-validation/*.contracts.test.ts',
+        ],
         passWithNoTests: false,
         pool: 'threads',
     },
