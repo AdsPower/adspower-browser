@@ -186,32 +186,44 @@ describe.skipIf(!isE2ERealApiEnabled())('e2e real Local API (Task 5)', () => {
         expect(result.passed).toBe(true);
     });
 
-    it('browser: create → open headless → close → delete', async () => {
-        const result = await runOneCase('browser.open.headless');
-        expect(result.passed).toBe(true);
-    });
+    it(
+        'browser: create → open headless → close → delete',
+        async () => {
+            const result = await runOneCase('browser.open.headless');
+            expect(result.passed).toBe(true);
+        },
+        180_000,
+    );
 });
 
 describe.skipIf(!isE2ERealApiEnabled())('e2e parameter report (Task 6)', () => {
-    it('report has tool → case → parameter structure', async () => {
-        const report = await runAllCasesAndBuildReport();
-        expect(report.tools.length).toBeGreaterThan(0);
+    it(
+        'report has tool → case → parameter structure',
+        async () => {
+            const report = await runAllCasesAndBuildReport();
+            expect(report.tools.length).toBeGreaterThan(0);
 
-        const withCases = report.tools.filter((t) => t.cases.length > 0);
-        expect(withCases.length).toBeGreaterThan(0);
+            const withCases = report.tools.filter((t) => t.cases.length > 0);
+            expect(withCases.length).toBeGreaterThan(0);
 
-        const first = withCases[0].cases[0];
-        expect(first.parameters[0]).toMatchObject({
-            name: expect.any(String),
-            status: expect.any(String),
-        });
-    });
+            const first = withCases[0].cases[0];
+            expect(first.parameters[0]).toMatchObject({
+                name: expect.any(String),
+                status: expect.any(String),
+            });
+        },
+        180_000,
+    );
 
-    it('create-group has no missing optional parameters after full case run', async () => {
-        const report = await runAllCasesAndBuildReport();
-        const row = report.tools.find((t) => t.name === 'create-group');
-        expect(row?.missingOptionalParameters).toEqual([]);
-    });
+    it(
+        'create-group has no missing optional parameters after full case run',
+        async () => {
+            const report = await runAllCasesAndBuildReport();
+            const row = report.tools.find((t) => t.name === 'create-group');
+            expect(row?.missingOptionalParameters).toEqual([]);
+        },
+        180_000,
+    );
 });
 
 describe.skipIf(!isE2ERealApiEnabled())('e2e coverage summary gates (Task 8)', () => {
@@ -219,21 +231,29 @@ describe.skipIf(!isE2ERealApiEnabled())('e2e coverage summary gates (Task 8)', (
         resetOptionalCoverage();
     });
 
-    it('case and parameter pass rates meet minimum gate (0.95)', async () => {
-        const report = await runAllCasesAndBuildReport();
-        expect(report.summary.casePassRate).toBeGreaterThanOrEqual(0.95);
-        expect(report.summary.parameterPassRate).toBeGreaterThanOrEqual(0.95);
-    });
+    it(
+        'case and parameter pass rates meet minimum gate (0.95)',
+        async () => {
+            const report = await runAllCasesAndBuildReport();
+            expect(report.summary.casePassRate).toBeGreaterThanOrEqual(0.95);
+            expect(report.summary.parameterPassRate).toBeGreaterThanOrEqual(0.95);
+        },
+        180_000,
+    );
 
-    it('summary counters and coverage ratios are consistent and bounded', async () => {
-        const report = await runAllCasesAndBuildReport();
-        expect(report.summary.caseIdsRun).toBe(
-            report.summary.casesPassed + report.summary.casesFailed,
-        );
-        expect(report.summary.toolCoverage).toBeGreaterThanOrEqual(0);
-        expect(report.summary.toolCoverage).toBeLessThanOrEqual(1);
-        expect(report.summary.optionalAllCoverage).toBeGreaterThanOrEqual(0);
-        expect(report.summary.optionalAllCoverage).toBeLessThanOrEqual(1);
-        expect(report.summary.totalTools).toBe(report.tools.length);
-    });
+    it(
+        'summary counters and coverage ratios are consistent and bounded',
+        async () => {
+            const report = await runAllCasesAndBuildReport();
+            expect(report.summary.caseIdsRun).toBe(
+                report.summary.casesPassed + report.summary.casesFailed,
+            );
+            expect(report.summary.toolCoverage).toBeGreaterThanOrEqual(0);
+            expect(report.summary.toolCoverage).toBeLessThanOrEqual(1);
+            expect(report.summary.optionalAllCoverage).toBeGreaterThanOrEqual(0);
+            expect(report.summary.optionalAllCoverage).toBeLessThanOrEqual(1);
+            expect(report.summary.totalTools).toBe(report.tools.length);
+        },
+        180_000,
+    );
 });
