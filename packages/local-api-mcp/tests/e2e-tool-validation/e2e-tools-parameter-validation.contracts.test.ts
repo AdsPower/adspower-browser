@@ -7,7 +7,8 @@ import { getOptionalFieldsFromSchema } from './config/schemaIntrospector';
 import { toolMatrix } from './config/toolMatrix';
 import { getParameterCoverage, resetOptionalCoverage } from './fixtures/coverageStore';
 import { runCase } from './runner/caseRunner';
-import { runAllCasesAndBuildReport } from './runner/reporter';
+import { computeCoverageSummary, runAllCasesAndBuildReport } from './runner/reporter';
+import type { ToolReport } from './runner/reporter';
 import { createMcpClient } from './runner/mcpClient';
 
 const repoRoot = path.resolve(__dirname, '..', '..', '..', '..');
@@ -68,6 +69,58 @@ describe('toolMatrix', () => {
             const optionalFromSchema = getOptionalFieldsFromSchema(tool);
             expect(new Set(entry.optionalAll)).toEqual(new Set(optionalFromSchema));
         }
+    });
+});
+
+describe('computeCoverageSummary (Task 8)', () => {
+    it('returns 1 for all rates when every tool has full optional coverage and passed parameter rows', () => {
+        const tools: ToolReport[] = Object.keys(toolMatrix)
+            .sort()
+            .map((name) => ({
+                name,
+                cases: [
+                    {
+                        id: 'synthetic',
+                        parameters: [{ name: '__invoke__', status: 'passed' as const }],
+                    },
+                ],
+                missingOptionalParameters: [],
+            }));
+        const s = computeCoverageSummary(tools, 9, 0);
+        expect(s.casePassRate).toBe(1);
+        expect(s.toolCoverage).toBe(1);
+        expect(s.parameterPassRate).toBe(1);
+        expect(s.optionalAllCoverage).toBe(1);
+        expect(s.caseIdsRun).toBe(9);
+    });
+
+    it('optionalAllCoverage reflects missing optional keys for a subset of tools', () => {
+        const tools: ToolReport[] = [
+            {
+                name: 'create-group',
+                cases: [],
+                missingOptionalParameters: ['remark'],
+            },
+        ];
+        const n = toolMatrix['create-group'].optionalAll.length;
+        expect(n).toBeGreaterThan(0);
+        const s = computeCoverageSummary(tools, 1, 0);
+        expect(s.optionalAllCoverage).toBeCloseTo((n - 1) / n, 10);
+        expect(s.toolCoverage).toBe(0);
+    });
+
+    it('treats empty tool list as fully satisfied for case/tool/parameter rates', () => {
+        const s = computeCoverageSummary([], 0, 0);
+        expect(s.casePassRate).toBe(1);
+        expect(s.toolCoverage).toBe(1);
+        expect(s.parameterPassRate).toBe(1);
+        expect(s.optionalAllCoverage).toBe(1);
+    });
+
+    it('casePassRate reflects failed runs', () => {
+        const tools: ToolReport[] = [];
+        const s = computeCoverageSummary(tools, 1, 3);
+        expect(s.casePassRate).toBeCloseTo(0.25, 10);
     });
 });
 
@@ -158,5 +211,29 @@ describe.skipIf(!isE2ERealApiEnabled())('e2e parameter report (Task 6)', () => {
         const report = await runAllCasesAndBuildReport();
         const row = report.tools.find((t) => t.name === 'create-group');
         expect(row?.missingOptionalParameters).toEqual([]);
+    });
+});
+
+describe.skipIf(!isE2ERealApiEnabled())('e2e coverage summary gates (Task 8)', () => {
+    beforeEach(() => {
+        resetOptionalCoverage();
+    });
+
+    it('case and parameter pass rates meet minimum gate (0.95)', async () => {
+        const report = await runAllCasesAndBuildReport();
+        expect(report.summary.casePassRate).toBeGreaterThanOrEqual(0.95);
+        expect(report.summary.parameterPassRate).toBeGreaterThanOrEqual(0.95);
+    });
+
+    it('summary counters and coverage ratios are consistent and bounded', async () => {
+        const report = await runAllCasesAndBuildReport();
+        expect(report.summary.caseIdsRun).toBe(
+            report.summary.casesPassed + report.summary.casesFailed,
+        );
+        expect(report.summary.toolCoverage).toBeGreaterThanOrEqual(0);
+        expect(report.summary.toolCoverage).toBeLessThanOrEqual(1);
+        expect(report.summary.optionalAllCoverage).toBeGreaterThanOrEqual(0);
+        expect(report.summary.optionalAllCoverage).toBeLessThanOrEqual(1);
+        expect(report.summary.totalTools).toBe(report.tools.length);
     });
 });
