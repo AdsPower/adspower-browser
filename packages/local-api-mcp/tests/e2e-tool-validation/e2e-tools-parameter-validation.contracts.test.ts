@@ -1,7 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { runOneCase } from './cases/registry';
 import { readE2EEnv } from './config/env';
 import { getOptionalFieldsFromSchema } from './config/schemaIntrospector';
 import { toolMatrix } from './config/toolMatrix';
+import { getParameterCoverage, resetOptionalCoverage } from './fixtures/coverageStore';
 import { runCase } from './runner/caseRunner';
 import { createMcpClient } from './runner/mcpClient';
 
@@ -79,5 +81,39 @@ describe('runCase cleanup', () => {
         ).rejects.toThrow(/assert boom/);
 
         expect(cleanup).toHaveBeenCalledTimes(1);
+    });
+});
+
+function isE2ERealApiEnabled(): boolean {
+    return process.env.ADSP_MCP_E2E_ENABLED === '1';
+}
+
+describe.skipIf(!isE2ERealApiEnabled())('e2e real Local API (Task 5)', () => {
+    beforeEach(() => {
+        resetOptionalCoverage();
+    });
+
+    it('create-group: group_name discoverable via get-group-list', async () => {
+        const result = await runOneCase('group.create.basic');
+        expect(result.passed).toBe(true);
+        expect(result.details.join('\n')).toMatch(/group_name=/);
+    });
+
+    it('create-group: each optionalAll field has a passing case (remark)', async () => {
+        await runOneCase('group.create.withRemark');
+        const coverage = getParameterCoverage('create-group');
+        for (const param of coverage.optionalAll) {
+            expect(coverage.passedOptionalParams).toContain(param);
+        }
+    });
+
+    it('proxy: create → list → delete', async () => {
+        const result = await runOneCase('proxy.create.list.delete');
+        expect(result.passed).toBe(true);
+    });
+
+    it('browser: create → open headless → close → delete', async () => {
+        const result = await runOneCase('browser.open.headless');
+        expect(result.passed).toBe(true);
     });
 });
