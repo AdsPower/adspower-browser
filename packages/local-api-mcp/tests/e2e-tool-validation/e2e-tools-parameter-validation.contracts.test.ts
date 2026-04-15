@@ -162,29 +162,57 @@ function isE2ERealApiEnabled(): boolean {
     return process.env.ADSP_MCP_E2E_ENABLED === '1';
 }
 
+/** `ADSP_LOCAL_API_MIN_INTERVAL_MS` 开启时，两次 Local API 请求至少间隔该毫秒数，全量 case 会显著变长。 */
+function realApiPerCaseTimeoutMs(): number {
+    const n = Number(process.env.ADSP_LOCAL_API_MIN_INTERVAL_MS ?? '0');
+    return n > 0 ? 120_000 : 30_000;
+}
+
+function realApiBrowserTimeoutMs(): number {
+    const n = Number(process.env.ADSP_LOCAL_API_MIN_INTERVAL_MS ?? '0');
+    return n > 0 ? 360_000 : 180_000;
+}
+
+function realApiRunAllTimeoutMs(): number {
+    const n = Number(process.env.ADSP_LOCAL_API_MIN_INTERVAL_MS ?? '0');
+    return n > 0 ? 900_000 : 180_000;
+}
+
 describe.skipIf(!isE2ERealApiEnabled())('e2e real Local API (Task 5)', () => {
     beforeEach(() => {
         resetOptionalCoverage();
     });
 
-    it('create-group: group_name discoverable via get-group-list', async () => {
-        const result = await runOneCase('group.create.basic');
-        expect(result.passed).toBe(true);
-        expect(result.details.join('\n')).toMatch(/group_name=/);
-    });
+    it(
+        'create-group: group_name discoverable via get-group-list',
+        async () => {
+            const result = await runOneCase('group.create.basic');
+            expect(result.passed).toBe(true);
+            expect(result.details.join('\n')).toMatch(/group_name=/);
+        },
+        realApiPerCaseTimeoutMs(),
+    );
 
-    it('create-group: each optionalAll field has a passing case (remark)', async () => {
-        await runOneCase('group.create.withRemark');
-        const coverage = getParameterCoverage('create-group');
-        for (const param of coverage.optionalAll) {
-            expect(coverage.passedOptionalParams).toContain(param);
-        }
-    });
+    it(
+        'create-group: each optionalAll field has a passing case (remark)',
+        async () => {
+            await runOneCase('group.create.withRemark');
+            const coverage = getParameterCoverage('create-group');
+            for (const param of coverage.optionalAll) {
+                expect(coverage.passedOptionalParams).toContain(param);
+            }
+        },
+        realApiPerCaseTimeoutMs(),
+    );
 
-    it('proxy: create → list → delete', async () => {
-        const result = await runOneCase('proxy.create.list.delete');
-        expect(result.passed).toBe(true);
-    });
+    it(
+        'proxy: create → list → delete',
+        async () => {
+            const result = await runOneCase('proxy.create.list.delete');
+            expect(result.passed).toBe(true);
+        },
+        realApiPerCaseTimeoutMs(),
+    );
 
     it(
         'browser: create → open headless → close → delete',
@@ -192,7 +220,7 @@ describe.skipIf(!isE2ERealApiEnabled())('e2e real Local API (Task 5)', () => {
             const result = await runOneCase('browser.open.headless');
             expect(result.passed).toBe(true);
         },
-        180_000,
+        realApiBrowserTimeoutMs(),
     );
 });
 
@@ -212,7 +240,7 @@ describe.skipIf(!isE2ERealApiEnabled())('e2e parameter report (Task 6)', () => {
                 status: expect.any(String),
             });
         },
-        180_000,
+        realApiRunAllTimeoutMs(),
     );
 
     it(
@@ -222,7 +250,7 @@ describe.skipIf(!isE2ERealApiEnabled())('e2e parameter report (Task 6)', () => {
             const row = report.tools.find((t) => t.name === 'create-group');
             expect(row?.missingOptionalParameters).toEqual([]);
         },
-        180_000,
+        realApiRunAllTimeoutMs(),
     );
 });
 
@@ -238,7 +266,7 @@ describe.skipIf(!isE2ERealApiEnabled())('e2e coverage summary gates (Task 8)', (
             expect(report.summary.casePassRate).toBeGreaterThanOrEqual(0.95);
             expect(report.summary.parameterPassRate).toBeGreaterThanOrEqual(0.95);
         },
-        180_000,
+        realApiRunAllTimeoutMs(),
     );
 
     it(
@@ -254,6 +282,6 @@ describe.skipIf(!isE2ERealApiEnabled())('e2e coverage summary gates (Task 8)', (
             expect(report.summary.optionalAllCoverage).toBeLessThanOrEqual(1);
             expect(report.summary.totalTools).toBe(report.tools.length);
         },
-        180_000,
+        realApiRunAllTimeoutMs(),
     );
 });
