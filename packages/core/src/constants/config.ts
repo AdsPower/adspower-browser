@@ -14,7 +14,7 @@ function parseArgs() {
     }
 
     return {
-        port: port || process.env.PORT || '50326',
+        port: port || process.env.PORT || '50325',
         apiKey: apiKey || process.env.API_KEY
     };
 }
