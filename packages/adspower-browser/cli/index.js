@@ -937,6 +937,305 @@ var getApiClient = () => {
   });
 };
 
+// ../core/src/constants/toolIntentMetadata.ts
+var TOOL_INTENT_BY_NAME = {
+  "open-browser": {
+    intentEn: "Start an existing AdsPower browser profile (launch the profile browser).",
+    intentZh: "\u542F\u52A8\u5DF2\u5B58\u5728\u7684 AdsPower \u6D4F\u89C8\u5668\u73AF\u5883\uFF08\u7528\u6237\u5E38\u79F0\u73AF\u5883\u3001\u914D\u7F6E\u6587\u4EF6\u3001profile\uFF09\u3002",
+    triggersEn: "open browser, launch profile, start environment, open AdsPower, open config profile",
+    triggersZh: "\u6253\u5F00\u6D4F\u89C8\u5668,\u542F\u52A8\u73AF\u5883,\u6253\u5F00\u914D\u7F6E,\u6253\u5F00\u914D\u7F6E\u6587\u4EF6,\u6253\u5F00profile,\u62C9\u8D77AdsPower,\u542F\u52A8\u6307\u7EB9\u6D4F\u89C8\u5668"
+  },
+  "close-browser": {
+    intentEn: "Stop a running AdsPower browser profile.",
+    intentZh: "\u5173\u95ED\u6B63\u5728\u8FD0\u884C\u7684\u6D4F\u89C8\u5668\u73AF\u5883 / profile\u3002",
+    triggersEn: "close browser, stop profile, shutdown environment, kill browser",
+    triggersZh: "\u5173\u95ED\u6D4F\u89C8\u5668,\u505C\u6B62\u73AF\u5883,\u5173\u6389profile,\u7ED3\u675F\u6D4F\u89C8\u5668,\u9000\u51FA\u6307\u7EB9\u73AF\u5883"
+  },
+  "create-browser": {
+    intentEn: "Create a new AdsPower browser profile (account).",
+    intentZh: "\u65B0\u5EFA\u6D4F\u89C8\u5668\u73AF\u5883 / \u8D26\u53F7 profile\u3002",
+    triggersEn: "create profile, new browser, add account, spin up profile",
+    triggersZh: "\u65B0\u5EFA\u73AF\u5883,\u521B\u5EFAprofile,\u6DFB\u52A0\u6D4F\u89C8\u5668,\u65B0\u5F00\u6307\u7EB9,\u521B\u5EFA\u8D26\u53F7"
+  },
+  "update-browser": {
+    intentEn: "Update fields of an existing browser profile.",
+    intentZh: "\u66F4\u65B0\u5DF2\u6709 profile \u7684\u914D\u7F6E\uFF08\u5907\u6CE8\u3001\u4EE3\u7406\u3001\u6307\u7EB9\u7B49\uFF09\u3002",
+    triggersEn: "edit profile, change settings, modify browser, update fingerprint",
+    triggersZh: "\u4FEE\u6539\u914D\u7F6E,\u66F4\u65B0profile,\u6539\u4EE3\u7406,\u6539\u6307\u7EB9,\u7F16\u8F91\u73AF\u5883"
+  },
+  "delete-browser": {
+    intentEn: "Delete one or more browser profiles permanently.",
+    intentZh: "\u6C38\u4E45\u5220\u9664\u4E00\u4E2A\u6216\u591A\u4E2A\u6D4F\u89C8\u5668 profile\u3002",
+    triggersEn: "remove profile, delete account, trash browser",
+    triggersZh: "\u5220\u9664\u73AF\u5883,\u79FB\u9664profile,\u5220\u6389\u6D4F\u89C8\u5668\u8D26\u53F7"
+  },
+  "get-browser-list": {
+    intentEn: "List or search browser profiles (pagination, filters).",
+    intentZh: "\u5206\u9875/\u6761\u4EF6\u67E5\u8BE2\u6D4F\u89C8\u5668 profile \u5217\u8868\u3002",
+    triggersEn: "list profiles, search browsers, query accounts, show all profiles",
+    triggersZh: "\u5217\u8868,\u67E5\u8BE2\u73AF\u5883,\u641C\u7D22profile,\u5217\u51FA\u6240\u6709\u6D4F\u89C8\u5668"
+  },
+  "get-opened-browser": {
+    intentEn: "List browser profiles currently open on this device.",
+    intentZh: "\u67E5\u770B\u672C\u673A\u5F53\u524D\u5DF2\u6253\u5F00\u7684\u6D4F\u89C8\u5668 profile\u3002",
+    triggersEn: "opened browsers, running profiles, active local sessions",
+    triggersZh: "\u5DF2\u6253\u5F00,\u6B63\u5728\u8FD0\u884C,\u5F53\u524D\u4F1A\u8BDD,\u672C\u5730\u6D3B\u8DC3"
+  },
+  "move-browser": {
+    intentEn: "Move profiles to another group (regroup).",
+    intentZh: "\u5C06 profile \u79FB\u52A8\u5230\u6307\u5B9A\u5206\u7EC4\u3002",
+    triggersEn: "move to group, regroup profiles, change group",
+    triggersZh: "\u79FB\u52A8\u5206\u7EC4,\u6362\u7EC4,\u5F52\u7C7B\u5230\u7EC4"
+  },
+  "get-profile-cookies": {
+    intentEn: "Read cookies for one profile.",
+    intentZh: "\u8BFB\u53D6\u5355\u4E2A profile \u7684 Cookie\u3002",
+    triggersEn: "get cookies, export cookies, read cookie jar",
+    triggersZh: "\u5BFC\u51FACookie,\u67E5\u770BCookie,\u8BFB\u53D6\u7AD9\u70B9Cookie"
+  },
+  "get-profile-ua": {
+    intentEn: "Get User-Agent strings for up to 10 profiles.",
+    intentZh: "\u6279\u91CF\u67E5\u8BE2\u6700\u591A 10 \u4E2A profile \u7684 UA\u3002",
+    triggersEn: "user agent, UA string, browser UA",
+    triggersZh: "UA,\u7528\u6237\u4EE3\u7406,\u6D4F\u89C8\u5668\u6807\u8BC6"
+  },
+  "close-all-profiles": {
+    intentEn: "Close all opened profiles on this device.",
+    intentZh: "\u5173\u95ED\u672C\u673A\u6240\u6709\u5DF2\u6253\u5F00\u7684\u73AF\u5883\u3002",
+    triggersEn: "close everything, stop all browsers, shutdown all profiles",
+    triggersZh: "\u5168\u90E8\u5173\u95ED,\u4E00\u952E\u5173\u73AF\u5883,\u5173\u6240\u6709\u6D4F\u89C8\u5668"
+  },
+  "new-fingerprint": {
+    intentEn: "Generate a new fingerprint for up to 10 profiles.",
+    intentZh: "\u4E3A\u6700\u591A 10 \u4E2A profile \u91CD\u65B0\u751F\u6210\u6307\u7EB9\u3002",
+    triggersEn: "refresh fingerprint, regenerate fp, new device identity",
+    triggersZh: "\u5237\u65B0\u6307\u7EB9,\u91CD\u65B0\u6307\u7EB9,\u6362\u8BBE\u5907\u6307\u7EB9"
+  },
+  "delete-cache-v2": {
+    intentEn: "Clear selected local cache types for profiles.",
+    intentZh: "\u6309\u7C7B\u578B\u6E05\u7406 profile \u672C\u5730\u7F13\u5B58\u3002",
+    triggersEn: "clear cache, wipe storage, delete history cache",
+    triggersZh: "\u6E05\u7F13\u5B58,\u5220\u5386\u53F2,\u6E05\u7406\u672C\u5730\u6570\u636E"
+  },
+  "share-profile": {
+    intentEn: "Share profiles to another AdsPower account.",
+    intentZh: "\u5C06 profile \u5206\u4EAB\u7ED9\u5176\u4ED6 AdsPower \u8D26\u53F7\u3002",
+    triggersEn: "share account, transfer profile, send browser to user",
+    triggersZh: "\u5206\u4EAB\u73AF\u5883,\u8F6C\u8BA9profile,\u53D1\u7ED9\u540C\u4E8B"
+  },
+  "get-browser-active": {
+    intentEn: "Get active status/details for one profile.",
+    intentZh: "\u67E5\u8BE2\u5355\u4E2A profile \u7684\u6D3B\u8DC3/\u8FD0\u884C\u4FE1\u606F\u3002",
+    triggersEn: "is profile running, active status, browser state",
+    triggersZh: "\u662F\u5426\u5728\u7EBF,\u6D3B\u8DC3\u72B6\u6001,\u8FD0\u884C\u4FE1\u606F"
+  },
+  "get-cloud-active": {
+    intentEn: "Query cloud-side active status for many profile IDs.",
+    intentZh: "\u6309 user_ids \u6279\u91CF\u67E5\u8BE2\u4E91\u7AEF\u6D3B\u8DC3\u72B6\u6001\u3002",
+    triggersEn: "cloud status, remote active, team multi device caveat",
+    triggersZh: "\u4E91\u7AEF\u72B6\u6001,\u8FDC\u7A0B\u662F\u5426\u6253\u5F00,\u591A\u8BBE\u5907\u6A21\u5F0F\u9650\u5236"
+  },
+  "create-group": {
+    intentEn: "Create a browser profile group.",
+    intentZh: "\u65B0\u5EFA\u6D4F\u89C8\u5668\u5206\u7EC4\u3002",
+    triggersEn: "new group, add folder for profiles",
+    triggersZh: "\u65B0\u5EFA\u5206\u7EC4,\u521B\u5EFA\u7EC4,\u73AF\u5883\u5206\u7EC4"
+  },
+  "update-group": {
+    intentEn: "Rename or update a group.",
+    intentZh: "\u91CD\u547D\u540D\u6216\u66F4\u65B0\u5206\u7EC4\u4FE1\u606F\u3002",
+    triggersEn: "rename group, edit group",
+    triggersZh: "\u6539\u7EC4\u540D,\u66F4\u65B0\u5206\u7EC4"
+  },
+  "get-group-list": {
+    intentEn: "List groups with optional name search.",
+    intentZh: "\u5206\u9875\u67E5\u8BE2\u5206\u7EC4\u5217\u8868\uFF0C\u53EF\u6309\u540D\u79F0\u641C\u7D22\u3002",
+    triggersEn: "list groups, search group name",
+    triggersZh: "\u5206\u7EC4\u5217\u8868,\u67E5\u7EC4\u540D"
+  },
+  "check-status": {
+    intentEn: "Check Local API availability on this machine.",
+    intentZh: "\u68C0\u6D4B\u672C\u673A Local API \u662F\u5426\u53EF\u7528\u3002",
+    triggersEn: "API health, connection status, ping AdsPower API",
+    triggersZh: "\u63A5\u53E3\u901A\u4E0D\u901A,\u68C0\u6D4BAPI,\u8FDE\u63A5\u72B6\u6001"
+  },
+  "get-application-list": {
+    intentEn: "List application/extension categories with pagination.",
+    intentZh: "\u5206\u9875\u83B7\u53D6\u5E94\u7528/\u6269\u5C55\u5206\u7C7B\u5217\u8868\u3002",
+    triggersEn: "categories, extension list, application catalog",
+    triggersZh: "\u5E94\u7528\u5206\u7C7B,\u6269\u5C55\u76EE\u5F55,\u7C7B\u522B\u5217\u8868"
+  },
+  "create-proxy": {
+    intentEn: "Create one or more proxy entries.",
+    intentZh: "\u65B0\u5EFA\u4E00\u6761\u6216\u591A\u6761\u4EE3\u7406\u914D\u7F6E\u3002",
+    triggersEn: "add proxy, new proxy row",
+    triggersZh: "\u6DFB\u52A0\u4EE3\u7406,\u65B0\u5EFA\u4EE3\u7406"
+  },
+  "update-proxy": {
+    intentEn: "Update an existing proxy entry.",
+    intentZh: "\u66F4\u65B0\u5DF2\u6709\u4EE3\u7406\u9879\u3002",
+    triggersEn: "edit proxy, change proxy host",
+    triggersZh: "\u4FEE\u6539\u4EE3\u7406,\u66F4\u65B0\u4EE3\u7406"
+  },
+  "get-proxy-list": {
+    intentEn: "List proxies with filters/pagination.",
+    intentZh: "\u5206\u9875/\u6761\u4EF6\u67E5\u8BE2\u4EE3\u7406\u5217\u8868\u3002",
+    triggersEn: "list proxies, search proxy",
+    triggersZh: "\u4EE3\u7406\u5217\u8868,\u67E5\u4EE3\u7406"
+  },
+  "delete-proxy": {
+    intentEn: "Delete proxies by id list.",
+    intentZh: "\u6309 ID \u5217\u8868\u5220\u9664\u4EE3\u7406\u3002",
+    triggersEn: "remove proxy, delete proxy entries",
+    triggersZh: "\u5220\u9664\u4EE3\u7406,\u79FB\u9664\u4EE3\u7406"
+  },
+  "get-tag-list": {
+    intentEn: "List browser tags.",
+    intentZh: "\u67E5\u8BE2\u6D4F\u89C8\u5668\u6807\u7B7E\u5217\u8868\u3002",
+    triggersEn: "list tags, label list",
+    triggersZh: "\u6807\u7B7E\u5217\u8868,\u67E5\u770B\u6807\u7B7E"
+  },
+  "create-tag": {
+    intentEn: "Create tags (batch).",
+    intentZh: "\u6279\u91CF\u521B\u5EFA\u6807\u7B7E\u3002",
+    triggersEn: "new tag, add label",
+    triggersZh: "\u65B0\u5EFA\u6807\u7B7E,\u6DFB\u52A0\u6807\u7B7E"
+  },
+  "update-tag": {
+    intentEn: "Update existing tags (batch).",
+    intentZh: "\u6279\u91CF\u66F4\u65B0\u6807\u7B7E\u3002",
+    triggersEn: "rename tag, change tag color",
+    triggersZh: "\u6539\u6807\u7B7E\u540D,\u6539\u989C\u8272"
+  },
+  "delete-tag": {
+    intentEn: "Delete tags by id list.",
+    intentZh: "\u6309 ID \u5220\u9664\u6807\u7B7E\u3002",
+    triggersEn: "remove tags",
+    triggersZh: "\u5220\u9664\u6807\u7B7E"
+  },
+  "download-kernel": {
+    intentEn: "Download or update a browser kernel version.",
+    intentZh: "\u4E0B\u8F7D\u6216\u66F4\u65B0\u6307\u5B9A\u5185\u6838\u7248\u672C\u3002",
+    triggersEn: "download chrome kernel, fetch firefox kernel",
+    triggersZh: "\u4E0B\u8F7D\u5185\u6838,\u66F4\u65B0Chrome\u5185\u6838"
+  },
+  "get-kernel-list": {
+    intentEn: "List supported kernel versions (optional type filter).",
+    intentZh: "\u67E5\u8BE2\u652F\u6301\u7684\u5185\u6838\u7248\u672C\u5217\u8868\u3002",
+    triggersEn: "kernel versions, supported browsers list",
+    triggersZh: "\u5185\u6838\u5217\u8868,\u53EF\u7528\u7248\u672C"
+  },
+  "update-patch": {
+    intentEn: "Update AdsPower client patch channel.",
+    intentZh: "\u5C06 AdsPower \u5BA2\u6237\u7AEF\u66F4\u65B0\u5230\u8865\u4E01\u901A\u9053\u7248\u672C\u3002",
+    triggersEn: "upgrade client, patch update, stable beta channel",
+    triggersZh: "\u5347\u7EA7\u5BA2\u6237\u7AEF,\u8865\u4E01\u66F4\u65B0,\u7A33\u5B9A\u7248\u6D4B\u8BD5\u7248"
+  },
+  "connect-browser-with-ws": {
+    intentEn: "Attach Playwright automation using ws from open-browser.",
+    intentZh: "\u7528 open-browser \u8FD4\u56DE\u7684 ws \u8FDE\u63A5\u81EA\u52A8\u5316\uFF08Playwright\uFF09\u3002",
+    triggersEn: "connect puppeteer, attach playwright, ws automation",
+    triggersZh: "\u8FDE\u63A5\u81EA\u52A8\u5316,\u6302\u4E0APlaywright,\u7528ws\u63A7\u5236"
+  },
+  "open-new-page": {
+    intentEn: "Open a new page in the connected automation session.",
+    intentZh: "\u5728\u5DF2\u8FDE\u63A5\u4F1A\u8BDD\u4E2D\u6253\u5F00\u65B0\u6807\u7B7E\u9875/\u9875\u9762\u3002",
+    triggersEn: "new tab, new page",
+    triggersZh: "\u65B0\u6807\u7B7E\u9875,\u65B0\u9875\u9762"
+  },
+  "navigate": {
+    intentEn: "Navigate current automation page to a URL.",
+    intentZh: "\u81EA\u52A8\u5316\u5F53\u524D\u9875\u8DF3\u8F6C\u5230 URL\u3002",
+    triggersEn: "goto url, open url in automation",
+    triggersZh: "\u8DF3\u8F6C\u7F51\u5740,\u6253\u5F00\u94FE\u63A5"
+  },
+  "screenshot": {
+    intentEn: "Capture screenshot of the automation page.",
+    intentZh: "\u622A\u53D6\u81EA\u52A8\u5316\u5F53\u524D\u9875\u9762\u622A\u56FE\u3002",
+    triggersEn: "screenshot, capture page image",
+    triggersZh: "\u622A\u56FE,\u622A\u5C4F"
+  },
+  "get-page-visible-text": {
+    intentEn: "Read visible text of the current page.",
+    intentZh: "\u8BFB\u53D6\u5F53\u524D\u9875\u53EF\u89C1\u6587\u672C\u3002",
+    triggersEn: "visible text, page text content",
+    triggersZh: "\u53EF\u89C1\u6587\u5B57,\u9875\u9762\u6587\u672C"
+  },
+  "get-page-html": {
+    intentEn: "Read HTML of the current page.",
+    intentZh: "\u8BFB\u53D6\u5F53\u524D\u9875 HTML\u3002",
+    triggersEn: "page source, dom html",
+    triggersZh: "\u7F51\u9875\u6E90\u7801,HTML"
+  },
+  "click-element": {
+    intentEn: "Click an element by selector in automation session.",
+    intentZh: "\u5728\u81EA\u52A8\u5316\u4F1A\u8BDD\u4E2D\u6309\u9009\u62E9\u5668\u70B9\u51FB\u5143\u7D20\u3002",
+    triggersEn: "click button, tap element",
+    triggersZh: "\u70B9\u51FB\u6309\u94AE,\u70B9\u5143\u7D20"
+  },
+  "fill-input": {
+    intentEn: "Fill an input field by selector.",
+    intentZh: "\u6309\u9009\u62E9\u5668\u586B\u5199\u8F93\u5165\u6846\u3002",
+    triggersEn: "type text, enter value, input field",
+    triggersZh: "\u8F93\u5165\u6587\u5B57,\u586B\u8868\u5355"
+  },
+  "select-option": {
+    intentEn: "Select a dropdown option by selector and value.",
+    intentZh: "\u4E0B\u62C9\u6846\u6309 selector \u4E0E value \u9009\u62E9\u3002",
+    triggersEn: "dropdown select, pick option",
+    triggersZh: "\u4E0B\u62C9\u9009\u62E9,\u9009\u9009\u9879"
+  },
+  "hover-element": {
+    intentEn: "Hover an element by selector.",
+    intentZh: "\u60AC\u505C\u5230\u6307\u5B9A\u5143\u7D20\u3002",
+    triggersEn: "mouse over, hover menu",
+    triggersZh: "\u9F20\u6807\u60AC\u505C,\u5212\u8FC7\u83DC\u5355"
+  },
+  "scroll-element": {
+    intentEn: "Scroll an element into view or by selector.",
+    intentZh: "\u6EDA\u52A8\u6307\u5B9A\u5143\u7D20\u6216\u533A\u57DF\u3002",
+    triggersEn: "scroll into view, page scroll",
+    triggersZh: "\u6EDA\u52A8\u5230\u53EF\u89C1,\u9875\u9762\u6EDA\u52A8"
+  },
+  "press-key": {
+    intentEn: "Press a keyboard key (optional focused selector).",
+    intentZh: "\u6A21\u62DF\u6309\u952E\uFF08\u53EF\u9009\u9650\u5B9A\u5728\u5143\u7D20\u4E0A\uFF09\u3002",
+    triggersEn: "hit Enter, keyboard shortcut",
+    triggersZh: "\u6309\u56DE\u8F66,\u5FEB\u6377\u952E"
+  },
+  "evaluate-script": {
+    intentEn: "Run JavaScript in the page context.",
+    intentZh: "\u5728\u9875\u9762\u4E0A\u4E0B\u6587\u6267\u884C JS\u3002",
+    triggersEn: "execute js, run script in page",
+    triggersZh: "\u6267\u884C\u811A\u672C,\u9875\u9762JS"
+  },
+  "drag-element": {
+    intentEn: "Drag an element to a target element.",
+    intentZh: "\u62D6\u62FD\u5143\u7D20\u5230\u53E6\u4E00\u5143\u7D20\u3002",
+    triggersEn: "drag and drop, dnd",
+    triggersZh: "\u62D6\u62FD,\u62D6\u653E"
+  },
+  "iframe-click-element": {
+    intentEn: "Click inside an iframe by iframe and inner selectors.",
+    intentZh: "\u5728 iframe \u5185\u70B9\u51FB\u5B50\u5143\u7D20\u3002",
+    triggersEn: "iframe click, nested frame",
+    triggersZh: "\u6846\u67B6\u5185\u70B9\u51FB,iframe\u91CC\u70B9"
+  }
+};
+function formatDescription(rec) {
+  return `${rec.intentEn} / ${rec.intentZh} | Triggers: ${rec.triggersEn}; ${rec.triggersZh}`;
+}
+function buildMcpToolDescription(toolName, legacyFallback) {
+  const rec = TOOL_INTENT_BY_NAME[toolName];
+  return rec ? formatDescription(rec) : legacyFallback;
+}
+function buildCliCommandDescription(commandName, legacyFallback) {
+  return buildMcpToolDescription(commandName, legacyFallback);
+}
+
+// ../core/src/handlers/browser.ts
+var import_node_os = __toESM(require("os"));
+
 // ../core/src/utils/requestBuilder.ts
 function toContractValue(value) {
   if (Array.isArray(value)) {
@@ -995,18 +1294,53 @@ function buildNestedConfig(config2) {
   return result;
 }
 
+// ../core/src/utils/openBrowserHeadless.ts
+function isTruthyCi(env) {
+  const v = env.CI;
+  return v === "true" || v === "1" || v === "True";
+}
+function linuxLooksHeadless(env) {
+  const d = (env.DISPLAY ?? "").trim();
+  const w = (env.WAYLAND_DISPLAY ?? "").trim();
+  return d === "" && w === "";
+}
+function resolveOpenBrowserHeadless(params, env, platform) {
+  if (params.headless !== void 0) {
+    return { params: { ...params }, didAutoSetHeadless: false };
+  }
+  let needHeadless = false;
+  if (isTruthyCi(env)) {
+    needHeadless = true;
+  } else if (platform === "linux" && linuxLooksHeadless(env)) {
+    needHeadless = true;
+  }
+  if (!needHeadless) {
+    return { params: { ...params }, didAutoSetHeadless: false };
+  }
+  return {
+    params: { ...params, headless: "1" },
+    didAutoSetHeadless: true
+  };
+}
+
 // ../core/src/handlers/browser.ts
 var browserHandlers = {
   async openBrowser(params) {
-    const requestBody = buildRequestBodyFor("open-browser", params);
+    const { params: resolvedParams, didAutoSetHeadless } = resolveOpenBrowserHeadless(
+      params,
+      process.env,
+      import_node_os.default.platform()
+    );
+    const requestBody = buildRequestBodyFor("open-browser", resolvedParams);
     const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.START_BROWSER}`, requestBody);
     if (response.data.code === 0) {
+      const autoNote = didAutoSetHeadless ? "\n\u5DF2\u6839\u636E\u8FD0\u884C\u73AF\u5883\u81EA\u52A8\u4F7F\u7528 headless=1\uFF08\u65E0\u53EF\u7528\u56FE\u5F62\u4F1A\u8BDD\uFF09\u3002\nAuto-set headless=1 (no graphical session detected)." : "";
       return `Browser opened successfully with: ${Object.entries(response.data.data).map(([key, value]) => {
         if (value && typeof value === "object") {
           return Object.entries(value).map(([key2, value2]) => `ws.${key2}: ${value2}`).join("\n");
         }
         return `${key}: ${value}`;
-      }).join("\n")}`;
+      }).join("\n")}${autoNote}`;
     }
     throw new Error(`Failed to open browser: ${response.data.msg}`);
   },
@@ -1287,7 +1621,7 @@ var import_path = __toESM(require("path"));
 var import_os = __toESM(require("os"));
 
 // ../core/src/utils/browserBase.ts
-var import_playwright = require("playwright");
+var import_playwright_core = require("playwright-core");
 var BrowserBase = class {
   browser;
   page;
@@ -1322,7 +1656,7 @@ var BrowserBase = class {
     }
   }
   async connectBrowserWithWs(wsUrl) {
-    this.browser = await import_playwright.chromium.connectOverCDP(wsUrl);
+    this.browser = await import_playwright_core.chromium.connectOverCDP(wsUrl);
     const defaultContext = this.browser.contexts()[0];
     this.page = defaultContext.pages()[0];
     await this.page.bringToFront().catch((error) => {
@@ -1926,11 +2260,17 @@ var schemas = {
     platform_account: platformAccountSchema
   }).strict(),
   openBrowserSchema: import_zod.z.object({
-    profile_no: import_zod.z.string().optional().describe("Priority will be given to user id when profile_id is filled."),
-    profile_id: import_zod.z.string().optional().describe("Unique profile ID, generated after creating profile. The profile id of the browser to open"),
+    profile_no: import_zod.z.string().optional().describe(
+      "Profile serial number (environment number). \u73AF\u5883\u5E8F\u53F7/\u7F16\u53F7\u3002At least one of profile_id or profile_no is required; if both are provided, profile_id takes priority (AdsPower API). profile_id \u4E0E profile_no \u81F3\u5C11\u586B\u5176\u4E00\uFF1B\u540C\u65F6\u586B\u5199\u65F6 profile_id \u4F18\u5148\uFF08\u4E0E AdsPower API \u4E00\u81F4\uFF09\u3002"
+    ),
+    profile_id: import_zod.z.string().optional().describe(
+      "Unique profile ID generated after creating a profile; identifies which browser to open. \u521B\u5EFA\u73AF\u5883\u540E\u751F\u6210\u7684\u552F\u4E00 profile ID\uFF0C\u7528\u4E8E\u6307\u5B9A\u8981\u6253\u5F00\u7684\u73AF\u5883\u3002At least one of profile_id or profile_no is required; if both are provided, profile_id takes priority (AdsPower API). profile_id \u4E0E profile_no \u81F3\u5C11\u586B\u5176\u4E00\uFF1B\u540C\u65F6\u586B\u5199\u65F6 profile_id \u4F18\u5148\uFF08\u4E0E AdsPower API \u4E00\u81F4\uFF09\u3002"
+    ),
     ip_tab: import_zod.z.enum(["0", "1"]).optional().describe("The ip tab of the browser, 0 is not use ip tab, 1 is use ip tab, default is 0"),
     launch_args: import_zod.z.union([import_zod.z.string(), import_zod.z.array(import_zod.z.string())]).optional().describe("The launch args of the browser, use chrome launch args, or vista url"),
-    headless: import_zod.z.enum(["0", "1"]).optional().describe("Headless browser switch, 0 disabled, 1 enabled."),
+    headless: import_zod.z.enum(["0", "1"]).optional().describe(
+      'Headless: "0" visible window, "1" headless. \u65E0\u5934\u6A21\u5F0F\u5F00\u5173\u3002If omitted, the runtime may auto-set "1" when no graphical session is detected (Linux without DISPLAY/WAYLAND, or CI). Explicit "0"/"1" is always sent as-is.'
+    ),
     last_opened_tabs: import_zod.z.enum(["0", "1"]).optional().describe("Whether to restore the last opened tabs."),
     proxy_detection: import_zod.z.enum(["0", "1"]).optional().describe("Whether to enable proxy detection."),
     password_filling: import_zod.z.enum(["0", "1"]).optional().describe("Whether to enable password auto-filling."),
@@ -2131,131 +2471,164 @@ var schemas = {
 var STATELESS_HANDLERS = {
   "open-browser": {
     fn: browserHandlers.openBrowser,
-    description: "Open the browser, both environment and profile mean browser"
+    description: buildCliCommandDescription(
+      "open-browser",
+      "Open the browser, both environment and profile mean browser"
+    )
   },
   "close-browser": {
     fn: browserHandlers.closeBrowser,
-    description: "Close the browser"
+    description: buildCliCommandDescription("close-browser", "Close the browser")
   },
   "create-browser": {
     fn: browserHandlers.createBrowser,
-    description: "Create a browser"
+    description: buildCliCommandDescription("create-browser", "Create a browser")
   },
   "update-browser": {
     fn: browserHandlers.updateBrowser,
-    description: "Update the browser"
+    description: buildCliCommandDescription("update-browser", "Update the browser")
   },
   "delete-browser": {
     fn: browserHandlers.deleteBrowser,
-    description: "Delete the browser"
+    description: buildCliCommandDescription("delete-browser", "Delete the browser")
   },
   "get-browser-list": {
     fn: browserHandlers.getBrowserList,
-    description: "Get the list of browsers"
+    description: buildCliCommandDescription("get-browser-list", "Get the list of browsers")
   },
   "get-opened-browser": {
     fn: browserHandlers.getOpenedBrowser,
-    description: "Get the list of opened browsers"
+    description: buildCliCommandDescription("get-opened-browser", "Get the list of opened browsers")
   },
   "move-browser": {
     fn: browserHandlers.moveBrowser,
-    description: "Move browsers to a group"
+    description: buildCliCommandDescription("move-browser", "Move browsers to a group")
   },
   "get-profile-cookies": {
     fn: browserHandlers.getProfileCookies,
-    description: "Query and return cookies of the specified profile. Only one profile can be queried per request."
+    description: buildCliCommandDescription(
+      "get-profile-cookies",
+      "Query and return cookies of the specified profile. Only one profile can be queried per request."
+    )
   },
   "get-profile-ua": {
     fn: browserHandlers.getProfileUa,
-    description: "Query and return the User-Agent of specified profiles. Up to 10 profiles can be queried per request."
+    description: buildCliCommandDescription(
+      "get-profile-ua",
+      "Query and return the User-Agent of specified profiles. Up to 10 profiles can be queried per request."
+    )
   },
   "close-all-profiles": {
     fn: browserHandlers.closeAllProfiles,
-    description: "Close all opened profiles on the current device"
+    description: buildCliCommandDescription(
+      "close-all-profiles",
+      "Close all opened profiles on the current device"
+    )
   },
   "new-fingerprint": {
     fn: browserHandlers.newFingerprint,
-    description: "Generate a new fingerprint for specified profiles. Up to 10 profiles are supported per request."
+    description: buildCliCommandDescription(
+      "new-fingerprint",
+      "Generate a new fingerprint for specified profiles. Up to 10 profiles are supported per request."
+    )
   },
   "delete-cache-v2": {
     fn: browserHandlers.deleteCacheV2,
-    description: "Clear local cache of specific profiles.For account security, please ensure that there are no open browsers on the device when using this interface."
+    description: buildCliCommandDescription(
+      "delete-cache-v2",
+      "Clear local cache of specific profiles.For account security, please ensure that there are no open browsers on the device when using this interface."
+    )
   },
   "share-profile": {
     fn: browserHandlers.shareProfile,
-    description: "Share profiles via account email or phone number. The maximum number of profiles that can be shared at one time is 200."
+    description: buildCliCommandDescription(
+      "share-profile",
+      "Share profiles via account email or phone number. The maximum number of profiles that can be shared at one time is 200."
+    )
   },
   "get-browser-active": {
     fn: browserHandlers.getBrowserActive,
-    description: "Get active browser profile information"
+    description: buildCliCommandDescription("get-browser-active", "Get active browser profile information")
   },
   "get-cloud-active": {
     fn: browserHandlers.getCloudActive,
-    description: 'Query the status of browser profiles by user_id, up to 100 profiles per request. If the team has enabled "Multi device mode," specific statuses cannot be retrieved and the response will indicate "Profile not opened."'
+    description: buildCliCommandDescription(
+      "get-cloud-active",
+      'Query the status of browser profiles by user_ids, up to 100 profiles per request. If the team has enabled "Multi device mode," specific statuses cannot be retrieved and the response will indicate "Profile not opened."'
+    )
   },
   "create-group": {
     fn: groupHandlers.createGroup,
-    description: "Create a browser group"
+    description: buildCliCommandDescription("create-group", "Create a browser group")
   },
   "update-group": {
     fn: groupHandlers.updateGroup,
-    description: "Update the browser group"
+    description: buildCliCommandDescription("update-group", "Update the browser group")
   },
   "get-group-list": {
     fn: groupHandlers.getGroupList,
-    description: "Get the list of groups"
+    description: buildCliCommandDescription("get-group-list", "Get the list of groups")
   },
   "check-status": {
     fn: applicationHandlers.checkStatus,
-    description: "Check the availability of the current device API interface (Connection Status)"
+    description: buildCliCommandDescription(
+      "check-status",
+      "Check the availability of the current device API interface (Connection Status)"
+    )
   },
   "get-application-list": {
     fn: applicationHandlers.getApplicationList,
-    description: "Get the list of applications (categories)"
+    description: buildCliCommandDescription(
+      "get-application-list",
+      "Get the list of applications (categories)"
+    )
   },
   "create-proxy": {
     fn: proxyHandlers.createProxy,
-    description: "Create the proxy"
+    description: buildCliCommandDescription("create-proxy", "Create the proxy")
   },
   "update-proxy": {
     fn: proxyHandlers.updateProxy,
-    description: "Update the proxy"
+    description: buildCliCommandDescription("update-proxy", "Update the proxy")
   },
   "get-proxy-list": {
     fn: proxyHandlers.getProxyList,
-    description: "Get the list of proxies"
+    description: buildCliCommandDescription("get-proxy-list", "Get the list of proxies")
   },
   "delete-proxy": {
     fn: proxyHandlers.deleteProxy,
-    description: "Delete the proxy"
+    description: buildCliCommandDescription("delete-proxy", "Delete the proxy")
   },
   "get-tag-list": {
     fn: tagHandlers.getTagList,
-    description: "Get the list of browser tags"
+    description: buildCliCommandDescription("get-tag-list", "Get the list of browser tags")
   },
   "create-tag": {
     fn: tagHandlers.createTag,
-    description: "Create browser tags (batch supported)"
+    description: buildCliCommandDescription("create-tag", "Create browser tags (batch supported)")
   },
   "update-tag": {
     fn: tagHandlers.updateTag,
-    description: "Update browser tags (batch supported)"
+    description: buildCliCommandDescription("update-tag", "Update browser tags (batch supported)")
   },
   "delete-tag": {
     fn: tagHandlers.deleteTag,
-    description: "Delete browser tags"
+    description: buildCliCommandDescription("delete-tag", "Delete browser tags")
   },
   "download-kernel": {
     fn: kernelHandlers.downloadKernel,
-    description: "Download or update a browser kernel version"
+    description: buildCliCommandDescription(
+      "download-kernel",
+      "Download or update a browser kernel version"
+    )
   },
   "get-kernel-list": {
     fn: kernelHandlers.getKernelList,
-    description: "Get browser kernel list by type or all"
+    description: buildCliCommandDescription("get-kernel-list", "Get browser kernel list by type or all")
   },
   "update-patch": {
     fn: patchHandlers.updatePatch,
-    description: "Update AdsPower to latest patch version"
+    description: buildCliCommandDescription("update-patch", "Update AdsPower to latest patch version")
   }
 };
 var SINGLE_PROFILE_ID_COMMANDS = {

@@ -9,7 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /** Repo root (`local-api-mcp-typescript`): five levels up from `runner/`. */
 const REPO_ROOT = path.resolve(__dirname, '..', '..', '..', '..', '..');
 
-/** MCP SDK 默认只继承 PATH/HOME 等白名单，不含 `PORT`/`API_KEY`，会导致子进程仍走默认 50326。 */
+/** MCP SDK 默认只继承 PATH/HOME 等白名单，不含 `PORT`/`API_KEY`，会导致子进程仍走默认 50325。 */
 function mcpChildEnv(): Record<string, string> {
     const out: Record<string, string> = {};
     for (const [k, v] of Object.entries(process.env)) {

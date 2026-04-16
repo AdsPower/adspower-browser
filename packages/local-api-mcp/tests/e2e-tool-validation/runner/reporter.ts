@@ -10,7 +10,8 @@ import type { CaseRunResult } from '../types.js';
 
 export type ParameterStatusRow = {
     name: string;
-    status: 'passed' | 'failed' | 'blocked';
+    status: 'passed' | 'failed' | 'skipped' | 'blocked';
+    reason?: string;
 };
 
 export type CaseReport = {
@@ -37,7 +38,12 @@ export type CoverageSummary = {
     toolCoverage: number;
     totalParameterSlots: number;
     passedParameterSlots: number;
-    /** Share of `parameters[]` rows with `status === "passed"`. */
+    skippedParameterSlots: number;
+    skippedReasonCounts: Record<string, number>;
+    /**
+     * Share of decisive parameter rows that passed: `passed / (passed + failed)`.
+     * Skipped/blocked rows are excluded (Rule B: skip is not a failure signal for this gate).
+     */
     parameterPassRate: number;
     totalOptionalSlots: number;
     coveredOptionalSlots: number;
@@ -49,6 +55,10 @@ export type E2EParameterReport = {
     tools: ToolReport[];
     summary: CoverageSummary;
 };
+
+function shouldLogE2EProgress(): boolean {
+    return process.env.ADSP_MCP_E2E_PROGRESS === '1' || process.env.ADSP_MCP_E2E_ENABLED === '1';
+}
 
 /**
  * Aggregates gate metrics from a built `tools` array plus case run counters.
@@ -67,7 +77,10 @@ export function computeCoverageSummary(
     const toolCoverage = totalTools === 0 ? 1 : toolsFullyOptionalComplete / totalTools;
 
     let passedParameterSlots = 0;
+    let skippedParameterSlots = 0;
     let totalParameterSlots = 0;
+    let decisiveParameterSlots = 0;
+    const skippedReasonCounts: Record<string, number> = {};
     for (const t of tools) {
         for (const c of t.cases) {
             for (const p of c.parameters) {
@@ -75,11 +88,19 @@ export function computeCoverageSummary(
                 if (p.status === 'passed') {
                     passedParameterSlots += 1;
                 }
+                if (p.status === 'skipped') {
+                    skippedParameterSlots += 1;
+                    const reason = p.reason ?? 'unknown';
+                    skippedReasonCounts[reason] = (skippedReasonCounts[reason] ?? 0) + 1;
+                }
+                if (p.status === 'passed' || p.status === 'failed') {
+                    decisiveParameterSlots += 1;
+                }
             }
         }
     }
     const parameterPassRate =
-        totalParameterSlots === 0 ? 1 : passedParameterSlots / totalParameterSlots;
+        decisiveParameterSlots === 0 ? 1 : passedParameterSlots / decisiveParameterSlots;
 
     let coveredOptionalSlots = 0;
     let totalOptionalSlots = 0;
@@ -102,6 +123,8 @@ export function computeCoverageSummary(
         toolCoverage,
         totalParameterSlots,
         passedParameterSlots,
+        skippedParameterSlots,
+        skippedReasonCounts,
         parameterPassRate,
         totalOptionalSlots,
         coveredOptionalSlots,
@@ -109,21 +132,110 @@ export function computeCoverageSummary(
     };
 }
 
-function buildCaseParameters(caseId: string, passed: boolean): ParameterStatusRow[] {
+type ParsedRoundtripRow = {
+    inputPath: string;
+    status: 'passed' | 'failed' | 'skipped';
+    reason?: string;
+};
+
+const ROUNDTRIP_PARSE_FAILED_REASON = 'roundtrip_parse_failed_no_rows';
+const BLOCKED_PREFIX = 'blocked:';
+
+function getBlockedReason(details: string[]): string | null {
+    const line = details.find((d) => d.startsWith(BLOCKED_PREFIX));
+    if (!line) {
+        return null;
+    }
+    return line.slice(BLOCKED_PREFIX.length).trim() || 'unknown_blocked_reason';
+}
+
+function parseRoundtripRowsFromDetails(details: string[]): ParsedRoundtripRow[] {
+    const rows: ParsedRoundtripRow[] = [];
+    const rowPattern = /^([^->]+)->([^:]+):(passed|failed|skipped)(?:\(([^)]+)\))?$/;
+    for (const line of details) {
+        const m = line.match(rowPattern);
+        if (!m) {
+            continue;
+        }
+        rows.push({
+            inputPath: m[1].trim(),
+            status: m[3] as ParsedRoundtripRow['status'],
+            reason: m[4],
+        });
+    }
+    return rows;
+}
+
+type BuiltCaseParameters = {
+    parameters: ParameterStatusRow[];
+    reportPassed: boolean;
+};
+
+function buildCaseParameters(caseId: string, result: CaseRunResult): BuiltCaseParameters {
+    const blockedReason = getBlockedReason(result.details);
+    if (blockedReason) {
+        return {
+            parameters: [{ name: '__invoke__', status: 'blocked', reason: blockedReason }],
+            reportPassed: true,
+        };
+    }
+
     const meta = caseMetadata[caseId];
-    if (!passed) {
-        return [{ name: '__invoke__', status: 'failed' }];
+    if (!result.passed) {
+        return {
+            parameters: [{ name: '__invoke__', status: 'failed' }],
+            reportPassed: false,
+        };
     }
+
     if (!meta) {
-        return [{ name: '__invoke__', status: 'passed' }];
+        return {
+            parameters: [{ name: '__invoke__', status: 'passed' }],
+            reportPassed: true,
+        };
     }
+
+    const roundtripCoverageMap = (
+        meta as {
+            roundtrip?: { optionalCoverageByInputPath?: Record<string, string> };
+        }
+    ).roundtrip?.optionalCoverageByInputPath;
+    if (roundtripCoverageMap) {
+        const rows = parseRoundtripRowsFromDetails(result.details);
+        if (rows.length > 0) {
+            const parameters = rows.map((row) => ({
+                name: row.inputPath,
+                status: row.status,
+                reason: row.reason,
+            }));
+            const reportPassed = parameters.every((row) => row.status !== 'failed');
+            return { parameters, reportPassed };
+        }
+        return {
+            parameters: [
+                {
+                    name: '__invoke__',
+                    status: 'failed',
+                    reason: ROUNDTRIP_PARSE_FAILED_REASON,
+                },
+            ],
+            reportPassed: false,
+        };
+    }
+
     if (meta.optionalParamsOnSuccess.length === 0) {
-        return [{ name: '__invoke__', status: 'passed' }];
+        return {
+            parameters: [{ name: '__invoke__', status: 'passed' }],
+            reportPassed: true,
+        };
     }
-    return meta.optionalParamsOnSuccess.map((name) => ({
-        name,
-        status: 'passed' as const,
-    }));
+    return {
+        parameters: meta.optionalParamsOnSuccess.map((name) => ({
+            name,
+            status: 'passed' as const,
+        })),
+        reportPassed: true,
+    };
 }
 
 /**
@@ -139,7 +251,11 @@ export async function runAllCasesAndBuildReport(): Promise<E2EParameterReport> {
 
     const caseIds = listRegisteredCaseIds();
 
-    for (const caseId of caseIds) {
+    for (let i = 0; i < caseIds.length; i += 1) {
+        const caseId = caseIds[i];
+        if (shouldLogE2EProgress()) {
+            console.info(`[e2e-report] running case ${i + 1}/${caseIds.length}: ${caseId}`);
+        }
         if (!caseMetadata[caseId]) {
             throw new Error(`Missing caseMetadata entry for case "${caseId}"`);
         }
@@ -163,13 +279,34 @@ export async function runAllCasesAndBuildReport(): Promise<E2EParameterReport> {
 
         const meta = caseMetadata[caseId];
 
-        if (result.passed) {
+        const built = buildCaseParameters(caseId, result);
+        if (built.reportPassed) {
             passedN += 1;
+        } else {
+            failedN += 1;
+        }
+
+        if (result.passed && !getBlockedReason(result.details)) {
             for (const p of meta.optionalParamsOnSuccess) {
                 markOptionalParamCovered(meta.tool, p);
             }
-        } else {
-            failedN += 1;
+            const roundtripCoverageMap = (
+                meta as {
+                    roundtrip?: { optionalCoverageByInputPath?: Record<string, string> };
+                }
+            ).roundtrip?.optionalCoverageByInputPath;
+            if (roundtripCoverageMap) {
+                const rows = parseRoundtripRowsFromDetails(result.details);
+                for (const row of rows) {
+                    if (row.status !== 'passed') {
+                        continue;
+                    }
+                    const optionalParam = roundtripCoverageMap[row.inputPath];
+                    if (optionalParam) {
+                        markOptionalParamCovered(meta.tool, optionalParam);
+                    }
+                }
+            }
         }
 
         const tool = meta.tool;
@@ -178,8 +315,13 @@ export async function runAllCasesAndBuildReport(): Promise<E2EParameterReport> {
         }
         casesByTool.get(tool)!.push({
             id: caseId,
-            parameters: buildCaseParameters(caseId, result.passed),
+            parameters: built.parameters,
         });
+        if (shouldLogE2EProgress()) {
+            console.info(
+                `[e2e-report] completed ${caseId}: ${built.reportPassed ? 'passed' : 'failed'}`,
+            );
+        }
     }
 
     const tools: ToolReport[] = Object.keys(toolMatrix)
