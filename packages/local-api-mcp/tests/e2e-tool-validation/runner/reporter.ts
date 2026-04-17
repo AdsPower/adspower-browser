@@ -56,6 +56,41 @@ export type E2EParameterReport = {
     summary: CoverageSummary;
 };
 
+function formatCoverageSummaryForLog(summary: CoverageSummary): string {
+    return JSON.stringify(
+        {
+            caseIdsRun: summary.caseIdsRun,
+            casesPassed: summary.casesPassed,
+            casesFailed: summary.casesFailed,
+            casePassRate: Number(summary.casePassRate.toFixed(4)),
+            totalTools: summary.totalTools,
+            toolsFullyOptionalComplete: summary.toolsFullyOptionalComplete,
+            toolCoverage: Number(summary.toolCoverage.toFixed(4)),
+            totalParameterSlots: summary.totalParameterSlots,
+            passedParameterSlots: summary.passedParameterSlots,
+            skippedParameterSlots: summary.skippedParameterSlots,
+            parameterPassRate: Number(summary.parameterPassRate.toFixed(4)),
+            totalOptionalSlots: summary.totalOptionalSlots,
+            coveredOptionalSlots: summary.coveredOptionalSlots,
+            optionalAllCoverage: Number(summary.optionalAllCoverage.toFixed(4)),
+            skippedReasonCounts: summary.skippedReasonCounts,
+        },
+        null,
+        2,
+    );
+}
+
+function formatCoverageSummaryOneLine(summary: CoverageSummary): string {
+    return [
+        `cases=${summary.casesPassed}/${summary.caseIdsRun}`,
+        `casePassRate=${summary.casePassRate.toFixed(4)}`,
+        `parameterPassRate=${summary.parameterPassRate.toFixed(4)}`,
+        `toolCoverage=${summary.toolCoverage.toFixed(4)}`,
+        `optionalAllCoverage=${summary.optionalAllCoverage.toFixed(4)}`,
+        `skipped=${summary.skippedParameterSlots}`,
+    ].join(' ');
+}
+
 function shouldLogE2EProgress(): boolean {
     return process.env.ADSP_MCP_E2E_PROGRESS === '1' || process.env.ADSP_MCP_E2E_ENABLED === '1';
 }
@@ -333,6 +368,10 @@ export async function runAllCasesAndBuildReport(): Promise<E2EParameterReport> {
         }));
 
     const summary = computeCoverageSummary(tools, passedN, failedN);
+    if (shouldLogE2EProgress()) {
+        console.info(`[e2e-report] ${formatCoverageSummaryOneLine(summary)}`);
+        // console.info(`[e2e-report] summary\n${formatCoverageSummaryForLog(summary)}`);
+    }
 
     return {
         tools,

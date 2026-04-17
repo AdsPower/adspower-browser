@@ -89,6 +89,7 @@ function buildStableCreatePayload(): Record<string, unknown> {
         name: `${stamp}-name`,
         remark: `${stamp}-remark`,
         platform: 'facebook.com',
+        ipchecker: 'ipapi',
     };
 }
 
@@ -102,6 +103,8 @@ function buildStableUpdatePayload(profileId: string): Record<string, unknown> {
         name: `${stamp}-name`,
         remark: `${stamp}-remark`,
         platform: 'twitter.com',
+        // Keep aligned with create: AdsPower may not persist `ipchecker` changes on update, or list readback stays stable.
+        ipchecker: 'ipapi',
     };
 }
 
@@ -114,7 +117,7 @@ function buildRoundtripMapping(): Record<string, { actualPath?: string; matcher?
     };
 }
 
-const REQUIRED_NON_SKIPPED_FIELDS = ['username', 'password', 'name', 'remark', 'platform'] as const;
+const REQUIRED_NON_SKIPPED_FIELDS = ['username', 'password', 'name', 'remark', 'platform', 'ipchecker'] as const;
 const ALLOWED_COOKIE_SKIP_REASONS = new Set([
     'readback_path_missing',
     'cookie_actual_not_string',
@@ -241,7 +244,13 @@ function buildCreateProxyAndFingerprintPayload(): Record<string, unknown> {
         name: `${stamp}-name`,
         remark: `${stamp}-remark`,
         user_proxy_config: {
-            proxy_soft: 'no_proxy',
+            proxy_soft: 'other',
+            proxy_type: 'http',
+            proxy_host: '127.0.0.1',
+            proxy_port: '61080',
+            proxy_user: `${stamp}-user`,
+            proxy_password: `${stamp}-pass`,
+            proxy_url: `https://refresh.example.com/${stamp}`,
             global_config: '0',
         },
         fingerprint_config: {
@@ -336,10 +345,17 @@ export async function caseBrowserCreateRoundtripProxyAndFingerprintOptionalSubse
     details: string[];
 }> {
     const payload = buildCreateProxyAndFingerprintPayload();
+    const proxyConfig = payload.user_proxy_config as Record<string, unknown>;
     const compareInput = {
         group_id: payload.group_id,
         name: payload.name,
-        user_proxy_config_proxy_soft: 'no_proxy',
+        user_proxy_config_proxy_soft: 'other',
+        user_proxy_config_proxy_type: 'http',
+        user_proxy_config_proxy_host: '127.0.0.1',
+        user_proxy_config_proxy_port: '61080',
+        user_proxy_config_proxy_user: proxyConfig.proxy_user,
+        user_proxy_config_proxy_password: proxyConfig.proxy_password,
+        user_proxy_config_proxy_url: proxyConfig.proxy_url,
         user_proxy_config_global_config: '0',
         fingerprint_config_audio: '1',
         fingerprint_config_scan_port_type: '1',
@@ -350,12 +366,27 @@ export async function caseBrowserCreateRoundtripProxyAndFingerprintOptionalSubse
         compareInput,
         {
             user_proxy_config_proxy_soft: { actualPath: 'user_proxy_config.proxy_soft' },
+            user_proxy_config_proxy_type: { actualPath: 'user_proxy_config.proxy_type' },
+            user_proxy_config_proxy_host: { actualPath: 'user_proxy_config.proxy_host' },
+            user_proxy_config_proxy_port: { actualPath: 'user_proxy_config.proxy_port' },
+            user_proxy_config_proxy_user: { actualPath: 'user_proxy_config.proxy_user' },
+            user_proxy_config_proxy_password: { actualPath: 'user_proxy_config.proxy_password' },
+            user_proxy_config_proxy_url: { actualPath: 'user_proxy_config.proxy_url' },
             user_proxy_config_global_config: { actualPath: 'user_proxy_config.global_config' },
             fingerprint_config_audio: { actualPath: 'fingerprint_config.audio' },
             fingerprint_config_scan_port_type: { actualPath: 'fingerprint_config.scan_port_type' },
         },
-        // `proxy_soft` is present on readback; nested fingerprint/global fields are often absent from list payloads.
-        ['name', 'user_proxy_config_proxy_soft'],
+        // Stable `user_proxy_config` fields are present on readback; fingerprint/global fields are often absent.
+        [
+            'name',
+            'user_proxy_config_proxy_soft',
+            'user_proxy_config_proxy_type',
+            'user_proxy_config_proxy_host',
+            'user_proxy_config_proxy_port',
+            'user_proxy_config_proxy_user',
+            'user_proxy_config_proxy_password',
+            'user_proxy_config_proxy_url',
+        ],
     );
 }
 

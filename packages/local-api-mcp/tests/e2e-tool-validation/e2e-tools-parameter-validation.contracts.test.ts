@@ -352,6 +352,7 @@ describe('roundtrip 辅助函数', () => {
                 },
                 { inputPath: 'remark', actualPath: 'remark', status: 'passed' },
                 { inputPath: 'platform', actualPath: 'platform', status: 'passed' },
+                { inputPath: 'ipchecker', actualPath: 'ipchecker', status: 'passed' },
                 {
                     inputPath: 'cookie',
                     actualPath: 'cookie',
@@ -359,7 +360,7 @@ describe('roundtrip 辅助函数', () => {
                     reason: 'cookie_not_substring_match_or_truncated',
                 },
             ],
-            passed: 4,
+            passed: 5,
             failed: 0,
             skipped: 2,
         };
@@ -376,6 +377,7 @@ describe('roundtrip 辅助函数', () => {
                 { inputPath: 'name', actualPath: 'name', status: 'passed' },
                 { inputPath: 'remark', actualPath: 'remark', status: 'passed' },
                 { inputPath: 'platform', actualPath: 'platform', status: 'passed' },
+                { inputPath: 'ipchecker', actualPath: 'ipchecker', status: 'passed' },
                 {
                     inputPath: 'cookie',
                     actualPath: 'cookie',
@@ -383,7 +385,7 @@ describe('roundtrip 辅助函数', () => {
                     reason: 'cookie_actual_not_string',
                 },
             ],
-            passed: 5,
+            passed: 6,
             failed: 0,
             skipped: 1,
         };
@@ -842,7 +844,7 @@ describe.skipIf(!isE2ERealApiEnabled())('E2E 真实 Local API', () => {
             expect(result.passed).toBe(true);
             expect(result.details.join('\n')).toMatch(/compareB:\s+passed=\d+\s+failed=0/);
             assertRoundtripSkipGate(result.details, {
-                requiredNonSkippedFields: ['username', 'password', 'name', 'remark', 'platform'],
+                requiredNonSkippedFields: ['username', 'password', 'name', 'remark', 'platform', 'ipchecker'],
                 allowedSkippedByField: {
                     cookie: new Set([
                         'readback_path_missing',
@@ -897,7 +899,7 @@ describe.skipIf(!isE2ERealApiEnabled())('E2E 真实 Local API', () => {
             expect(result.passed).toBe(true);
             expect(result.details.join('\n')).toMatch(/compareB:\s+passed=\d+\s+failed=0/);
             assertRoundtripSkipGate(result.details, {
-                requiredNonSkippedFields: ['username', 'password', 'name', 'remark', 'platform'],
+                requiredNonSkippedFields: ['username', 'password', 'name', 'remark', 'platform', 'ipchecker'],
                 allowedSkippedByField: {
                     cookie: new Set([
                         'readback_path_missing',

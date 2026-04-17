@@ -168,7 +168,16 @@ export async function caseProxyCreateRoundtripFullOptionalSubset(): Promise<{
     const host = '127.0.0.1';
     const port = String(64000 + Math.floor(Math.random() * 500));
     const remark = uniqueLabel('proxy-create-remark');
-    const created = { type: 'http', host, port, remark };
+    const created = {
+        type: 'http',
+        host,
+        port,
+        user: uniqueLabel('proxy-create-user'),
+        password: uniqueLabel('proxy-create-pass'),
+        proxy_url: `https://refresh.example.com/${uniqueLabel('proxy-create-refresh')}`,
+        remark,
+        ipchecker: 'ipapi',
+    };
     const ctx: ProxyCtx = { client, proxyId: null, host, port };
 
     return runCase({
@@ -197,7 +206,8 @@ export async function caseProxyCreateRoundtripFullOptionalSubset(): Promise<{
                 };
             }
             const compare = compareInputAgainstReadbackB(created, list.record);
-            const requiredRows = ['type', 'host', 'port'].map((k) => compare.rows.find((r) => r.inputPath === k));
+            const requiredRows = ['type', 'host', 'port', 'user', 'password', 'proxy_url', 'remark', 'ipchecker']
+                .map((k) => compare.rows.find((r) => r.inputPath === k));
             const passed = compare.failed === 0 && requiredRows.every((r) => r?.status === 'passed');
             return {
                 passed,
@@ -253,7 +263,11 @@ export async function caseProxyUpdateRoundtripFullOptionalSubset(): Promise<{
                 type: 'https',
                 host: '127.0.0.2',
                 port: String(65000 + Math.floor(Math.random() * 300)),
+                user: uniqueLabel('proxy-update-user'),
+                password: uniqueLabel('proxy-update-pass'),
+                proxy_url: `https://refresh.example.com/${uniqueLabel('proxy-update-refresh')}`,
                 remark: uniqueLabel('proxy-after'),
+                ipchecker: 'ipfoxy',
             };
             return x.client.callTool('update-proxy', x.updated);
         },
@@ -270,7 +284,8 @@ export async function caseProxyUpdateRoundtripFullOptionalSubset(): Promise<{
                 Object.entries(x.updated ?? {}).filter(([k]) => k !== 'proxy_id'),
             );
             const compare = compareInputAgainstReadbackB(expected, list.record);
-            const requiredRows = ['type', 'host', 'port'].map((k) => compare.rows.find((r) => r.inputPath === k));
+            const requiredRows = ['type', 'host', 'port', 'user', 'password', 'proxy_url', 'remark', 'ipchecker']
+                .map((k) => compare.rows.find((r) => r.inputPath === k));
             const passed = compare.failed === 0 && requiredRows.every((r) => r?.status === 'passed');
             return {
                 passed,

@@ -73,7 +73,7 @@ describe('Zod schemas accept Postman-style external keys', () => {
         mustParse(schemas.closeBrowserSchema, { profile_no: '99' }, 'closeBrowserSchema must accept profile_no');
     });
 
-    it('create-browser: group_id, category_id, user_proxy_config, repeat_config, ignore_cookie_error, profile_tag_ids, platform_account', () => {
+    it('create-browser: group_id、category_id、user_proxy_config、repeat_config、ignore_cookie_error、profile_tag_ids、platform_account', () => {
         mustParse(
             schemas.createBrowserSchema,
             {
@@ -83,16 +83,21 @@ describe('Zod schemas accept Postman-style external keys', () => {
                 repeat_config: [0, 2],
                 ignore_cookie_error: '0',
                 profile_tag_ids: ['t1'],
-                ipchecker: 'ipinfo',
-                platform_account: { account: 'shop-user', password: 'secret' },
+                ipchecker: 'ipapi',
+                platform_account: {
+                    domain_name: 'facebook.com',
+                    login_user: 'shop-user',
+                    password: 'secret',
+                    fakey: 'otp-secret',
+                },
                 fingerprint_config: { browser_kernel_config: { version: 'latest' } },
                 name: 'n',
             },
-            'createBrowserSchema must accept browser-profile keys including ipchecker, platform_account, and latest kernel version'
+            'createBrowserSchema must accept updated ipchecker values, structured platform_account, and latest kernel version'
         );
     });
 
-    it('update-browser: profile_id plus Postman-aligned optional fields and tightened platform_account', () => {
+    it('update-browser: profile_id 与 Postman 对齐的可选字段及收紧后的 platform_account', () => {
         mustParse(
             schemas.updateBrowserSchema,
             {
@@ -102,9 +107,12 @@ describe('Zod schemas accept Postman-style external keys', () => {
                 group_id: '1',
                 ipchecker: 'ipfoxy',
                 fingerprint_config: { browser_kernel_config: { version: 'latest' } },
-                platform_account: { account: 'shop-user' },
+                platform_account: {
+                    domain_name: 'facebook.com',
+                    login_user: 'shop-user',
+                },
             },
-            'updateBrowserSchema must accept profile_id, ipchecker, latest kernel version, and tightened platform_account'
+            'updateBrowserSchema must accept profile_id, updated ipchecker values, latest kernel version, and tightened platform_account'
         );
 
         expect(
@@ -324,19 +332,27 @@ describe('shared contract metadata and serializers', () => {
         const parsed = schemas.createBrowserSchema.parse({
             group_id: '0',
             name: 'shop',
-            ipchecker: 'ipinfo',
+            ipchecker: 'ipapi',
             user_proxy_config: { proxy_soft: 'no_proxy' },
-            platform_account: { account: 'shop-user', password: 'secret' },
+            platform_account: {
+                domain_name: 'facebook.com',
+                login_user: 'shop-user',
+                password: 'secret',
+            },
             fingerprint_config: { browser_kernel_config: { version: 'latest' } },
         });
 
         expect(buildRequestBodyFor('create-browser', parsed)).toEqual({
             group_id: '0',
             name: 'shop',
-            ipchecker: 'ipinfo',
+            ipchecker: 'ipapi',
             user_proxy_config: { proxy_soft: 'no_proxy' },
             fingerprint_config: { browser_kernel_config: { version: 'latest' } },
-            platform_account: { account: 'shop-user', password: 'secret' },
+            platform_account: {
+                domain_name: 'facebook.com',
+                login_user: 'shop-user',
+                password: 'secret',
+            },
         });
     });
 
@@ -345,14 +361,20 @@ describe('shared contract metadata and serializers', () => {
             profile_id: 'abc',
             ipchecker: 'ipfoxy',
             fingerprint_config: { browser_kernel_config: { version: 'latest' } },
-            platform_account: { account: 'shop-user' },
+            platform_account: {
+                domain_name: 'facebook.com',
+                login_user: 'shop-user',
+            },
         });
 
         expect(buildRequestBodyFor('update-browser', parsed)).toEqual({
             profile_id: 'abc',
             ipchecker: 'ipfoxy',
             fingerprint_config: { browser_kernel_config: { version: 'latest' } },
-            platform_account: { account: 'shop-user' },
+            platform_account: {
+                domain_name: 'facebook.com',
+                login_user: 'shop-user',
+            },
         });
     });
 
@@ -534,14 +556,21 @@ describe('shared contract metadata and serializers', () => {
         ).toBe(false);
     });
 
-    it('accepts ipinfo in update-proxy schema to match create-proxy', () => {
+    it('update-proxy schema rejects ipinfo and accepts the narrowed ipchecker set', () => {
+        expect(
+            schemas.updateProxySchema.safeParse({
+                proxy_id: 'proxy-1',
+                ipchecker: 'ipinfo',
+            }).success,
+            'updateProxySchema must reject ipinfo after schema narrowing',
+        ).toBe(false);
         mustParse(
             schemas.updateProxySchema,
             {
                 proxy_id: 'proxy-1',
-                ipchecker: 'ipinfo',
+                ipchecker: 'ipapi',
             },
-            'updateProxySchema must accept ipinfo to match createProxySchema',
+            'updateProxySchema must accept narrowed ipchecker values',
         );
     });
 

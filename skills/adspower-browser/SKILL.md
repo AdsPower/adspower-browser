@@ -163,8 +163,6 @@ ads delete-proxy '{"proxy_id":["..."]}'        # proxy_id required, max 100
 
 ## Command Reference (full interface and parameters)
 
-All parameter names use Postman snake_case in JSON.
-
 ### Browser Profile Management
 
 See [references/browser-profile-management.md](references/browser-profile-management.md) for open-browser, close-browser, create-browser, update-browser, delete-browser, get-browser-list, get-opened-browser, move-browser, get-profile-cookies, get-profile-ua, close-all-profiles, new-fingerprint, delete-cache-v2, share-profile, get-browser-active, get-cloud-active and their parameters.
