@@ -10,7 +10,7 @@
   - **password** (optional): Proxy password.
   - **proxy_url** (optional): URL used to refresh the proxy.
   - **remark** (optional): Remark/description.
-  - **ipchecker** (optional): `'ipinfo'` | `'ip2location'` | `'ipapi'` | `'ipfoxy'`.
+  - **ipchecker** (optional): `'ip2location'` | `'ipapi'` | `'ipfoxy'`.
 
 **update-proxy** — Update the proxy.
 
@@ -19,7 +19,7 @@
 - **host**, **port**, **user**, **password** (optional).
 - **proxy_url** (optional): URL used to refresh the proxy.
 - **remark** (optional).
-- **ipchecker** (optional): `'ipinfo'` | `'ip2location'` | `'ipapi'` | `'ipfoxy'`.
+- **ipchecker** (optional): `'ip2location'` | `'ipapi'` | `'ipfoxy'`.
 
 **get-proxy-list** — Get the list of proxies.
 

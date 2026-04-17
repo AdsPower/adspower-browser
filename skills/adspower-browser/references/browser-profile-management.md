@@ -33,18 +33,20 @@
 - **repeat_config** (optional): Array of deduplication switches. Each item must be one of `0`, `2`, `3`, or `4`, for example `[0, 2]`.
 - **ignore_cookie_error** (optional): `'0'` | `'1'`. Handle cookie verification failures.
 - **ip**, **country**, **region**, **city** (optional). Use a lowercase two-letter country code such as `us`, `gb`, or `jp` for **country**.
-- **ipchecker** (optional): `'ipinfo'` | `'ip2location'` | `'ipapi'` | `'ipfoxy'`. IP query channel.
+- **ipchecker** (optional): `'ip2location'` | `'ipapi'` | `'ipfoxy'`. IP query channel.
 - **category_id** (optional): Use get-application-list to get list.
 - **profile_tag_ids** (optional): Array of tag IDs, max 30 tags per profile.
 - **platform_account** (optional): Structured platform account metadata object:
-  - **account** (required): Platform account identifier, for example a shop username or login email.
+  - **domain_name** (required): Platform domain name, for example `facebook.com`.
+  - **login_user** (required): Platform login user, for example a shop username or login email.
   - **password** (optional): Platform account password.
+  - **fakey** (optional): 2FA key for online 2FA code generators.
 - **fingerprint_config** (optional): Browser fingerprint config; see [fingerprint-config.md](fingerprint-config.md).
 
 **update-browser** — Update the browser.
 
 - **profile_id** (required): The profile id of the browser to update.
-- **platform**, **tabs**, **cookie**, **username**, **password**, **fakey**, **ignore_cookie_error** (`'0'`|`'1'`), **group_id**, **name** (max 100), **remark** (max 1500), **country** (lowercase two-letter code such as `us`, `gb`, or `jp`), **region**, **city**, **ip**, **ipchecker** (`'ipinfo'` | `'ip2location'` | `'ipapi'` | `'ipfoxy'`), **category_id**, **user_proxy_config** (see [user-proxy-config.md](user-proxy-config.md)), **proxyid**, **fingerprint_config** (see [fingerprint-config.md](fingerprint-config.md)), **launch_args**, **profile_tag_ids** (array, max 30), **platform_account** (`account` required, `password` optional), **tags_update_type** (`'1'` replace all tags, `'2'` append and truncate to 30) (all optional).
+- **platform**, **tabs**, **cookie**, **username**, **password**, **fakey**, **ignore_cookie_error** (`'0'`|`'1'`), **group_id**, **name** (max 100), **remark** (max 1500), **country** (lowercase two-letter code such as `us`, `gb`, or `jp`), **region**, **city**, **ip**, **ipchecker** (`'ip2location'` | `'ipapi'` | `'ipfoxy'`), **category_id**, **user_proxy_config** (see [user-proxy-config.md](user-proxy-config.md)), **proxyid**, **fingerprint_config** (see [fingerprint-config.md](fingerprint-config.md)), **launch_args**, **profile_tag_ids** (array, max 30), **platform_account** (`domain_name` 和 `login_user` 必填，`password` / `fakey` 可选), **tags_update_type** (`'1'` replace all tags, `'2'` append and truncate to 30) (all optional).
 
 **delete-browser** — Delete the browser(s).
 
