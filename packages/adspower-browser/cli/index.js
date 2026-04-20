@@ -555,7 +555,7 @@ function parseArgs() {
     }
   }
   return {
-    port: port || process.env.PORT || "50326",
+    port: port || process.env.PORT || "50325",
     apiKey: apiKey || process.env.API_KEY
   };
 }
@@ -890,6 +890,55 @@ var LOCAL_API_CONTRACTS = {
 };
 
 // ../core/src/constants/api.ts
+function readLocalApiMinIntervalMs() {
+  const raw = process.env.ADSP_LOCAL_API_MIN_INTERVAL_MS?.trim() ?? "";
+  if (!raw) {
+    return 0;
+  }
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+}
+var localApiThrottleLock = Promise.resolve();
+var localApiLastRequestStartMs = 0;
+async function sleep(ms) {
+  await new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+async function throttleLocalApiRequest() {
+  const gapMs = readLocalApiMinIntervalMs();
+  if (gapMs <= 0) {
+    return;
+  }
+  const prev = localApiThrottleLock;
+  let release;
+  localApiThrottleLock = new Promise((resolve) => {
+    release = resolve;
+  });
+  await prev;
+  try {
+    const now = Date.now();
+    const earliest = localApiLastRequestStartMs === 0 ? now : localApiLastRequestStartMs + gapMs;
+    const waitMs = Math.max(0, earliest - now);
+    if (waitMs > 0) {
+      await sleep(waitMs);
+    }
+    localApiLastRequestStartMs = Date.now();
+  } finally {
+    release();
+  }
+}
+function isLocalApiRequestUrl(url) {
+  if (!url) {
+    return false;
+  }
+  try {
+    const u = new URL(url, "http://127.0.0.1");
+    return u.hostname === "127.0.0.1" || u.hostname === "localhost";
+  } catch {
+    return url.includes("127.0.0.1") || url.includes("localhost");
+  }
+}
 var LOCAL_API_BASE = `http://127.0.0.1:${PORT}`;
 var getLocalApiBase = () => {
   return `http://127.0.0.1:${CONFIG.port}`;
@@ -932,9 +981,16 @@ var apiClient = import_axios.default.create({
   headers: API_KEY ? { "Authorization": `Bearer ${API_KEY}` } : {}
 });
 var getApiClient = () => {
-  return import_axios.default.create({
+  const client = import_axios.default.create({
     headers: CONFIG.apiKey ? { "Authorization": `Bearer ${CONFIG.apiKey}` } : {}
   });
+  client.interceptors.request.use(async (config2) => {
+    if (isLocalApiRequestUrl(config2.url)) {
+      await throttleLocalApiRequest();
+    }
+    return config2;
+  });
+  return client;
 };
 
 // ../core/src/constants/toolIntentMetadata.ts
@@ -1732,9 +1788,9 @@ var userProxyConfigSchema = import_zod.z.object({
   proxy_type: import_zod.z.enum(["http", "https", "socks5", "no_proxy"]).optional(),
   proxy_host: import_zod.z.string().optional().describe("The proxy host of the browser, eg: 127.0.0.1"),
   proxy_port: import_zod.z.string().optional().describe("The proxy port of the browser, eg: 8080"),
-  proxy_user: import_zod.z.string().optional().describe("The proxy user of the browser, eg: user"),
-  proxy_password: import_zod.z.string().optional().describe("The proxy password of the browser, eg: password"),
-  proxy_url: import_zod.z.string().optional().describe("The proxy url of the browser, eg: http://127.0.0.1:8080"),
+  proxy_user: import_zod.z.string().optional().describe("The proxy user for proxy authentication, eg: user"),
+  proxy_password: import_zod.z.string().optional().describe("The proxy password for proxy authentication, eg: password"),
+  proxy_url: import_zod.z.string().optional().describe("This URL is used for dynamic proxy, only supports http/https/socks5 proxies. 1. By clicking this link, you can manually change the proxy IP address. 2. When multiple environments use the same proxy account, refreshing the IP will change the IP address of the same proxy account."),
   global_config: import_zod.z.enum(["0", "1"]).optional().describe("The global config of the browser, default is 0")
 }).describe("The user proxy config of the browser");
 var CHROME_VERSIONS = [
@@ -2134,18 +2190,20 @@ var mediaDevicesNumSchema = import_zod.z.object({
   audiooutput_num: import_zod.z.enum(DEVICE_COUNT_VALUES).describe("Number of speakers, 1-9")
 }).describe("Device counts when media_devices=2: audioinput_num, videoinput_num, audiooutput_num each 1-9.");
 var platformAccountSchema = import_zod.z.object({
-  account: import_zod.z.string().min(1).describe("Platform account identifier, e.g. shop username or login email"),
-  password: import_zod.z.string().min(1).optional().describe("Optional platform account password")
+  domain_name: import_zod.z.string().min(1).describe("Platform domain name, eg: facebook.com"),
+  login_user: import_zod.z.string().min(1).describe("Platform login user, e.g. shop username or login email"),
+  password: import_zod.z.string().min(1).optional().describe("Optional platform account password"),
+  fakey: import_zod.z.string().min(1).optional().describe("2FA key for online 2FA code generators")
 }).strict().optional().describe("Structured platform account metadata keyed by Postman field name platform_account.");
 var nonEmptyStringArraySchema = import_zod.z.array(import_zod.z.string()).nonempty();
 var fingerprintConfigSchema = import_zod.z.object({
   automatic_timezone: import_zod.z.enum(["0", "1"]).optional().describe("Auto timezone by IP: 0 custom, 1 (default) by IP"),
   timezone: import_zod.z.string().optional().describe("Timezone when automatic_timezone=0, e.g. Asia/Shanghai"),
-  location_switch: import_zod.z.enum(["0", "1"]).optional().describe("Location by IP: 0 custom, 1 (default) by IP"),
+  location_switch: import_zod.z.enum(["0", "1"]).optional().describe("1: Generate location based on IP (default); 0: Specify location"),
   longitude: import_zod.z.number().min(-180).max(180).optional().describe("Custom longitude when location_switch=0, -180 to 180, up to 6 decimals"),
   latitude: import_zod.z.number().min(-90).max(90).optional().describe("Custom latitude when location_switch=0, -90 to 90, up to 6 decimals"),
   accuracy: import_zod.z.number().int().min(10).max(5e3).optional().describe("Location accuracy in meters when location_switch=0, 10-5000, default 1000"),
-  location: import_zod.z.enum(["ask", "allow", "block"]).optional().describe("Site location permission: ask (default), allow, block"),
+  location: import_zod.z.enum(["ask", "allow", "block"]).optional().describe("When the website requests to obtain your current location, the support: ask (default), allow, block; ask: ask (default), the same as the prompt of ordinary browsers; allow: always allow the website to get the location; block: always block the website from getting the location."),
   language_switch: import_zod.z.enum(["0", "1"]).optional().describe("Language by IP country: 0 custom, 1 (default) by IP"),
   language: import_zod.z.array(import_zod.z.string()).optional().describe('Custom languages when language_switch=0, e.g. ["en-US", "zh-CN"]'),
   page_language_switch: import_zod.z.enum(["0", "1"]).optional().describe("Match UI language to language: 0 off, 1 (default) on; Chrome 109+ Win / 119+ macOS, v2.6.72+"),
@@ -2161,7 +2219,7 @@ var fingerprintConfigSchema = import_zod.z.object({
   webgl_image: import_zod.z.enum(["0", "1"]).optional().describe("WebGL image fingerprint: 0 default, 1 (default) add noise"),
   webgl_config: webglConfigSchema.optional().describe("Custom WebGL metadata when webgl=2. Must include unmasked_vendor and unmasked_renderer (non-empty). webgpu.webgpu_switch: 0 Disabled, 1 WebGL based, 2 Real. V2.6.8.1+"),
   flash: import_zod.z.enum(["block", "allow"]).optional().describe("Flash: block (default) or allow"),
-  webrtc: import_zod.z.enum(["disabled", "forward", "proxy", "local"]).optional().describe("WebRTC: disabled (default), forward, proxy, local"),
+  webrtc: import_zod.z.enum(["disabled", "forward", "proxy", "local", "disableUDP"]).optional().describe("WebRTC: forward: forward, use proxy IP to cover real IP, used in proxy scene, more secure (need to upgrade to V2.6.8.6 or later version); proxy: replace, use proxy IP to cover real IP, used in proxy scene; local: real, the website will get the real IP; disabled: disabled (default), the website will not get the IP; disableUDP: disable UDP, disable non-proxy UDP traffic (only supported by Chrome kernel)."),
   audio: import_zod.z.enum(["0", "1"]).optional().describe("Audio fingerprint: 0 close, 1 (default) add noise"),
   do_not_track: import_zod.z.enum(["default", "true", "false"]).optional().describe("Do Not Track: default, true (open), false (close)"),
   hardware_concurrency: import_zod.z.enum(["2", "4", "6", "8", "16"]).optional().describe("CPU cores: 2, 4 (default if omitted), 6, 8, 16; omit to follow current computer"),
@@ -2176,7 +2234,7 @@ var fingerprintConfigSchema = import_zod.z.object({
   speech_switch: import_zod.z.enum(["0", "1"]).optional().describe("SpeechVoices: 0 use computer default, 1 replace with value. V3.11.10+"),
   mac_address_config: macAddressConfigSchema.optional().describe("MAC address: model 0/1/2, address when model=2. V4.3.9+"),
   gpu: import_zod.z.enum(["0", "1", "2"]).optional().describe("GPU: 0 follow Local settings - Hardware acceleration, 1 turn on, 2 turn off"),
-  browser_kernel_config: browserKernelConfigSchema.optional(),
+  browser_kernel_config: browserKernelConfigSchema.optional().default({ "version": "latest", "type": "chrome" }),
   random_ua: randomUaConfigSchema.optional().describe("Random UA config; ignored when ua (custom UA) is provided."),
   tls_switch: import_zod.z.enum(["0", "1"]).optional().describe("TLS custom list: 0 (default) off, 1 on"),
   tls: import_zod.z.string().optional().refine(
@@ -2206,37 +2264,37 @@ var createProxyItemSchema = import_zod.z.object({
   password: import_zod.z.string().optional().describe("Proxy password, eg: password"),
   proxy_url: import_zod.z.string().optional().describe("URL used to refresh the proxy, eg: https://www.baidu.com/"),
   remark: import_zod.z.string().optional().describe("Remark/description for the proxy"),
-  ipchecker: import_zod.z.enum(["ipinfo", "ip2location", "ipapi", "ipfoxy"]).optional().describe("IP checker.")
+  ipchecker: import_zod.z.enum(["ip2location", "ipapi", "ipfoxy"]).optional().describe("IP checker.")
 }).strict();
 var schemas = {
   createBrowserSchema: import_zod.z.object({
     group_id: import_zod.z.string().regex(/^\d+$/, "Group ID must be a numeric string").describe('The group id of the browser, must be a numeric string (e.g., "123"). You can use the get-group-list tool to get the group list or create a new group, use 0 for Ungrouped'),
     username: import_zod.z.string().optional().describe("Platform account username"),
     password: import_zod.z.string().optional().describe("Platform account password"),
-    cookie: import_zod.z.string().optional().describe("Cookie data in JSON or Netscape format"),
+    cookie: import_zod.z.string().optional().describe(`Cookie data in JSON array string or Netscape format, eg: '[{"domain":".baidu.com","expirationDate":1724188800,"name":"BAIDUID","value":"xxxxxxxxxx"}]'`),
     fakey: import_zod.z.string().optional().describe("2FA key for online 2FA code generators"),
-    name: import_zod.z.string().max(100).optional().describe("Account name, max 100 characters"),
-    platform: import_zod.z.string().optional().describe("Platform domain, eg: facebook.com"),
-    remark: import_zod.z.string().optional().describe("Remarks to describe the account. Maximum 1500 characters."),
+    name: import_zod.z.string().max(100).optional().describe("Profile name, max 100 characters"),
+    platform: import_zod.z.string().optional().describe("Platform domain, eg: facebook.com, The platform account is only applicable to single account platform settings. If you need to configure multiple account platforms, please use platform_account instead."),
+    remark: import_zod.z.string().optional().describe("Remarks to describe the profile. Maximum 1500 characters."),
     user_proxy_config: userProxyConfigSchema.default({ proxy_soft: "no_proxy" }).describe("Proxy configuration. If proxyid is provided, proxyid takes priority and this field is ignored. Defaults to no_proxy when neither proxyid nor a custom proxy is needed."),
-    proxyid: import_zod.z.string().optional().describe("Proxy profile ID. Takes priority over userProxyConfig when provided."),
-    repeat_config: import_zod.z.array(import_zod.z.union([import_zod.z.literal(0), import_zod.z.literal(2), import_zod.z.literal(3), import_zod.z.literal(4)])).optional().describe("Account deduplication settings (0, 2, 3, or 4)"),
+    proxyid: import_zod.z.string().optional().describe(" Already added proxy (proxy ID). user_proxy_config and proxyid cannot be empty at the same time. Takes priority over user_proxy_config when provided."),
+    repeat_config: import_zod.z.array(import_zod.z.union([import_zod.z.literal(0), import_zod.z.literal(2), import_zod.z.literal(3), import_zod.z.literal(4)])).optional().describe("Account deduplication settings (0, 2, 3, or 4), 0: allow duplicate (default), 2: deduplicate by account and password, 3: deduplicate by cookie, 4: deduplicate by c_user (c_user is Facebook's unique identifier)"),
     ignore_cookie_error: import_zod.z.enum(["0", "1"]).optional().describe("Handle cookie verification failures: 0 (default) return data as-is, 1 filter out incorrectly formatted cookies"),
     tabs: import_zod.z.array(import_zod.z.string()).optional().describe('URLs to open on startup, eg: ["https://www.google.com"]'),
     ip: import_zod.z.string().optional().describe("IP address"),
     country: countryCodeSchema.optional().describe('Country/Region, ISO 3166-1 alpha-2 (lowercase). eg: "cn", "us"'),
     region: import_zod.z.string().optional().describe("Region"),
     city: import_zod.z.string().optional().describe("City"),
-    ipchecker: import_zod.z.enum(["ipinfo", "ip2location", "ipapi", "ipfoxy"]).optional().describe("IP query channel"),
+    ipchecker: import_zod.z.enum(["ip2location", "ipapi", "ipfoxy"]).optional().describe("IP query channel"),
     category_id: import_zod.z.string().optional().describe("The category id of the browser, you can use the get-application-list tool to get the application list"),
     profile_tag_ids: import_zod.z.array(import_zod.z.string()).max(30).optional().describe('Tag IDs to assign to the profile, max 30 tags per profile. Example: ["tag1","tag2"]'),
-    fingerprint_config: fingerprintConfigSchema.optional().default({ random_ua: { ua_system_version: ["Windows"] } }),
+    fingerprint_config: fingerprintConfigSchema.optional().default({ random_ua: { ua_system_version: ["Windows"] }, browser_kernel_config: { version: "latest", type: "chrome" } }),
     platform_account: platformAccountSchema
   }).strict(),
   updateBrowserSchema: import_zod.z.object({
     platform: import_zod.z.string().optional().describe("The platform of the browser, eg: facebook.com"),
     tabs: import_zod.z.array(import_zod.z.string()).optional().describe('The tabs of the browser, eg: ["https://www.google.com"]'),
-    cookie: import_zod.z.string().optional().describe("The cookie of the browser"),
+    cookie: import_zod.z.string().optional().describe(`Cookie data in JSON array string or Netscape format, eg: '[{"domain":".baidu.com","expirationDate":1724188800,"name":"BAIDUID","value":"xxxxxxxxxx"}]'`),
     username: import_zod.z.string().optional().describe('The username of the browser, eg: "user"'),
     password: import_zod.z.string().optional().describe('The password of the browser, eg: "password"'),
     fakey: import_zod.z.string().optional().describe("Enter the 2FA-key"),
@@ -2247,7 +2305,7 @@ var schemas = {
     country: countryCodeSchema.optional().describe('The country of the browser, ISO 3166-1 alpha-2 (lowercase). eg: "cn", "us"'),
     region: import_zod.z.string().optional().describe("The region of the browser"),
     city: import_zod.z.string().optional().describe("The city of the browser"),
-    ipchecker: import_zod.z.enum(["ipinfo", "ip2location", "ipapi", "ipfoxy"]).optional().describe("IP query channel"),
+    ipchecker: import_zod.z.enum(["ip2location", "ipapi", "ipfoxy"]).optional().describe("IP query channel"),
     ip: import_zod.z.string().optional().describe("The IP of the browser"),
     category_id: import_zod.z.string().optional().describe("The category id of the browser, you can use the get-application-list tool to get the application list"),
     user_proxy_config: userProxyConfigSchema.optional(),
@@ -2261,15 +2319,15 @@ var schemas = {
   }).strict(),
   openBrowserSchema: import_zod.z.object({
     profile_no: import_zod.z.string().optional().describe(
-      "Profile serial number (environment number). \u73AF\u5883\u5E8F\u53F7/\u7F16\u53F7\u3002At least one of profile_id or profile_no is required; if both are provided, profile_id takes priority (AdsPower API). profile_id \u4E0E profile_no \u81F3\u5C11\u586B\u5176\u4E00\uFF1B\u540C\u65F6\u586B\u5199\u65F6 profile_id \u4F18\u5148\uFF08\u4E0E AdsPower API \u4E00\u81F4\uFF09\u3002"
+      "Profile serial number (environment number). At least one of profile_id or profile_no is required; if both are provided, profile_id takes priority (AdsPower API). "
     ),
     profile_id: import_zod.z.string().optional().describe(
-      "Unique profile ID generated after creating a profile; identifies which browser to open. \u521B\u5EFA\u73AF\u5883\u540E\u751F\u6210\u7684\u552F\u4E00 profile ID\uFF0C\u7528\u4E8E\u6307\u5B9A\u8981\u6253\u5F00\u7684\u73AF\u5883\u3002At least one of profile_id or profile_no is required; if both are provided, profile_id takes priority (AdsPower API). profile_id \u4E0E profile_no \u81F3\u5C11\u586B\u5176\u4E00\uFF1B\u540C\u65F6\u586B\u5199\u65F6 profile_id \u4F18\u5148\uFF08\u4E0E AdsPower API \u4E00\u81F4\uFF09\u3002"
+      "Unique profile ID generated after creating a profile; identifies which browser to open. At least one of profile_id or profile_no is required; if both are provided, profile_id takes priority (AdsPower API). "
     ),
     ip_tab: import_zod.z.enum(["0", "1"]).optional().describe("The ip tab of the browser, 0 is not use ip tab, 1 is use ip tab, default is 0"),
-    launch_args: import_zod.z.union([import_zod.z.string(), import_zod.z.array(import_zod.z.string())]).optional().describe("The launch args of the browser, use chrome launch args, or vista url"),
+    launch_args: import_zod.z.union([import_zod.z.string(), import_zod.z.array(import_zod.z.string())]).optional().describe('The launch args of the browser, use chrome launch args, eg: ["--window-position=400,0","--blink-settings=imagesEnabled=false", "--disable-notifications"]'),
     headless: import_zod.z.enum(["0", "1"]).optional().describe(
-      'Headless: "0" visible window, "1" headless. \u65E0\u5934\u6A21\u5F0F\u5F00\u5173\u3002If omitted, the runtime may auto-set "1" when no graphical session is detected (Linux without DISPLAY/WAYLAND, or CI). Explicit "0"/"1" is always sent as-is.'
+      'Headless: "0" visible window, "1" headless. If omitted, the runtime may auto-set "1" when no graphical session is detected (Linux without DISPLAY/WAYLAND, or CI). Explicit "0"/"1" is always sent as-is.'
     ),
     last_opened_tabs: import_zod.z.enum(["0", "1"]).optional().describe("Whether to restore the last opened tabs."),
     proxy_detection: import_zod.z.enum(["0", "1"]).optional().describe("Whether to enable proxy detection."),
@@ -2379,12 +2437,12 @@ var schemas = {
     password: import_zod.z.string().optional().describe("Proxy password, eg: password"),
     proxy_url: import_zod.z.string().optional().describe("URL used to refresh the proxy, eg: https://www.baidu.com/"),
     remark: import_zod.z.string().optional().describe("Remark/description for the proxy"),
-    ipchecker: import_zod.z.enum(["ipinfo", "ip2location", "ipapi", "ipfoxy"]).optional().describe("IP checker.")
+    ipchecker: import_zod.z.enum(["ip2location", "ipapi", "ipfoxy"]).optional().describe("IP checker.")
   }).strict(),
   getProxyListSchema: import_zod.z.object({
     limit: import_zod.z.number().optional().describe("Profiles per page. Number of proxies returned per page, range 1 ~ 200, default is 50"),
     page: import_zod.z.number().optional().describe("Page number for results, default is 1"),
-    proxy_id: nonEmptyStringArraySchema.optional().describe('Query by proxy ID. Example: ["proxy1","proxy2"]')
+    proxy_id: nonEmptyStringArraySchema.optional().describe('Query by proxy ID. Single request can pass up to 100 proxy IDs. Example: ["proxy1","proxy2"]')
   }).strict(),
   deleteProxySchema: import_zod.z.object({
     proxy_id: import_zod.z.array(import_zod.z.string()).describe("The proxy ids of the proxies to delete, it is required when you want to delete the proxy. The maximum is 100. ")
