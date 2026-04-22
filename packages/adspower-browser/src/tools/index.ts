@@ -9,6 +9,12 @@ import { ensureDirSync, readJsonSync, outputJsonSync, removeSync, copySync } fro
 
 export const VERSION = "1.0.0";
 
+export const toTerminalLink = (url: string, label?: string) => {
+    const text = label || url;
+    // OSC 8 hyperlink sequence; unsupported terminals will show plain text.
+    return `\u001B]8;;${url}\u0007${text}\u001B]8;;\u0007`;
+};
+
 export const logError = (message: string) => {
     console.error(red(message));
 }

@@ -1,7 +1,11 @@
 import * as path from 'node:path';
 import { ChildProcess, exec, fork } from 'node:child_process';
 import { store } from '../store';
-import { browsersKill, ensureBrowserPath, initSqlite3, isRunning, logError, logInfo, logSuccess, logWarning, readPidFile, removePidFile, sleepTime, writePidFile } from '../tools';
+import { browsersKill, ensureBrowserPath, initSqlite3, isRunning, logError, logInfo, logSuccess, logWarning, readPidFile, removePidFile, sleepTime, toTerminalLink, writePidFile } from '../tools';
+
+type ForkOptionsWithWindowsHide = Parameters<typeof fork>[2] & {
+    windowsHide?: boolean;
+};
 
 const getEnv = (): Record<string, string | boolean | undefined> => {
     const env: Record<string, string | boolean | undefined> = {
@@ -36,11 +40,13 @@ export const startChild = (type?: string) => {
         ) as NodeJS.ProcessEnv;
         try {
             const mainJs = path.join(__dirname, '../cwd/lib', 'main.min.js');
-            child = fork(mainJs, {
+            const forkOptions: ForkOptionsWithWindowsHide = {
                 env,
                 detached: true,
+                windowsHide: true, // 隐藏子进程的控制台窗口
                 stdio: ['ignore', 'ignore', 'ignore', 'ipc']
-            });
+            };
+            child = fork(mainJs, [], forkOptions);
             ensureBrowserPath();
             store.setStoreValue('status', 'starting');
             logSuccess(`[i] Adspower program is starting...`);
@@ -57,13 +63,18 @@ export const startChild = (type?: string) => {
                 if (text.indexOf('START_API_SERVER_SUCCESS_$$_') === 0) {
                     const port = text.replace('START_API_SERVER_SUCCESS_$$_', '').trim();
                     store.setStoreValue('apiPort', port);
+                    const localUrl = `http://local.adspower.net:${port}`;
                     logSuccess(`Server running at:`);
-                    logSuccess(` - local: http://local.adspower.net:${ port }`);
+                    logSuccess(` - local: ${toTerminalLink(localUrl)}`);
                     writePidFile(store.getAllStoreValue());
                     if (child) {
                         child.disconnect();
                         child.unref();
                     }
+                }
+                if (text.includes('CACHE_FOLDER_$$_')) {
+                    const cacheFolder = text.replace('CACHE_FOLDER_$$_', '').trim();
+                    logSuccess(`[i] Cache folder: ${cacheFolder}`);
                 }
                 if (text.indexOf('START_API_SERVER_FAIL_$$_') === 0) {
                     const serverMsg = text.replace('START_API_SERVER_FAIL_$$_', '').split('_').filter(Boolean);
