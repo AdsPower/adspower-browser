@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { ChildProcess, exec, fork } from 'node:child_process';
+import { ChildProcess, fork } from 'node:child_process';
 import { store } from '../store';
 import { browsersKill, ensureBrowserPath, initSqlite3, isRunning, logError, logInfo, logSuccess, logWarning, readPidFile, removePidFile, sleepTime, toTerminalLink, writePidFile } from '../tools';
 
@@ -24,6 +24,10 @@ const getEnv = (): Record<string, string | boolean | undefined> => {
 export const startChild = (type?: string) => {
     let timer: NodeJS.Timeout | undefined;
     let child: ChildProcess | null = null;
+    /** Windows glue 内 fork 出的真实 worker PID，用于超时/restart/stop 与 pid 文件 */
+    let workerPid: number | null = null;
+    /** Windows：API 成功后断开 IPC 时 glue 会 exit(0)，避免误触发自动重启 */
+    let ipcClosedAfterSuccessWin = false;
     return new Promise<void>(async (resolve, reject) => {
         initSqlite3();
         const processInstance = readPidFile();
@@ -40,21 +44,40 @@ export const startChild = (type?: string) => {
         ) as NodeJS.ProcessEnv;
         try {
             const mainJs = path.join(__dirname, '../cwd/lib', 'main.min.js');
+            const forkEnv: NodeJS.ProcessEnv = { ...env };
+            const useWinGlue = process.platform === 'win32';
+            if (useWinGlue) {
+                forkEnv.ADSPOWER_MAIN_JS = mainJs;
+            }
             const forkOptions: ForkOptionsWithWindowsHide = {
-                env,
-                detached: true,
+                env: forkEnv,
+                detached: useWinGlue ? false : true,
                 windowsHide: true, // 隐藏子进程的控制台窗口
-                stdio: ['ignore', 'ignore', 'ignore', 'ipc']
+                stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
+                execArgv: [],
             };
-            child = fork(mainJs, [], forkOptions);
+            child = useWinGlue
+                ? fork(path.join(__dirname, 'win-child-glue.cjs'), [], forkOptions)
+                : fork(mainJs, [], forkOptions);
             ensureBrowserPath();
             store.setStoreValue('status', 'starting');
             logSuccess(`[i] Adspower program is starting...`);
-            store.setStoreValue('pid', child?.pid?.toString() || '');
+            if (!useWinGlue) {
+                store.setStoreValue('pid', child?.pid?.toString() || '');
+            }
             let isAppPortOk = false;
             writePidFile(store.getAllStoreValue());
             child.on('message', async (msg) => {
                 const text = String(msg);
+                if (text.indexOf('ADSPOWER_WORKER_PID_$$_') === 0) {
+                    const wpid = text.replace('ADSPOWER_WORKER_PID_$$_', '').trim();
+                    workerPid = Number(wpid) || null;
+                    store.setStoreValue('pid', wpid);
+                    writePidFile(store.getAllStoreValue());
+                }
+                if (text.indexOf('ADSPOWER_GLUE_ERROR_$$_') === 0) {
+                    logError(`[!] Node启动失败: ${text.replace('ADSPOWER_GLUE_ERROR_$$_', '')}`);
+                }
                 if (text.indexOf('SERVER_PORT_$$_') === 0 && !isAppPortOk) {
                     const port = text.replace('SERVER_PORT_$$_', '').trim();
                     store.setStoreValue('appPort', port);
@@ -68,6 +91,9 @@ export const startChild = (type?: string) => {
                     logSuccess(` - local: ${toTerminalLink(localUrl)}`);
                     writePidFile(store.getAllStoreValue());
                     if (child) {
+                        if (useWinGlue) {
+                            ipcClosedAfterSuccessWin = true;
+                        }
                         child.disconnect();
                         child.unref();
                     }
@@ -93,6 +119,13 @@ export const startChild = (type?: string) => {
                     writePidFile(store.getAllStoreValue());
                 }
                 if (text === 'restart') {
+                    if (workerPid != null) {
+                        try {
+                            process.kill(workerPid, 'SIGKILL');
+                        } catch {
+                            //
+                        }
+                    }
                     child && child.kill('SIGKILL');
                     store.setStoreValue('status', 'restarting');
                     startChild('2').catch(() => {
@@ -134,6 +167,8 @@ export const startChild = (type?: string) => {
                     await browsersKill();
                     store.clear();
                     removePidFile();
+                } else if (useWinGlue && ipcClosedAfterSuccessWin && code === 0) {
+                    // glue 在 API 成功后随 IPC 断开正常退出，worker 仍为 detached 存活
                 } else {
                     // node异常退出的时候重启
                     child = null;
@@ -146,6 +181,13 @@ export const startChild = (type?: string) => {
             });
             // 启动超时
             timer = setTimeout(() => {
+                if (workerPid != null) {
+                    try {
+                        process.kill(workerPid, 'SIGKILL');
+                    } catch {
+                        //
+                    }
+                }
                 child && child.kill('SIGKILL');
                 child = null;
                 store.setStoreValue('status', 'stop');
