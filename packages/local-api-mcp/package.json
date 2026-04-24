@@ -1,18 +1,23 @@
 {
   "name": "local-api-mcp-typescript",
-  "version": "2.0.2",
+  "version": "2.0.5",
   "main": "build/index.js",
   "type": "commonjs",
   "bin": {
     "adspower-local-api-mcp": "./build/index.js"
   },
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "test:e2e:local-api-mcp": "pnpm -w test:e2e:local-api-mcp",
+    "test:e2e:local-api-mcp:light": "pnpm -w test:e2e:local-api-mcp:light",
+    "test:e2e:local-api-mcp:full": "pnpm -w test:e2e:local-api-mcp:full",
+    "test:e2e:local-api-mcp:light:verbose": "pnpm -w test:e2e:local-api-mcp:light:verbose",
+    "test:e2e:local-api-mcp:full:verbose": "pnpm -w test:e2e:local-api-mcp:full:verbose"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",
     "axios": "^1.8.4",
-    "playwright": "^1.51.1",
+    "playwright-core": "^1.51.1",
     "zod": "^3.24.2"
   },
   "devDependencies": {

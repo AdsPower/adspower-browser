@@ -20,5 +20,14 @@ function parseArgs() {
 }
 
 const config = parseArgs();
+export const updateConfig = (apiKey: string, port: string) => {
+    if (apiKey) {
+        config.apiKey = apiKey;
+    }
+    if (port) {
+        config.port = port;
+    }
+}
 export const PORT = config.port;
 export const API_KEY = config.apiKey;
+export const CONFIG = config;

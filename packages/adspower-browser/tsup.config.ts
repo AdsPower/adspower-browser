@@ -1,11 +1,11 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/cli.ts'],
+  entry: ['src/index.ts'],
   format: ['cjs'],
-  outDir: 'build',
+  outDir: 'cli',
   sourcemap: false,
   clean: true,
   // Bundle @adspower/local-api-core from workspace (source); keep runtime deps external
-  external: ['axios', 'playwright', 'zod'],
+  external: ['axios', 'playwright-core', 'zod'],
 });

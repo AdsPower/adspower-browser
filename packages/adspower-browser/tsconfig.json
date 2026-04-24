@@ -3,7 +3,7 @@
     "target": "ESNext",
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "outDir": "./build",
+    "outDir": "cli",
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,

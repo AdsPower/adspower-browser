@@ -1,4 +1,4 @@
-import { apiClient, LOCAL_API_BASE, API_ENDPOINTS } from '../constants/api.js';
+import { getApiClient, getLocalApiBase, API_ENDPOINTS } from '../constants/api.js';
 import type { GetTagListParams, CreateTagParams, UpdateTagParams, DeleteTagParams } from '../types/tag.js';
 
 export const tagHandlers = {
@@ -16,7 +16,7 @@ export const tagHandlers = {
             requestBody.page = page;
         }
 
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_TAG_LIST}`, requestBody);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.GET_TAG_LIST}`, requestBody);
         if (response.data.code === 0) {
             return `Tag list: ${JSON.stringify(response.data.data.list || response.data.data, null, 2)}`;
         }
@@ -24,7 +24,7 @@ export const tagHandlers = {
     },
 
     async createTag({ tags }: CreateTagParams) {
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.CREATE_TAG}`, { tags });
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.CREATE_TAG}`, { tags });
         if (response.data.code === 0) {
             return `Tags created successfully: ${JSON.stringify(response.data.data, null, 2)}`;
         }
@@ -32,7 +32,7 @@ export const tagHandlers = {
     },
 
     async updateTag({ tags }: UpdateTagParams) {
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.UPDATE_TAG}`, { tags });
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.UPDATE_TAG}`, { tags });
         if (response.data.code === 0) {
             return `Tags updated successfully: ${JSON.stringify(response.data.data, null, 2)}`;
         }
@@ -40,7 +40,7 @@ export const tagHandlers = {
     },
 
     async deleteTag({ ids }: DeleteTagParams) {
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.DELETE_TAG}`, { ids });
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.DELETE_TAG}`, { ids });
         if (response.data.code === 0) {
             return `Tags deleted successfully: ${ids.join(', ')}`;
         }

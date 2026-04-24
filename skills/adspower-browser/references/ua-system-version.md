@@ -1,6 +1,6 @@
 # Random UA — `ua_system_version` enum
 
-Used under **fingerprintConfig** → **random_ua** → **ua_system_version**.
+Used under **fingerprint_config** → **random_ua** → **ua_system_version**.
 
 ## Specific versions (fixed OS version)
 

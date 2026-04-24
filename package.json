@@ -5,7 +5,19 @@
   "description": "AdsPower Local API — monorepo: core, MCP server, and adspower-browser CLI/skill",
   "scripts": {
     "build": "pnpm --filter adspower-browser --filter local-api-mcp-typescript run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:contracts": "vitest run --config vitest.config.ts",
+    "test:contracts:watch": "vitest --config vitest.config.ts",
+    "test:e2e:local-api-mcp": "pnpm test:e2e:local-api-mcp:light",
+    "test:e2e:local-api-mcp:light": "ADSP_MCP_E2E_ENABLED=1 PORT=50325 ADSP_MCP_E2E_HIGH_IMPACT=0 ADSP_LOCAL_API_MIN_INTERVAL_MS=1000 vitest run --config vitest.config.ts packages/local-api-mcp/tests/e2e-tool-validation/e2e-tools-parameter-validation.contracts.test.ts",
+    "test:e2e:local-api-mcp:full": "ADSP_MCP_E2E_ENABLED=1 PORT=50325 ADSP_MCP_E2E_HIGH_IMPACT=1 ADSP_LOCAL_API_MIN_INTERVAL_MS=1000 vitest run --config vitest.config.ts packages/local-api-mcp/tests/e2e-tool-validation/e2e-tools-parameter-validation.contracts.test.ts",
+    "test:e2e:local-api-mcp:light:verbose": "ADSP_MCP_E2E_ENABLED=1 PORT=50325 ADSP_MCP_E2E_HIGH_IMPACT=0 ADSP_LOCAL_API_MIN_INTERVAL_MS=1000 vitest run --reporter=verbose --config vitest.config.ts packages/local-api-mcp/tests/e2e-tool-validation/e2e-tools-parameter-validation.contracts.test.ts",
+    "test:e2e:local-api-mcp:full:verbose": "ADSP_MCP_E2E_ENABLED=1 PORT=50325 ADSP_MCP_E2E_HIGH_IMPACT=1 ADSP_LOCAL_API_MIN_INTERVAL_MS=1000 vitest run --reporter=verbose --config vitest.config.ts packages/local-api-mcp/tests/e2e-tool-validation/e2e-tools-parameter-validation.contracts.test.ts",
+    "typecheck": "pnpm exec tsc --noEmit -p packages/core/tsconfig.json && pnpm exec tsc --noEmit -p packages/adspower-browser/tsconfig.json && pnpm exec tsc --noEmit -p packages/local-api-mcp/tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "vitest": "^3.1.1"
   },
   "keywords": [
     "adspower",

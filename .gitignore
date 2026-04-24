@@ -59,3 +59,13 @@ coverage/
 *.tsbuildinfo 
 .cursor
 .agents
+
+# adspower-browser
+packages/adspower-browser/cli
+packages/adspower-browser/cwd/**
+!packages/adspower-browser/cwd/lib/
+!packages/adspower-browser/cwd/lib/main.min.js
+
+# superpower
+docs/
+.worktrees/

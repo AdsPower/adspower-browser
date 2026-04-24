@@ -1,6 +1,6 @@
 # Browser kernel config
 
-Used under **fingerprintConfig** → **browser_kernel_config**. Version and type must match: only versions valid for the chosen type are allowed.
+Used under **fingerprint_config** → **browser_kernel_config**. Version and type must match: only versions valid for the chosen type are allowed.
 
 ## type (optional)
 

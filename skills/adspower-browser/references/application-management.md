@@ -1,11 +1,13 @@
 # Application Management
 
-**check-status** — Check the availability of the current device API interface (Connection Status).
+All parameters use the aligned external Local API names from the contract matrix.
+
+**check-status** — Check the availability of the current device API interface (connection status).
 
 - No parameters.
 
 **get-application-list** — Get the list of applications (categories).
 
-- **category_id** (optional): Extension category_id.
-- **page** (optional): Default 1.
-- **limit** (optional): 1–100. Values per page.
+- **category_id** (optional): Extension category identifier.
+- **page** (optional): Page number, default `1`.
+- **limit** (optional): Values per page, `1`-`100`.

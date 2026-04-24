@@ -1,5 +1,7 @@
-import { apiClient, LOCAL_API_BASE, API_ENDPOINTS } from '../constants/api.js';
-import { buildRequestBody } from '../utils/requestBuilder.js';
+import os from 'node:os';
+import { getApiClient, getLocalApiBase, API_ENDPOINTS } from '../constants/api.js';
+import { buildQueryParamsFor, buildRequestBodyFor } from '../utils/requestBuilder.js';
+import { resolveOpenBrowserHeadless } from '../utils/openBrowserHeadless.js';
 import type {
     OpenBrowserParams,
     CloseBrowserParams,
@@ -19,49 +21,31 @@ import type {
 } from '../types/browser.js';
 
 export const browserHandlers = {
-    async openBrowser({ profileNo, profileId, ipTab, launchArgs, clearCacheAfterClosing, cdpMask }: OpenBrowserParams) {
-        const requestBody: Record<string, string> = {};
-        if (profileId) {
-            requestBody.profile_id = profileId;
-        }
-        if (profileNo) {
-            requestBody.profile_no = profileNo;
-        }
-        if (ipTab) {
-            requestBody.ip_tab = ipTab;
-        }
-        if (launchArgs) {
-            requestBody.launch_args = launchArgs;
-        }
-        if (clearCacheAfterClosing) {
-            requestBody.delete_cache = clearCacheAfterClosing;
-        }
-        if (cdpMask) {
-            requestBody.cdp_mask = cdpMask;
-        }
-
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.START_BROWSER}`, requestBody);
+    async openBrowser(params: OpenBrowserParams) {
+        const { params: resolvedParams, didAutoSetHeadless } = resolveOpenBrowserHeadless(
+            params,
+            process.env,
+            os.platform()
+        );
+        const requestBody = buildRequestBodyFor('open-browser', resolvedParams);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.START_BROWSER}`, requestBody);
         if (response.data.code === 0) {
+            const autoNote = didAutoSetHeadless
+                ? '\n已根据运行环境自动使用 headless=1（无可用图形会话）。\nAuto-set headless=1 (no graphical session detected).'
+                : '';
             return `Browser opened successfully with: ${Object.entries(response.data.data).map(([key, value]) => {
                 if (value && typeof value === 'object') {
                     return Object.entries(value).map(([key, value]) => `ws.${key}: ${value}`).join('\n');
                 }
                 return `${key}: ${value}`;
-            }).join('\n')}`;
+            }).join('\n')}${autoNote}`;
         }
         throw new Error(`Failed to open browser: ${response.data.msg}`);
     },
 
-    async closeBrowser({ profileId, profileNo }: CloseBrowserParams) {
-        const requestBody: Record<string, string> = {};
-        if (profileId) {
-            requestBody.profile_id = profileId;
-        }
-        if (profileNo) {
-            requestBody.profile_no = profileNo;
-        }
-
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.CLOSE_BROWSER}`, requestBody);
+    async closeBrowser(params: CloseBrowserParams) {
+        const requestBody = buildRequestBodyFor('close-browser', params);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.CLOSE_BROWSER}`, requestBody);
         if (response.data.code === 0) {
             return 'Browser closed successfully';
         }
@@ -69,8 +53,8 @@ export const browserHandlers = {
     },
 
     async createBrowser(params: CreateBrowserParams) {
-        const requestBody = buildRequestBody(params);
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.CREATE_BROWSER}`, requestBody);
+        const requestBody = buildRequestBodyFor('create-browser', params);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.CREATE_BROWSER}`, requestBody);
 
         if (response.data.code === 0) {
             return `Browser created successfully with: ${Object.entries(response.data.data).map(([key, value]) => `${key}: ${value}`).join('\n')}`;
@@ -79,9 +63,8 @@ export const browserHandlers = {
     },
 
     async updateBrowser(params: UpdateBrowserParams) {
-        const requestBody = buildRequestBody(params);
-
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.UPDATE_BROWSER}`, requestBody);
+        const requestBody = buildRequestBodyFor('update-browser', params);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.UPDATE_BROWSER}`, requestBody);
 
         if (response.data.code === 0) {
             return `Browser updated successfully with: ${Object.entries(response.data.data || {}).map(([key, value]) => `${key}: ${value}`).join('\n')}`;
@@ -89,56 +72,21 @@ export const browserHandlers = {
         throw new Error(`Failed to update browser: ${response.data.msg}`);
     },
 
-    async deleteBrowser({ profileIds }: DeleteBrowserParams) {
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.DELETE_BROWSER}`, {
-            profile_id: profileIds
-        });
+    async deleteBrowser(params: DeleteBrowserParams) {
+        const response = await getApiClient().post(
+            `${getLocalApiBase()}${API_ENDPOINTS.DELETE_BROWSER}`,
+            buildRequestBodyFor('delete-browser', params)
+        );
 
         if (response.data.code === 0) {
-            return `Browsers deleted successfully: ${profileIds.join(', ')}`;
+            return `Browsers deleted successfully: ${params.profile_id.join(', ')}`;
         }
         throw new Error(`Failed to delete browsers: ${response.data.msg}`);
     },
 
     async getBrowserList(params: GetBrowserListParams) {
-        const { groupId, limit, page, profileId, profileNo, sortType, sortOrder, tag_ids, tags_filter, name, name_filter } = params;
-        const requestBody: Record<string, any> = {};
-
-        if (limit !== undefined) {
-            requestBody.limit = limit;
-        }
-        if (page !== undefined) {
-            requestBody.page = page;
-        }
-        if (profileId && profileId.length > 0) {
-            requestBody.profile_id = profileId;
-        }
-        if (profileNo && profileNo.length > 0) {
-            requestBody.profile_no = profileNo;
-        }
-        if (groupId !== undefined) {
-            requestBody.group_id = groupId;
-        }
-        if (sortType) {
-            requestBody.sort_type = sortType;
-        }
-        if (sortOrder) {
-            requestBody.sort_order = sortOrder;
-        }
-        if (tag_ids && tag_ids.length > 0) {
-            requestBody.tag_ids = tag_ids;
-        }
-        if (tags_filter) {
-            requestBody.tags_filter = tags_filter;
-        }
-        if (name) {
-            requestBody.name = name;
-        }
-        if (name_filter) {
-            requestBody.name_filter = name_filter;
-        }
-
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_BROWSER_LIST}`, requestBody);
+        const requestBody = buildRequestBodyFor('get-browser-list', params);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.GET_BROWSER_LIST}`, requestBody);
         if (response.data.code === 0) {
             return `Browser list: ${JSON.stringify(response.data.data.list, null, 2)}`;
         }
@@ -146,7 +94,7 @@ export const browserHandlers = {
     },
 
     async getOpenedBrowser() {
-        const response = await apiClient.get(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_OPENED_BROWSER}`);
+        const response = await getApiClient().get(`${getLocalApiBase()}${API_ENDPOINTS.GET_OPENED_BROWSER}`);
 
         if (response.data.code === 0) {
             return `Opened browser list: ${JSON.stringify(response.data.data.list, null, 2)}`;
@@ -154,44 +102,29 @@ export const browserHandlers = {
         throw new Error(`Failed to get opened browsers: ${response.data.msg}`);
     },
 
-    async moveBrowser({ groupId, userIds }: MoveBrowserParams) {
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.MOVE_BROWSER}`, {
-            group_id: groupId,
-            user_ids: userIds
-        });
+    async moveBrowser(params: MoveBrowserParams) {
+        const requestBody = buildRequestBodyFor('move-browser', params as Record<string, unknown>);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.MOVE_BROWSER}`, requestBody);
+        const { group_id, user_ids } = params as MoveBrowserParams & { group_id: string; user_ids: string[] };
 
         if (response.data.code === 0) {
-            return `Browsers moved successfully to group ${groupId}: ${userIds.join(', ')}`;
+            return `Browsers moved successfully to group ${group_id}: ${user_ids.join(', ')}`;
         }
         throw new Error(`Failed to move browsers: ${response.data.msg}`);
     },
 
-    async getProfileCookies({ profileId, profileNo }: GetProfileCookiesParams) {
-        const params = new URLSearchParams();
-        if (profileId) {
-            params.set('profile_id', profileId);
-        }
-        if (profileNo) {
-            params.set('profile_no', profileNo);
-        }
-
-        const response = await apiClient.get(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_PROFILE_COOKIES}`, { params });
+    async getProfileCookies(params: GetProfileCookiesParams) {
+        const query = buildQueryParamsFor('get-profile-cookies', params);
+        const response = await getApiClient().get(`${getLocalApiBase()}${API_ENDPOINTS.GET_PROFILE_COOKIES}`, { params: query });
         if (response.data.code === 0) {
             return `Profile cookies: ${JSON.stringify(response.data.data, null, 2)}`;
         }
         throw new Error(`Failed to get profile cookies: ${response.data.msg}`);
     },
 
-    async getProfileUa({ profileId, profileNo }: GetProfileUaParams) {
-        const requestBody: Record<string, any> = {};
-        if (profileId && profileId.length > 0) {
-            requestBody.profile_id = profileId;
-        }
-        if (profileNo && profileNo.length > 0) {
-            requestBody.profile_no = profileNo;
-        }
-
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_PROFILE_UA}`, requestBody);
+    async getProfileUa(params: GetProfileUaParams) {
+        const requestBody = buildRequestBodyFor('get-profile-ua', params);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.GET_PROFILE_UA}`, requestBody);
         if (response.data.code === 0) {
             return `Profile User-Agent: ${JSON.stringify(response.data.data, null, 2)}`;
         }
@@ -199,78 +132,54 @@ export const browserHandlers = {
     },
 
     async closeAllProfiles(_params: CloseAllProfilesParams) {
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.CLOSE_ALL_PROFILES}`, {});
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.CLOSE_ALL_PROFILES}`, {});
         if (response.data.code === 0) {
             return 'All profiles closed successfully';
         }
         throw new Error(`Failed to close all profiles: ${response.data.msg}`);
     },
 
-    async newFingerprint({ profileId, profileNo }: NewFingerprintParams) {
-        const requestBody: Record<string, any> = {};
-        if (profileId && profileId.length > 0) {
-            requestBody.profile_id = profileId;
-        }
-        if (profileNo && profileNo.length > 0) {
-            requestBody.profile_no = profileNo;
-        }
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.NEW_FINGERPRINT}`, requestBody);
+    async newFingerprint(params: NewFingerprintParams) {
+        const requestBody = buildRequestBodyFor('new-fingerprint', params);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.NEW_FINGERPRINT}`, requestBody);
         if (response.data.code === 0) {
             return `New fingerprint created: ${JSON.stringify(response.data.data, null, 2)}`;
         }
         throw new Error(`Failed to create new fingerprint: ${response.data.msg}`);
     },
 
-    async deleteCacheV2({ profileIds, type }: DeleteCacheV2Params) {
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.DELETE_CACHE_V2}`, {
-            profile_id: profileIds,
-            type: type
-        });
+    async deleteCacheV2(params: DeleteCacheV2Params) {
+        const response = await getApiClient().post(
+            `${getLocalApiBase()}${API_ENDPOINTS.DELETE_CACHE_V2}`,
+            buildRequestBodyFor('delete-cache-v2', params)
+        );
         if (response.data.code === 0) {
-            return `Cache deleted successfully for profiles: ${profileIds.join(', ')}`;
+            return `Cache deleted successfully for profiles: ${params.profile_id.join(', ')}`;
         }
         throw new Error(`Failed to delete cache: ${response.data.msg}`);
     },
 
-    async shareProfile({ profileIds, receiver, shareType, content }: ShareProfileParams) {
-        const requestBody: Record<string, any> = {
-            profile_id: profileIds,
-            receiver: receiver
-        };
-        if (shareType !== undefined) {
-            requestBody.share_type = shareType;
-        }
-        if (content !== undefined) {
-            requestBody.content = content;
-        }
-
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.SHARE_PROFILE}`, requestBody);
+    async shareProfile(params: ShareProfileParams) {
+        const requestBody = buildRequestBodyFor('share-profile', params);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.SHARE_PROFILE}`, requestBody);
         if (response.data.code === 0) {
-            return `Profiles shared successfully: ${profileIds.join(', ')}`;
+            return `Profiles shared successfully: ${params.profile_id.join(', ')}`;
         }
         throw new Error(`Failed to share profiles: ${response.data.msg}`);
     },
 
-    async getBrowserActive({ profileId, profileNo }: GetBrowserActiveParams) {
-        const params = new URLSearchParams();
-        if (profileId) {
-            params.set('profile_id', profileId);
-        }
-        if (profileNo) {
-            params.set('profile_no', profileNo);
-        }
-
-        const response = await apiClient.get(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_BROWSER_ACTIVE}`, { params });
+    async getBrowserActive(params: GetBrowserActiveParams) {
+        const query = buildQueryParamsFor('get-browser-active', params);
+        const response = await getApiClient().get(`${getLocalApiBase()}${API_ENDPOINTS.GET_BROWSER_ACTIVE}`, { params: query });
         if (response.data.code === 0) {
             return `Browser active info: ${JSON.stringify(response.data.data, null, 2)}`;
         }
         throw new Error(`Failed to get browser active: ${response.data.msg}`);
     },
 
-    async getCloudActive({ userIds }: GetCloudActiveParams) {
-        const response = await apiClient.post(`${LOCAL_API_BASE}${API_ENDPOINTS.GET_CLOUD_ACTIVE}`, {
-            user_ids: userIds
-        });
+    async getCloudActive(params: GetCloudActiveParams) {
+        const requestBody = buildRequestBodyFor('get-cloud-active', params as Record<string, unknown>);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.GET_CLOUD_ACTIVE}`, requestBody);
         if (response.data.code === 0) {
             return `Cloud active browsers: ${JSON.stringify(response.data.data, null, 2)}`;
         }

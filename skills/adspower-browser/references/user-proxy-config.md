@@ -1,4 +1,4 @@
-# UserProxyConfig (inline proxy config for create-browser / update-browser)
+# user_proxy_config (inline proxy config for create-browser / update-browser)
 
 Used to configure an inline proxy for **create-browser** / **update-browser**. Defaults to `{"proxy_soft":"no_proxy"}` when omitted. If **proxyid** is also provided, **proxyid** takes priority and this config is ignored. Field names match the API (snake_case):
 
@@ -11,4 +11,4 @@ Used to configure an inline proxy for **create-browser** / **update-browser**. D
 - **proxy_url** (optional): Full proxy URL, e.g. `http://127.0.0.1:8080`
 - **global_config** (optional): Global config. `'0'` | `'1'`, default `0`
 
-Example: `"userProxyConfig":{"proxy_soft":"no_proxy","proxy_type":"http","proxy_host":"127.0.0.1","proxy_port":"8080"}`
+Example: `"user_proxy_config":{"proxy_soft":"no_proxy","proxy_type":"http","proxy_host":"127.0.0.1","proxy_port":"8080"}`

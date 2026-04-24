@@ -1,125 +1,167 @@
 ---
 name: adspower-browser
-description: Runs AdsPower Local API operations via the adspower-browser CLI (no MCP required). Use when the user asks to create or manage AdsPower browsers, groups, tags, proxies, or check status; run Node CLI commands that call the same handlers as the MCP server.
+description: "AdsPower Local API via adspower-browser CLI when MCP is unavailable or not desired; same handlers as the MCP server. EN triggers: open/launch/start browser or profile, environment, config profile, AdsPower; create/update/delete/list profiles; groups, tags, proxies; kernel download/list; client patch; API check-status. ZH triggers: 打开浏览器、启动环境、打开配置文件、打开profile、拉起AdsPower、指纹浏览器; 新建/修改/删除/列出环境; 分组、标签、代理; 内核下载/列表; 客户端补丁; 检测接口。User phrases like open environment or 打开配置 map to commands such as open-browser."
 ---
 
 # AdsPower Local API with adspower-browser
 
-The Skills CLI (npx adspower-browser) is the package manager for operate AdsPower browser profiles, groups, proxies, and application/category lists via the **adspower-browser** CLI. For more infomation about out product and services, visit [AdsPower Official Website](https://www.adspower.com/)
+The Skills CLI (npx adspower-browser) is the package manager for operate AdsPower browser profiles, groups, proxies, 
+and application/category lists via the **adspower-browser** CLI. For more infomation about out product and services, 
+visit [AdsPower Official Website](https://www.adspower.com/).
+
+## Install CLI
+
+```bash
+npm install -g adspower-browser
+```
+
+After installation, you can use any of these equivalent commands:
+
+```bash
+adspower-browser
+adspower
+ads
+```
+
+`adspower-browser` is the original command name. `adspower` and `ads` are aliases that point to the same CLI entry.
 
 ## When to Use This Skill
 
 Apply when the user:
 
 - Asks to create, update, delete, or list AdsPower browser profiles
+- Says 打开环境、配置文件、profile、AdsPower 等意指**启动已有**浏览器环境 → 使用 `open-browser`（CLI 或 MCP）；完整说法与工具映射见 [references/tool-intent-map.md](references/tool-intent-map.md)
 - Mentions opening or closing browsers/profiles, fingerprint, UA, or proxy
 - Wants to manage groups, tags, proxies, or check API status
 - Refers to AdsPower or adspower-browser (and MCP is not running or not desired)
 
-Ensure AdsPower is running (default port 50325). Set `PORT` and `API_KEY` via environment or `--port` / `--api-key` if needed.
+Ensure AdsPower is running (default port `50325`). Pass `--port` / `--api-key` when needed, or set the `ADS_API_KEY` environment variable before running `start`.
 
 ## How to Run
 
+The examples below use `ads` for brevity, but `adspower-browser` and `adspower` work the same way.
+
 ```bash
-adspower-browser [--port PORT] [--api-key KEY] <command> [<arg>]
+ads start -k <KEY>
+```
+
+If the `ADS_API_KEY` environment variable is set, you can start the CLI directly with:
+
+```bash
+ads start
+```
+
+General command form:
+
+```bash
+ads <command> [<arg>] [--port PORT] [--api-key KEY]
 ```
 
 **Two forms for `<arg>`:**
 
 1. **Single value (shorthand)** — for profile-related commands, pass one profile ID or number:
-   - `adspower-browser open-browser <ProfileId>`
-   - `adspower-browser close-browser <ProfileId>`
-   - `adspower-browser get-profile-cookies <ProfileId>`
-   - `adspower-browser get-browser-active <ProfileId>`
-   - `adspower-browser get-profile-ua <ProfileId>` (single ID)
-   - `adspower-browser new-fingerprint <ProfileId>` (single ID)
+   - `ads open-browser <profile_id>`
+   - `ads close-browser <profile_id>`
+   - `ads get-profile-cookies <profile_id>`
+   - `ads get-browser-active <profile_id>`
+   - `ads get-profile-ua <profile_id>` (single ID; a numeric token is treated as `profile_no`)
+   - `ads new-fingerprint <profile_id>` (single ID; a numeric token is treated as `profile_no`)
 
 2. **JSON string** — full parameters for any command (see Command Reference below):
-   - `adspower-browser open-browser '{"profileId":"abc123","launchArgs":"..."}'`
+   - `ads open-browser '{"profile_id":"abc123","launch_args":"..."}'`
    - Commands with no params: omit `<arg>` or use `'{}'`.
 
-## Essential Commands
+## Essential Commands With AI Agents
+
+You can use `ads -h` or `ads <command> -h` to view the specific parameters.
+
+### Start and stop CLI
+
+```bash
+ads start -k <KEY>                    # Start the adspower runtime
+ads stop                              # Stop the adspower runtime
+ads restart                           # Restart the adspower runtime
+ads status                            # Get the status of the adspower runtime
+```
 
 ### Browser profile – open/close
 
 ```bash
-adspower-browser open-browser <profileId>                    # Or JSON: profileId, profileNo?, ipTab?, launchArgs?, clearCacheAfterClosing?, cdpMask?
-adspower-browser close-browser <profileId>                   # Or JSON: profileId? | profileNo? (one required)
+ads open-browser <profile_id>                    # Or JSON: profile_id, profile_no?, ip_tab?, launch_args?, headless?, last_opened_tabs?, proxy_detection?, password_filling?, password_saving?, cdp_mask?, delete_cache?, device_scale?
+ads close-browser <profile_id>                   # Or JSON: profile_id? | profile_no? (one required)
 ```
 
 ### Browser profile – create/update/delete/list
 
 ```bash
-adspower-browser create-browser '{"groupId":"0","userProxyConfig":{"proxy_soft":"no_proxy"},...}'  # groupId + account field required; proxy optional (defaults to no_proxy; proxyid takes priority over userProxyConfig when both given)
-adspower-browser update-browser '{"profileId":"...",...}'    # profileId required
-adspower-browser delete-browser '{"profileIds":["..."]}'     # profileIds required
-adspower-browser get-browser-list '{}'                       # Or groupId?, limit?, page?, profileId?, profileNo?, sortType?, sortOrder?, tag_ids?, tags_filter?, name?, name_filter?
-adspower-browser get-opened-browser                          # No params
+ads create-browser '{"group_id":"0","user_proxy_config":{"proxy_soft":"no_proxy"},...}'  # group_id + account field required; proxy optional (defaults to no_proxy; proxyid takes priority over user_proxy_config when both given)
+ads update-browser '{"profile_id":"...",...}'    # profile_id required
+ads delete-browser '{"profile_id":["..."]}'     # profile_id required
+ads get-browser-list '{}'                       # Or group_id?, limit?, page?, profile_id[]?, profile_no[]?, sort_type?, sort_order?, tag_ids?, tags_filter?, name?, name_filter?
+ads get-opened-browser                          # No params
 ```
 
 ### Browser profile – move/cookies/UA/fingerprint/cache/share/active
 
 ```bash
-adspower-browser move-browser '{"groupId":"1","userIds":["..."]}'   # groupId + userIds required
-adspower-browser get-profile-cookies <profileId>             # Or JSON: profileId? | profileNo?
-adspower-browser get-profile-ua <profileId>                  # Or JSON: profileId[]? | profileNo[]? (up to 10)
-adspower-browser close-all-profiles                          # No params
-adspower-browser new-fingerprint <profileId>                 # Or JSON: profileId[]? | profileNo[]? (up to 10)
-adspower-browser delete-cache-v2 '{"profileIds":["..."],"type":["cookie","history"]}'  # type: local_storage|indexeddb|extension_cache|cookie|history|image_file
-adspower-browser share-profile '{"profileIds":["..."],"receiver":"email@example.com"}' # receiver required; shareType?, content?
-adspower-browser get-browser-active <profileId>              # Or JSON: profileId? | profileNo?
-adspower-browser get-cloud-active '{"userIds":"id1,id2"}'    # userIds comma-separated, max 100
+ads move-browser '{"group_id":"1","user_ids":["..."]}'   # group_id + user_ids required
+ads get-profile-cookies <profile_id>             # Or JSON: profile_id? | profile_no?
+ads get-profile-ua <profile_id>                  # Or JSON: profile_id[]? | profile_no[]? (up to 10); numeric shorthand maps to profile_no[]
+ads close-all-profiles                          # No params
+ads new-fingerprint <profile_id>                 # Or JSON: profile_id[]? | profile_no[]? (up to 10); numeric shorthand maps to profile_no[]
+ads delete-cache-v2 '{"profile_id":["..."],"type":["cookie","history"]}'  # type: local_storage|indexeddb|extension_cache|cookie|history|image_file
+ads share-profile '{"profile_id":["..."],"receiver":"email@example.com"}' # receiver required; share_type?, content?
+ads get-browser-active <profile_id>              # Or JSON: profile_id? | profile_no?
+ads get-cloud-active '{"user_ids":"id1,id2"}'    # user_ids comma-separated, max 100
 ```
 
 ### Kernel
 
 ```bash
-adspower-browser download-kernel '{"kernel_type":"Chrome","kernel_version":"141"}'
-adspower-browser get-kernel-list '{}'                         # kernel_type?: Chrome | Firefox (omit to get all)
+ads download-kernel '{"kernel_type":"Chrome","kernel_version":"141"}'
+ads get-kernel-list '{}'                         # kernel_type?: Chrome | Firefox (omit to get all)
 ```
 
 ### Patch
 
 ```bash
-adspower-browser update-patch '{}'                            # version_type?: stable | beta (default stable)
+ads update-patch '{}'                            # version_type?: stable | beta (default stable)
 ```
 
 ### Tag
 
 ```bash
-adspower-browser get-tag-list '{}'                              # ids?, limit?, page?
-adspower-browser create-tag '{"tags":[{"name":"My tag","color":"blue"}]}'   # name required per item; color optional
-adspower-browser update-tag '{"tags":[{"id":"1","name":"Renamed"}]}'        # id required per item; name?, color?
-adspower-browser delete-tag '{"ids":["tagId1","tagId2"]}'                   # ids required
+ads get-tag-list '{}'                              # ids?, limit?, page?
+ads create-tag '{"tags":[{"name":"My tag","color":"blue"}]}'   # name required per item; color optional
+ads update-tag '{"tags":[{"id":"1","name":"Renamed"}]}'        # id required per item; name?, color?
+ads delete-tag '{"ids":["tagId1","tagId2"]}'                   # ids required
 ```
 
 ### Group
 
 ```bash
-adspower-browser create-group '{"groupName":"My Group","remark":"..."}'   # groupName required
-adspower-browser update-group '{"groupId":"1","groupName":"New Name"}'    # groupId + groupName required; remark? (null to clear)
-adspower-browser get-group-list '{}'                         # groupName?, size?, page?
+ads create-group '{"group_name":"My Group","remark":"..."}'   # group_name required
+ads update-group '{"group_id":"1","group_name":"New Name"}'    # group_id + group_name required; remark? (null to clear)
+ads get-group-list '{}'                         # group_name?, page_size?, page?
 ```
 
 ### Application (categories)
 
 ```bash
-adspower-browser check-status                                # No params – API availability
-adspower-browser get-application-list '{}'                   # category_id?, page?, limit?
+ads check-status                                # No params – API availability
+ads get-application-list '{"category_id":"123","page":1,"limit":20}'
 ```
 
 ### Proxy
 
 ```bash
-adspower-browser create-proxy '{"proxies":[{"type":"http","host":"127.0.0.1","port":"8080"}]}'  # type, host, port required per item
-adspower-browser update-proxy '{"proxyId":"...","host":"..."}'   # proxyId required
-adspower-browser get-proxy-list '{}'                         # limit?, page?, proxyId?
-adspower-browser delete-proxy '{"proxyIds":["..."]}'        # proxyIds required, max 100
+ads create-proxy '[{"type":"http","host":"127.0.0.1","port":"8080"}]'  # top-level array; type, host, port required per item
+ads update-proxy '{"proxy_id":"proxy-1","proxy_url":"https://refresh.example.com"}'
+ads get-proxy-list '{}'                         # limit?, page?, proxy_id[]?
+ads delete-proxy '{"proxy_id":["..."]}'        # proxy_id required, max 100
 ```
 
 ## Command Reference (full interface and parameters)
-
-All parameter names are camelCase in JSON.
 
 ### Browser Profile Management
 
@@ -149,11 +191,11 @@ See [references/browser-kernel-management.md](references/browser-kernel-manageme
 
 See [references/client-patch-management.md](references/client-patch-management.md) for update-patch parameters.
 
-### UserProxyConfig (inline proxy config for create-browser / update-browser)
+### user_proxy_config (inline proxy config for create-browser / update-browser)
 
-See [references/user-proxy-config.md](references/user-proxy-config.md) for all fields (proxy_soft, proxy_type, proxy_host, proxy_port, etc.) and example. Defaults to `{"proxy_soft":"no_proxy"}` when omitted. If **proxyid** is also provided, **proxyid** takes priority and **userProxyConfig** is ignored.
+See [references/user-proxy-config.md](references/user-proxy-config.md) for all fields (proxy_soft, proxy_type, proxy_host, proxy_port, etc.) and example. Defaults to `{"proxy_soft":"no_proxy"}` when omitted. If **proxyid** is also provided, **proxyid** takes priority and **user_proxy_config** is ignored.
 
-### FingerprintConfig (fingerprint config for create-browser / update-browser)
+### fingerprint_config (fingerprint config for create-browser / update-browser)
 
 See [references/fingerprint-config.md](references/fingerprint-config.md) for all fields (timezone, language, WebRTC, browser_kernel_config, random_ua, TLS, etc.) and example.
 
@@ -167,6 +209,7 @@ Reference docs with full enum values and field lists:
 
 | Reference | Description | When to use |
 |-----------|-------------|-------------|
+| [references/tool-intent-map.md](references/tool-intent-map.md) | MCP/CLI 工具名与中英 **intent**、**triggers** 对照表（与 `toolIntentMetadata.ts` 同源）。 | 根据用户自然语言选择对应 CLI 命令或 MCP 工具（尤其 `open-browser`）。 |
 | [references/browser-profile-management.md](references/browser-profile-management.md) | **open-browser**, **close-browser**, **create-browser**, **update-browser**, **delete-browser**, **get-browser-list**, **get-opened-browser**, **move-browser**, **get-profile-cookies**, **get-profile-ua**, **close-all-profiles**, **new-fingerprint**, **delete-cache-v2**, **share-profile**, **get-browser-active**, **get-cloud-active** parameters. | Any browser profile operation (open, create, update, delete, list, move, cookies, UA, cache, share, status). |
 | [references/group-management.md](references/group-management.md) | **create-group**, **update-group**, **get-group-list** parameters. | Creating, updating, or listing browser groups. |
 | [references/application-management.md](references/application-management.md) | **check-status**, **get-application-list** parameters. | Checking API availability or listing applications (categories). |
@@ -174,10 +217,10 @@ Reference docs with full enum values and field lists:
 | [references/browser-tag-management.md](references/browser-tag-management.md) | **get-tag-list**, **create-tag**, **update-tag**, **delete-tag** parameters. | Listing, creating, updating, or deleting browser tags. |
 | [references/browser-kernel-management.md](references/browser-kernel-management.md) | **download-kernel**, **get-kernel-list** parameters. | Downloading a specific kernel and querying supported kernel versions. |
 | [references/client-patch-management.md](references/client-patch-management.md) | **update-patch** parameters. | Updating AdsPower client to latest patch channel (stable/beta). |
-| [references/user-proxy-config.md](references/user-proxy-config.md) | Full **userProxyConfig** field list (proxy_soft, proxy_type, proxy_host, proxy_port, etc.) and example. | Building inline proxy config for create-browser / update-browser when not using **proxyid**. |
-| [references/fingerprint-config.md](references/fingerprint-config.md) | Full **fingerprintConfig** field list (timezone, language, WebRTC, browser_kernel_config, random_ua, TLS, etc.) and example. | Building or editing fingerprint config for create-browser / update-browser. |
-| [references/browser-kernel-config.md](references/browser-kernel-config.md) | **type** and **version** for `fingerprintConfig.browser_kernel_config`. Version must match type (Chrome vs Firefox). | Pinning or choosing a specific browser kernel (Chrome/Firefox and version) when creating or updating a browser. |
+| [references/user-proxy-config.md](references/user-proxy-config.md) | Full **user_proxy_config** field list (proxy_soft, proxy_type, proxy_host, proxy_port, etc.) and example. | Building inline proxy config for create-browser / update-browser when not using **proxyid**. |
+| [references/fingerprint-config.md](references/fingerprint-config.md) | Full **fingerprint_config** field list (timezone, language, WebRTC, browser_kernel_config, random_ua, TLS, etc.) and example. | Building or editing fingerprint config for create-browser / update-browser. |
+| [references/browser-kernel-config.md](references/browser-kernel-config.md) | **type** and **version** for `fingerprint_config.browser_kernel_config`. Version must match type (Chrome vs Firefox). | Pinning or choosing a specific browser kernel (Chrome/Firefox and version) when creating or updating a browser. |
 | [references/browser-kernel-download-management.md](references/browser-kernel-download-management.md) | **download-kernel** parameters (`kernel_type`, `kernel_version`). | Downloading or updating a specific browser kernel version and polling progress/status. |
-| [references/ua-system-version.md](references/ua-system-version.md) | **ua_system_version** enum for `fingerprintConfig.random_ua`: specific OS versions, generic “any version” per system, and omit behavior. | Constraining or randomizing UA by OS (e.g. Android only, or “any macOS version”) when creating or updating a browser. |
+| [references/ua-system-version.md](references/ua-system-version.md) | **ua_system_version** enum for `fingerprint_config.random_ua`: specific OS versions, generic “any version” per system, and omit behavior. | Constraining or randomizing UA by OS (e.g. Android only, or “any macOS version”) when creating or updating a browser. |
 
 Use these when you need the exact allowed values or semantics; the main skill text above only summarizes.
