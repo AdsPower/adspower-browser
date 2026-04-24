@@ -1,6 +1,6 @@
 ---
 name: adspower-browser
-description: "AdsPower Local API via adspower-browser CLI when MCP is unavailable or not desired; same handlers as the MCP server. EN triggers: open/launch/start browser or profile, environment, config profile, AdsPower; create/update/delete/list profiles; groups, tags, proxies; kernel download/list; client patch; API check-status. ZH triggers: 打开浏览器、启动环境、打开配置文件、打开profile、拉起AdsPower、指纹浏览器; 新建/修改/删除/列出环境; 分组、标签、代理; 内核下载/列表; 客户端补丁; 检测接口。User phrases like open environment or 打开配置 map to commands such as open-browser."
+description: "AdsPower profile operation via adspower-browser CLI. open/launch/start browser or profile, environment, config profile, AdsPower; create/update/delete/list profiles; groups, tags, proxies; kernel download/list; client patch; API check-status. User phrases like open environment or map to commands such as open-browser."
 ---
 
 # AdsPower Local API with adspower-browser
@@ -37,6 +37,8 @@ Apply when the user:
 
 Ensure AdsPower is running (default port `50325`). Pass `--port` / `--api-key` when needed, or set the `ADS_API_KEY` environment variable before running `start`.
 
+The CLI itself supports launching the AdsPower application via API key. If the AdsPower client is installed, AdsPower headless mode can also be launched via API key.
+
 ## How to Run
 
 The examples below use `ads` for brevity, but `adspower-browser` and `adspower` work the same way.
@@ -55,6 +57,14 @@ General command form:
 
 ```bash
 ads <command> [<arg>] [--port PORT] [--api-key KEY]
+```
+
+AdsPower client headless mode:
+```bash
+AdsPower Global：
+Windows设备下： "AdsPower Global.exe" --headless=true --api-key=your_api_key --api-port=50325
+MacOS设备下："/Applications/AdsPower Global.app/Contents/MacOS/AdsPower Global" --args --headless=true --api-key=your_api_key --api-port=50325
+Linux设备下：adspower_global --headless=true --api-key=your_api_key --api-port=50325
 ```
 
 **Two forms for `<arg>`:**

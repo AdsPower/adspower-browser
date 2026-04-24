@@ -1,29 +1,93 @@
-# AdsPower cli & MCP
+# AdsPower Skill & MCP & CLI
 
-# Adding the adspower-browser Skill
+## adspower-browser Skill
 
-Use the **adspower-browser** skill so the AI can operate AdsPower via the CLI without the MCP server. Add it in your editor as follows:
+Claude Code/Codex/Cursor/OpenCode/Gemini GL
 
-| Environment   | How to add |
-|---------------|-------------|
-| **Cursor**   | `npx skills add AdsPower/adspower-browser` |
-| **Claude Code** | `npx skills add AdsPower/adspower-browser` |
-| **GPT / Codex** | If your setup supports [add-skill](https://github.com/vercel-labs/add-skill): `npx skills add AdsPower/adspower-browser`. Otherwise copy the skill from `skills/adspower-browser/` into your agent’s skills directory (e.g. `~/.codex/skills/adspower-browser/`). |
+```bash
+npx skills add https://github.com/adspower/adspower-browser --skill adspower-browser
+```
 
-## AdsPower LocalAPI MCP Server
+OpenClaw(小龙虾)
+```bash
+npx clawhub@latest install adspower-browser --force
+```
 
-A Model Context Protocol server that AdsPower browser LocalAPI. This server enables LLMs to interact with AdsPower browser profiles using the v2 API, including creating, updating, deleting profiles, managing groups, and automating browser operations.
+Hermes agent(爱马仕)
+```bash
+hermes skills install https://github.com/AdsPower/adspower-browser/blob/main/skills/adspower-browser --force
+```
 
 
-### Usage with Claude Desktop
+## AdsPower CLI
 
-Talk to LLMs to create browser: `Create an Android UA browser using Chrome 134`
+The AdsPower CLI is completely isolated from the AdsPower client, runs independently, and does not share local caches/kernels, etc. However, the CLI also supports headless mode for operating the AdsPower client.
 
-![Claude desktop](https://github.com/AdsPower/adspower-browser/blob/main/assets/claude-use.png)
+```bash
+npm install -g adspower-browser # 安装
 
-Talk to LLMs to create browser: `Help me with random UA, random fingerprint, random cookie generation, create 3 browsers, use 134 cores, and open them`
+ads start -k <KEY>                    # 启动 adspower
+ads stop                              # 停止 adspower
+ads restart                           # 重启 adspower
+ads status                            # 查询 adspower 运行状态
+ads get-browser-list                  # 获取配置文件列表
+... #查看 https://github.com/AdsPower/adspower-browser/blob/main/packages/adspower-browser/README.MD
+```
 
-![Claude desktop](https://github.com/AdsPower/adspower-browser/blob/main/assets/claude-open.gif)
+
+AdsPower client headless mode:
+```bash
+AdsPower Global：
+Windows： "AdsPower Global.exe" --headless=true --api-key=your_api_key --api-port=50325
+MacOS："/Applications/AdsPower Global.app/Contents/MacOS/AdsPower Global" --args --headless=true --api-key=your_api_key --api-port=50325
+Linux：adspower_global --headless=true --api-key=your_api_key --api-port=50325
+```
+
+
+### AdsPower MCP
+
+Claude Code: 
+```bash
+claude mcp add adspower-local-api -e PORT="50325" -e API_KEY="your_api_key" -- npx -y local-api-mcp-typescript
+```
+
+Codex:
+```bash
+codex mcp add --env PORT="50325" --env API_KEY="your_api_key" adspower-local-api -- npx -y local-api-mcp-typescript
+```
+
+Cursor: Go to Cursor Settings -> MCP -> Add New MCP Server, and then paste the following content:
+```json
+{
+  "mcpServers": {
+    "adspower-local-api": {
+      "command": "npx",
+      "args": ["-y", "local-api-mcp-typescript"],
+      "env": {
+        "PORT": "50325",
+        "API_KEY": "your_api_key"
+      }
+    }
+  }
+}
+```
+
+OpenCode: update `~/.config/opencode/opencode.json`
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "adspower-local-api": {
+      "command": "npx",
+      "args": ["-y", "local-api-mcp-typescript"],
+      "env": {
+        "PORT": "50325",
+        "API_KEY": "your_api_key"
+      }
+    }
+  }
+}
+```
 
 ### How to use?
 
@@ -42,39 +106,6 @@ When this happens:
 - Upgrade AdsPower client to the latest patch version first.
 - Then retry the same command/API.
 
-#### Installation
-
-To use with Claude Desktop, add the server config:
-
-On macOS: `~/Library/Application Support/Claude/claude_desktop_config.json` On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
-
-##### MacOS / Linux
-```bash
-{
-  "mcpServers": {
-    "adspower-local-api": {
-      "command": "npx",
-      "args": ["-y", "local-api-mcp-typescript"]
-    }
-  }
-}
-```
-
-##### Windows
-```bash
-{
-  "mcpServers": {
-    "adspower-local-api": {
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "local-api-mcp-typescript"]
-    }
-  }
-}
-```
-
-#### Configuration Parameters
-
-The MCP server supports configuration through command-line arguments or environment variables.
 
 #### Port Configuration
 
@@ -113,70 +144,6 @@ Using environment variable:
   }
 }
 ```
-
-#### API Key Configuration
-
-The API key is used for authentication with the AdsPower API. It will be sent as `Authorization: Bearer <api-key>` header in requests.
-
-**Priority order:**
-1. Command-line argument `--api-key` (highest priority)
-2. Environment variable `API_KEY` (medium priority)
-3. No default value (if not provided, requests will not include the API key header)
-
-**Examples:**
-
-Using command-line argument:
-```json
-{
-  "mcpServers": {
-    "adspower-local-api": {
-      "command": "npx",
-      "args": ["-y", "local-api-mcp-typescript", "--api-key", "your-api-key-here"]
-    }
-  }
-}
-```
-
-Using environment variable:
-```json
-{
-  "mcpServers": {
-    "adspower-local-api": {
-      "command": "npx",
-      "args": ["-y", "local-api-mcp-typescript"],
-      "env": {
-        "API_KEY": "your-api-key-here"
-      }
-    }
-  }
-}
-```
-
-#### Combined Configuration
-
-You can use both parameters together. Command-line arguments will override environment variables:
-
-```json
-{
-  "mcpServers": {
-    "adspower-local-api": {
-      "command": "npx",
-      "args": ["-y", "local-api-mcp-typescript", "--port", "50326", "--api-key", "new-key"],
-      "env": {
-        "PORT": "50325",
-        "API_KEY": "old-key"
-      }
-    }
-  }
-}
-```
-
-In this example, the server will use `port: 50326` and `apiKey: new-key` (command-line arguments override environment variables).
-
-![Claude desktop MCP](https://github.com/AdsPower/adspower-browser/blob/main/assets/claude-installed.png)
-
-or use in Cursor
-![Cursor](./assets/cursor.png)
 
 ## Development
 
