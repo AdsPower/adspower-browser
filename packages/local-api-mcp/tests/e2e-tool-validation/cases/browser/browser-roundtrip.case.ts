@@ -228,7 +228,7 @@ function buildCreateGeoAndAccountPayload(): Record<string, unknown> {
         fakey: `${stamp}-2fa`,
         tabs: ['https://example.com', 'https://example.org'],
         ignore_cookie_error: '1',
-        repeat_config: [0, 2, 3],
+        repeat_config: '2',
         ip: '8.8.8.8',
         country: 'us',
         region: 'California',

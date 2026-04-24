@@ -130,7 +130,6 @@ export const LOCAL_API_CONTRACTS: Record<ContractCommand, LocalApiContract> = {
             remark: { apiName: 'remark', location: 'body' },
             user_proxy_config: { apiName: 'user_proxy_config', location: 'body' },
             proxyid: { apiName: 'proxyid', location: 'body' },
-            repeat_config: { apiName: 'repeat_config', location: 'body' },
             ignore_cookie_error: { apiName: 'ignore_cookie_error', location: 'body' },
             tabs: { apiName: 'tabs', location: 'body' },
             ip: { apiName: 'ip', location: 'body' },

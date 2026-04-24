@@ -5,8 +5,8 @@
 - **automatic_timezone** (optional): Auto timezone by IP. `'0'` custom / `'1'` by IP (default)
 - **timezone** (optional): Timezone when automatic_timezone=0, e.g. `Asia/Shanghai`
 - **location_switch** (optional): Location by IP. `'0'` custom / `'1'` by IP (default)
-- **longitude** (optional): Custom longitude when location_switch=0, -180 to 180, up to 6 decimals
-- **latitude** (optional): Custom latitude when location_switch=0, -90 to 90, up to 6 decimals
+- **longitude** (optional): Custom longitude when location_switch=`0`, -180 to 180, up to 6 decimals
+- **latitude** (optional): Custom latitude when location_switch=`0`, -90 to 90, up to 6 decimals
 - **accuracy** (optional): Location accuracy in meters when location_switch=0, 10–5000 integer, default 1000
 - **location** (optional): Site location permission. `'ask'` (default) / `'allow'` / `'block'`
 - **language_switch** (optional): Language by IP country. `'0'` custom / `'1'` by IP (default)
@@ -27,8 +27,8 @@
 - **webrtc** (optional): WebRTC. `'disabled'` (default) / `'forward'` / `'proxy'` / `'local'`
 - **audio** (optional): Audio fingerprint. `'0'` close / `'1'` add noise (default)
 - **do_not_track** (optional): DNT. `'default'` / `'true'` (open) / `'false'` (close)
-- **hardware_concurrency** (optional): CPU cores. `'2'` | `'4'` | `'6'` | `'8'` | `'16'`; omit to follow computer
-- **device_memory** (optional): Device memory (GB). `'2'` | `'4'` | `'6'` | `'8'`; omit to follow computer
+- **hardware_concurrency** (optional): CPU cores. `'default'` | `'2'` | `'4'` | `'6'` | `'8'` | `'16'` | `'32'`; default to follow computer, omit to `4`
+- **device_memory** (optional): Device memory (GB). `'default'` | `'2'` | `'4'` | `'6'` | `'8'`; default to follow computer, omit to `'8'`
 - **scan_port_type** (optional): Port scan protection. `'0'` close / `'1'` enable (default)
 - **allow_scan_ports** (optional): Ports allowed when scan_port_type=1, e.g. `["4000","4001"]`
 - **media_devices** (optional): Media devices. `'0'` off / `'1'` noise (count from local) / `'2'` noise (use **media_devices_num**). V2.6.4.2+

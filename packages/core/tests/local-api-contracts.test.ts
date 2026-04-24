@@ -80,7 +80,7 @@ describe('Zod schemas accept Postman-style external keys', () => {
                 group_id: '0',
                 category_id: 'cat1',
                 user_proxy_config: { proxy_soft: 'no_proxy' },
-                repeat_config: [0, 2],
+                repeat_config: '0',
                 ignore_cookie_error: '0',
                 profile_tag_ids: ['t1'],
                 ipchecker: 'ipapi',

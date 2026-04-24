@@ -30,7 +30,7 @@
 - **platform** (optional): Platform domain, e.g. facebook.com.
 - **remark** (optional, max 1500): Remarks.
 - **tabs** (optional): URLs to open on startup, e.g. `["https://www.google.com"]`.
-- **repeat_config** (optional): Array of deduplication switches. Each item must be one of `0`, `2`, `3`, or `4`, for example `[0, 2]`.
+- **repeat_config** (optional): String. Deduplication switch. Must be exactly one of `0`, `2`, `3`, or `4`, for example `0`.
 - **ignore_cookie_error** (optional): `'0'` | `'1'`. Handle cookie verification failures.
 - **ip**, **country**, **region**, **city** (optional). Use a lowercase two-letter country code such as `us`, `gb`, or `jp` for **country**.
 - **ipchecker** (optional): `'ip2location'` | `'ipapi'` | `'ipfoxy'`. IP query channel.
