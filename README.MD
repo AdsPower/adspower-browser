@@ -169,3 +169,16 @@ For local MCP development, point Claude Desktop to the MCP package:
   }
 }
 ```
+
+
+### Use AdsPower Cli in Docker
+
+copy the [`/packages/adspower-browser/docker-compose.yml`](/packages/adspower-browser/docker-compose.yml)
+
+```bash
+cd packages/adspower-browser
+
+docker-compose -f ./docker-compose.yml up -d
+
+docker-compose exec adspower-cli /bin/bash
+```

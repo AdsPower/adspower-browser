@@ -1,0 +1,10 @@
+
+services:
+  adspower-cli:
+    container_name: adspower-cli
+    image: adspower/adspower-cli:latest
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+    volumes:
+      - ${HOME}/.adspowerCli:/root/.adspowerCli

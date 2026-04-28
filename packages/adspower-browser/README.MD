@@ -150,3 +150,13 @@ ads download-kernel '{"kernel_type":"Chrome","kernel_version":"..."}'   # kernel
 ```bash
 ads update-patch '{"version_type":"stable"}'  # version_type?:stable|beta
 ```
+
+## Use CLI in Docker
+
+copy the [`docker-compose.yml`](./docker-compose.yml)
+
+```bash
+docker-compose -f ./docker-compose.yml up -d
+
+docker-compose exec adspower-cli /bin/bash
+```
