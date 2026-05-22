@@ -141,10 +141,9 @@ const handleError = async (msg: string, commandName: string, params: any) => {
                     STATELESS_HANDLERS['get-opened-browser'].fn
                 );
                 if (result) {
-                    const jsonStr = result.replace(/^Opened browser list:\s*/, '');
                     try {
-                        const list = JSON.parse(jsonStr) as Array<{ user_id: string }>;
-                        const userIds = list.map((item) => item.user_id);
+                        const data: any = JSON.parse(result);
+                        const userIds = data.list.map((item: any) => item.user_id);
                         if (userIds.length === 1) {
                             // 如果只有一个已经打开的环境，则询问是否要帮他直接关闭
                             const answer = await promptYesNo(`[?] Only one opened profile. Close it now?`);
@@ -163,7 +162,7 @@ const handleError = async (msg: string, commandName: string, params: any) => {
                             logWarning(`[!] If you want to close all profiles, please enter "ads close-all-profiles"`);
                         }
                     } catch (error) {
-                        
+                        console.error(error);
                     }
                 }
             }
