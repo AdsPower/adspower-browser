@@ -7,7 +7,8 @@ import { exec } from "node:child_process";
 import { red, green, yellow } from 'colors';
 import { ensureDirSync, readJsonSync, outputJsonSync, removeSync, copySync } from "fs-extra2";
 
-export const VERSION = "1.0.0";
+export const VERSION = readJsonSync(path.join(__dirname, "../package.json")).version as string;
+const VERSION_FILE = "1.0.0";
 
 export const toTerminalLink = (url: string, label?: string) => {
     const text = label || url;
@@ -77,7 +78,7 @@ const getPidFileDir = () => {
 };
 
 const pidFileName = () => {
-    const md5 = crypto.createHash("md5").update(VERSION).digest("hex");
+    const md5 = crypto.createHash("md5").update(VERSION_FILE).digest("hex");
     return md5;
 };
 
@@ -217,46 +218,3 @@ export const initSqlite3 = () => {
         logSuccess(`[i] SQLite file initialized successfully!`);
     }
 }
-
-
-const renderKernelProgress = (result: any) => {
-    const status = result.status || 'pending';
-    const progress = ['completed', 'installing'].includes(status) ? 100 : Math.max(0, Math.min(100, Number(result.progress) || 0));
-
-    if (!process.stdout.isTTY) {
-        logInfo(`Kernel progress: ${progress}% [${status}]`);
-        return;
-    }
-
-    const width = 30;
-    const filled = Math.round((progress / 100) * width);
-    const bar = `${'='.repeat(filled)}${'-'.repeat(width - filled)}`;
-    process.stdout.write(`\r[${bar}] ${progress.toFixed(0).padStart(3, ' ')}% ${status}     `);
-};
-
-const finishKernelProgress = () => {
-    if (process.stdout.isTTY) {
-        process.stdout.write('\n');
-    }
-};
-
-export const trackKernelDownload = async (fnc: (params: any) => Promise<unknown>, args: Record<string, any>) => {
-    while (true) {
-        const result = await fnc(args);
-        try {
-            const resultJson: any = JSON.parse((result as string).replace('Kernel download/update status: ', ''));
-            if (resultJson && resultJson.status && ['pending', 'downloading', 'completed', 'installing', 'failed'].includes(resultJson.status)) {
-                renderKernelProgress(resultJson);
-                if (['completed', 'failed'].includes(resultJson.status)) {
-                    finishKernelProgress();
-                    return result;
-                }
-                await sleepTime(3000);
-            } else {
-                return result;
-            }
-        } catch (error) {
-            return result;
-        }
-    }
-};

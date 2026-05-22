@@ -10,10 +10,9 @@ export const patchHandlers = {
 
         const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.UPDATE_PATCH}`, requestBody);
         if (response.data.code === 0) {
-            return `Patch update status: ${JSON.stringify(response.data.data, null, 2)}, message: ${response.data.msg}`;
+            return JSON.stringify(response.data.data, null, 2);
         }
-
-        throw new Error(`Failed to update patch: ${response.data.msg}`);
+        throw new Error(response.data.msg);
     }
 };
 

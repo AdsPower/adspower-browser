@@ -61,6 +61,34 @@ ads start
    - `ads open-browser '{"profile_id":"abc123","launch_args":"..."}'`
    - Commands with no params: omit `<arg>` or use `'{}'`.
 
+## Shell Tab Completion
+
+The CLI supports prefix tab completion for subcommands and common flags (`-k`, `-p`, etc.) via [`@bomb.sh/tab`](https://bomb.sh/docs/tab/). Enable it once in your shell:
+
+**zsh**
+
+```bash
+ads complete zsh > ~/.ads-completion.zsh
+echo 'source ~/.ads-completion.zsh' >> ~/.zshrc
+source ~/.ads-completion.zsh
+```
+
+**bash**
+
+```bash
+ads complete bash > ~/.ads-completion.bash
+echo 'source ~/.ads-completion.bash' >> ~/.bashrc
+source ~/.ads-completion.bash
+```
+
+After setup, `ads`, `adspower`, and `adspower-browser` share the same completions:
+
+```bash
+ads <Tab><Tab>      # list subcommands
+ads open-<Tab>      # complete to open-browser
+ads sta<Tab>        # complete to start / status
+```
+
 ## Essential Commands With CLI
 
 You can use `ads -h` or `ads <command> -h` to view the specific parameters.

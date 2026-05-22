@@ -2,14 +2,14 @@
 import { Command, Option } from "commander";
 import { store } from "./store";
 import { getChildStatus, restartChild, startChild, stopChild } from "./core/start";
-import { createLoading, getApiKeyAndPort, hasRunning, logError, logInfo, logSuccess, sleepTime, trackKernelDownload, VERSION } from "./tools";
-import { green } from 'colors';
-import { updateConfig } from '@adspower/local-api-core';
-import { resolveStatelessCommandArgs, STATELESS_HANDLERS } from "./cli";
+import { logError, VERSION } from "./tools";
+import { STATELESS_HANDLERS } from "./cli";
 import { resolveStartApiKey } from "./startConfig";
+import { isShellCompletionRequest, setupShellCompletion, wrapShellScriptOutput } from "./completion";
+import { handleAction } from "./handleAction";
 
 const program = new Command();
-program.name("adspower-browser").description("CLI and runtime for adspower-browser").version(VERSION);
+program.description("CLI and runtime for adspower-browser").version(VERSION);
 
 // 设置API Key
 program.command("start")
@@ -53,52 +53,27 @@ program.command("status")
 
 for (const cmd of Object.keys(STATELESS_HANDLERS)) {
     const fnc = STATELESS_HANDLERS[cmd].fn;
-    program.command(`${cmd} [params]`)
+    program.command(`${cmd}`)
         .description(STATELESS_HANDLERS[cmd].description)
         .option("-k, --api-key <apiKey>", "Set the API key for the adspower runtime")
         .option("-p, --port <port>", "Set the port for the adspower runtime")
+        .argument("[params]", STATELESS_HANDLERS[cmd].paramsDescription)
         .action(async (params, options, command) => {
-            const isRun = await hasRunning(options);
-            if (!isRun) {
-                logError('[!] Adspower runtime is not running');
-                const info = `[i] Please run "${green("adspower-browser start -k <apiKey>")}" to start the adspower runtime`;
-                console.log(info);
-                return;
-            }
-            const { apiKey, port } = getApiKeyAndPort(options);
-            updateConfig(apiKey, port);
-            // Preserve the external Local API contract names before handing params to the core handlers.
-            const resolved = resolveStatelessCommandArgs(command.name(), params);
-            if (!resolved.ok) {
-                logError(resolved.error);
-                return;
-            }
-            const args = resolved.args;
-            logSuccess(`Executing command: ${command.name()}, params: ${JSON.stringify(args)}`);
-            const loading = createLoading(`Executing ${command.name()}...`);
-            try {
-                if (command.name() === 'download-kernel') {
-                    loading.stop();
-                    const result = await trackKernelDownload(fnc, args);
-                    const out = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
-                    logInfo(`\n\n${out}\n\n`);
-                } else {
-                    const result = await fnc(args);
-                    const out = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
-                    logInfo(`\n\n${out}\n`);
-                    if (command.name() === 'update-patch' && !out.includes('The client is already on the latest patch version. No update is required')) {
-                        loading.stop();
-                        await sleepTime(1000 * 60);
-                        await restartChild();
-                    }
-                }
-            } finally {
-                loading.stop();
-            }
+            await handleAction(params, options, command, fnc);
         });
 }
 
-program.parseAsync(process.argv).catch((error) => {
-    console.error(error);
-    process.exit(1);
-});
+setupShellCompletion(program);
+
+const shellScriptArg = process.argv[2] === 'complete' ? process.argv[3] : undefined;
+const restoreStdout = wrapShellScriptOutput(shellScriptArg);
+
+if (isShellCompletionRequest()) {
+    program.parse(process.argv);
+    restoreStdout();
+} else {
+    program.parseAsync(process.argv).catch((error) => {
+        console.error(error);
+        process.exit(1);
+    }).finally(restoreStdout);
+}
