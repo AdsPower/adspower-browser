@@ -65,7 +65,7 @@ ads start
 
 The CLI supports prefix tab completion for subcommands and common flags (`-k`, `-p`, etc.) via [`@bomb.sh/tab`](https://bomb.sh/docs/tab/). Enable it once in your shell:
 
-**zsh**
+**macOS — zsh**
 
 ```bash
 ads complete zsh > ~/.ads-completion.zsh
@@ -73,7 +73,7 @@ echo 'source ~/.ads-completion.zsh' >> ~/.zshrc
 source ~/.ads-completion.zsh
 ```
 
-**bash**
+**Linux — bash**
 
 ```bash
 ads complete bash > ~/.ads-completion.bash
@@ -81,7 +81,34 @@ echo 'source ~/.ads-completion.bash' >> ~/.bashrc
 source ~/.ads-completion.bash
 ```
 
-After setup, `ads`, `adspower`, and `adspower-browser` share the same completions:
+On Linux login shells, ensure `~/.bashrc` is sourced (e.g. from `~/.bash_profile`).
+
+**Linux — zsh**
+
+```bash
+ads complete zsh > ~/.ads-completion.zsh
+echo 'source ~/.ads-completion.zsh' >> ~/.zshrc
+source ~/.ads-completion.zsh
+```
+
+**Windows — PowerShell**
+
+```powershell
+ads complete powershell > $HOME\.ads-completion.ps1
+if (-not (Test-Path $PROFILE)) { New-Item -Path $PROFILE -ItemType File -Force }
+Add-Content $PROFILE '. $HOME\.ads-completion.ps1'
+. $HOME\.ads-completion.ps1
+```
+
+**Windows — Git Bash**
+
+```bash
+ads complete bash > ~/.ads-completion.bash
+echo 'source ~/.ads-completion.bash' >> ~/.bashrc
+source ~/.ads-completion.bash
+```
+
+After setup on zsh/bash, `ads`, `adspower`, and `adspower-browser` share the same completions. On PowerShell and Git Bash, use `ads` for tab completion:
 
 ```bash
 ads <Tab><Tab>      # list subcommands

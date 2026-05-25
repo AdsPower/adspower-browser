@@ -46,7 +46,7 @@ export const browsersKill = async () => {
 const taskKillBrowser = () =>
     new Promise<void>((resolve) => {
         const cmd = ["linux", "darwin"].includes(process.platform) ? 'pkill -u `whoami` -f "SunBrowser"' : "taskkill -PID SunBrowser.exe";
-        exec(cmd, (err) => {
+        exec(cmd, { windowsHide: true }, (err) => {
             if (err) {
                 // logError(`[!] Kill SunBrowser进程失败: ${err.message}`);
             }
@@ -56,7 +56,7 @@ const taskKillBrowser = () =>
 const taskKillFlowser = () =>
     new Promise<void>((resolve) => {
         const cmd = ["linux", "darwin"].includes(process.platform) ? 'pkill -u `whoami` -f "FlowerBrowser"' : "taskkill -PID FlowerBrowser.exe";
-        exec(cmd, (err) => {
+        exec(cmd, { windowsHide: true }, (err) => {
             if (err) {
                 // logError(`[!] Kill FlowerBrowser进程失败: ${err.message}`);
             }
@@ -108,6 +108,7 @@ export const isRunning = (pid: string) => {
             exec(util.format(process.platform === 'win32' ? 
                 'tasklist /fi "PID eq %s" | findstr /i "node.exe"'
                 : 'ps -f -p %s | grep "node"', pid), 
+                { windowsHide: true },
                 function (err, stdout, stderr) {
                     resolve(!err && !!stdout.toString().trim());
                 });

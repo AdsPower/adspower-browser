@@ -1,10 +1,22 @@
+import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { ChildProcess, exec, fork } from 'node:child_process';
+import { ChildProcess, fork } from 'node:child_process';
 import { store } from '../store';
 import { browsersKill, ensureBrowserPath, initSqlite3, isRunning, logError, logInfo, logSuccess, logWarning, readPidFile, removePidFile, sleepTime, toTerminalLink, writePidFile } from '../tools';
 
 type ForkOptionsWithWindowsHide = Parameters<typeof fork>[2] & {
     windowsHide?: boolean;
+};
+
+const getRuntimeExecArgv = (): string[] => {
+    if (process.platform !== 'win32') {
+        return [];
+    }
+    const preload = path.join(__dirname, 'core/winHideChildProcess.js');
+    if (!fs.existsSync(preload)) {
+        return [];
+    }
+    return ['--require', preload];
 };
 
 const getEnv = (): Record<string, string | boolean | undefined> => {
@@ -44,7 +56,8 @@ export const startChild = (type?: string) => {
                 env,
                 detached: true,
                 windowsHide: true, // 隐藏子进程的控制台窗口
-                stdio: ['ignore', 'ignore', 'ignore', 'ipc']
+                stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
+                execArgv: getRuntimeExecArgv(),
             };
             child = fork(mainJs, [], forkOptions);
             ensureBrowserPath();
