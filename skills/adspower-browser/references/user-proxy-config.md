@@ -1,6 +1,6 @@
 # user_proxy_config (inline proxy config for create-browser / update-browser)
 
-Used to configure an inline proxy for **create-browser** / **update-browser**. Defaults to `{"proxy_soft":"no_proxy"}` when omitted. If **proxyid** is also provided, **proxyid** takes priority and this config is ignored. Field names match the API (snake_case):
+Used to configure an inline proxy for **create-browser** / **update-browser**. For **create-browser**, include either **proxyid** or **user_proxy_config**. If the user does not specify a proxy when creating a browser profile, set **user_proxy_config** to `{"proxy_soft":"no_proxy"}`. For **update-browser**, include this config only when changing the profile proxy. If **proxyid** is also provided, **proxyid** takes priority and this config is ignored. Field names match the API (snake_case):
 
 - **proxy_soft** (required): Proxy software type. `'brightdata'` | `'brightauto'` | `'oxylabsauto'` | `'922S5auto'` | `'ipfoxyauto'` | `'922S5auth'` | `'kookauto'` | `'ssh'` | `'other'` | `'no_proxy'`
 - **proxy_type** (optional): Proxy type. `'http'` | `'https'` | `'socks5'` | `'no_proxy'`

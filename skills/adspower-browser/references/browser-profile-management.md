@@ -24,7 +24,7 @@
 
 - **group_id** (required): Numeric string; use `"0"` for Ungrouped. Get list via get-group-list.
 - At least one of **username**, **password**, **cookie**, **fakey** (required): Account information.
-- **user_proxy_config** (required when **proxyid** is not provided; default `{"proxy_soft":"no_proxy"}`): Inline proxy config (see [user-proxy-config.md](user-proxy-config.md)). When **proxyid** is present, this field is ignored.
+- **user_proxy_config** (required when **proxyid** is not provided): Inline proxy config (see [user-proxy-config.md](user-proxy-config.md)). For **create-browser**, if the user does not specify a proxy, set this field to `{"proxy_soft":"no_proxy"}`. When **proxyid** is present, this field is ignored.
 - **proxyid** (optional): Saved proxy ID or `"random"`. Takes priority over **user_proxy_config**; when provided, **user_proxy_config** may be omitted.
 - **name** (optional, max 100): Account name.
 - **platform** (optional): Platform domain, e.g. facebook.com.
