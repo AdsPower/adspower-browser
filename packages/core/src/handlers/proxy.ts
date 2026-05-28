@@ -5,6 +5,7 @@ import type {
     GetProxyListParams,
     DeleteProxyParams
 } from '../types/proxy.js';
+import { schemas } from '../types/schemas.js';
 import { buildRequestBodyFor } from '../utils/requestBuilder.js';
 
 type ProxyItem = CreateProxyParams[number];
@@ -41,9 +42,9 @@ export const proxyHandlers = {
         const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.CREATE_PROXY}`, requestBody);
 
         if (response.data.code === 0) {
-            return `Proxy created successfully with: ${Object.entries(response.data.data || {}).map(([key, value]) => `${key}: ${value}`).join('\n')}`;
+            return JSON.stringify(response.data.data, null, 2);
         }
-        throw new Error(`Failed to create proxy: ${response.data.msg}`);
+        throw new Error(response.data.msg);
     },
 
     async updateProxy(params: UpdateProxyParams) {
@@ -51,18 +52,18 @@ export const proxyHandlers = {
         const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.UPDATE_PROXY}`, requestBody);
 
         if (response.data.code === 0) {
-            return `Proxy updated successfully with: ${Object.entries(response.data.data || {}).map(([key, value]) => `${key}: ${value}`).join('\n')}`;
+            return JSON.stringify(response.data.data, null, 2);
         }
-        throw new Error(`Failed to update proxy: ${response.data.msg}`);
+        throw new Error(response.data.msg);
     },
 
     async getProxyList(params: GetProxyListParams) {
         const requestBody = buildRequestBodyFor('get-proxy-list', params as Record<string, unknown>);
         const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.GET_PROXY_LIST}`, requestBody);
         if (response.data.code === 0) {
-            return `Proxy list: ${JSON.stringify(response.data.data.list || response.data.data, null, 2)}`;
+            return JSON.stringify(response.data.data, null, 2);
         }
-        throw new Error(`Failed to get proxy list: ${response.data.msg}`);
+        throw new Error(response.data.msg);
     },
 
     async deleteProxy(params: DeleteProxyParams) {
@@ -73,8 +74,8 @@ export const proxyHandlers = {
         const { proxy_id } = params as DeleteProxyParams & { proxy_id: string[] };
 
         if (response.data.code === 0) {
-            return `Proxies deleted successfully: ${proxy_id.join(', ')}`;
+            return JSON.stringify(response.data.data, null, 2);
         }
-        throw new Error(`Failed to delete proxies: ${response.data.msg}`);
+        throw new Error(response.data.msg);
     }
 };

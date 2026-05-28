@@ -9,10 +9,9 @@ export const kernelHandlers = {
         });
 
         if (response.data.code === 0) {
-            return `Kernel download/update status: ${JSON.stringify(response.data.data, null, 2)}`;
+            return JSON.stringify(response.data.data, null, 2);
         }
-
-        throw new Error(`Failed to download/update kernel: ${response.data.msg}`);
+        throw new Error(response.data.msg);
     },
 
     async getKernelList({ kernel_type }: GetKernelListParams) {
@@ -23,10 +22,9 @@ export const kernelHandlers = {
 
         const response = await getApiClient().get(`${getLocalApiBase()}${API_ENDPOINTS.GET_KERNEL_LIST}`, { params });
         if (response.data.code === 0) {
-            return `Kernel list: ${JSON.stringify(response.data.data.list || response.data.data, null, 2)}`;
+            return JSON.stringify(response.data.data, null, 2);
         }
-
-        throw new Error(`Failed to get kernel list: ${response.data.msg}`);
+        throw new Error(response.data.msg);
     }
 };
 

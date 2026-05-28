@@ -61,6 +61,61 @@ ads start
    - `ads open-browser '{"profile_id":"abc123","launch_args":"..."}'`
    - Commands with no params: omit `<arg>` or use `'{}'`.
 
+## Shell Tab Completion
+
+The CLI supports prefix tab completion for subcommands and common flags (`-k`, `-p`, etc.) via [`@bomb.sh/tab`](https://bomb.sh/docs/tab/). Enable it once in your shell:
+
+**macOS — zsh**
+
+```bash
+ads complete zsh > ~/.ads-completion.zsh
+echo 'source ~/.ads-completion.zsh' >> ~/.zshrc
+source ~/.ads-completion.zsh
+```
+
+**Linux — bash**
+
+```bash
+ads complete bash > ~/.ads-completion.bash
+echo 'source ~/.ads-completion.bash' >> ~/.bashrc
+source ~/.ads-completion.bash
+```
+
+On Linux login shells, ensure `~/.bashrc` is sourced (e.g. from `~/.bash_profile`).
+
+**Linux — zsh**
+
+```bash
+ads complete zsh > ~/.ads-completion.zsh
+echo 'source ~/.ads-completion.zsh' >> ~/.zshrc
+source ~/.ads-completion.zsh
+```
+
+**Windows — PowerShell**
+
+```powershell
+ads complete powershell > $HOME\.ads-completion.ps1
+if (-not (Test-Path $PROFILE)) { New-Item -Path $PROFILE -ItemType File -Force }
+Add-Content $PROFILE '. $HOME\.ads-completion.ps1'
+. $HOME\.ads-completion.ps1
+```
+
+**Windows — Git Bash**
+
+```bash
+ads complete bash > ~/.ads-completion.bash
+echo 'source ~/.ads-completion.bash' >> ~/.bashrc
+source ~/.ads-completion.bash
+```
+
+After setup on zsh/bash, `ads`, `adspower`, and `adspower-browser` share the same completions. On PowerShell and Git Bash, use `ads` for tab completion:
+
+```bash
+ads <Tab><Tab>      # list subcommands
+ads open-<Tab>      # complete to open-browser
+ads sta<Tab>        # complete to start / status
+```
+
 ## Essential Commands With CLI
 
 You can use `ads -h` or `ads <command> -h` to view the specific parameters.
