@@ -36,6 +36,10 @@ function toContractValue(value: unknown): unknown {
     return value;
 }
 
+function withContractDefault(value: unknown, defaultValue: unknown): unknown {
+    return value === undefined ? defaultValue : value;
+}
+
 export function buildRequestBodyFor(command: ContractCommand, params: Record<string, unknown>): Record<string, unknown> {
     const requestBody: Record<string, unknown> = {};
     const contract = LOCAL_API_CONTRACTS[command];
@@ -45,7 +49,7 @@ export function buildRequestBodyFor(command: ContractCommand, params: Record<str
             return;
         }
 
-        const value = params[inputName];
+        const value = withContractDefault(params[inputName], config.default);
         if (value !== undefined) {
             requestBody[config.apiName] = toContractValue(value);
         }
@@ -63,7 +67,7 @@ export function buildQueryParamsFor(command: ContractCommand, params: Record<str
             return;
         }
 
-        const value = params[inputName];
+        const value = withContractDefault(params[inputName], config.default);
         if (value === undefined) {
             return;
         }

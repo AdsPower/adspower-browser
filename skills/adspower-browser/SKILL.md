@@ -107,9 +107,11 @@ ads close-browser <profile_id>                   # Or JSON: profile_id? | profil
 ads create-browser '{"group_id":"0","user_proxy_config":{"proxy_soft":"no_proxy"},...}'  # group_id required: always include it; use "0" for Ungrouped; if given a group name, call get-group-list first; include either proxyid or user_proxy_config
 ads update-browser '{"profile_id":"...",...}'    # profile_id required
 ads delete-browser '{"profile_id":["..."]}'     # profile_id required
-ads get-browser-list '{}'                       # Or group_id?, limit?, page?, profile_id[]?, profile_no[]?, sort_type?, sort_order?, tag_ids?, tags_filter?, name?, name_filter?
+ads get-browser-list '{}'                       # CLI defaults to page=1,limit=200 (Local API itself returns only 1). Or group_id?, limit?, page?, profile_id[]?, profile_no[]?, sort_type?, sort_order?, tag_ids?, tags_filter?, name?, name_filter?
 ads get-opened-browser                          # No params
 ```
+
+**Listing all environments:** `get-browser-list` returns `total_count` / `total_pages`. The CLI sends `page=1,limit=200` by default, so one call covers up to 200 profiles. If `total_pages > 1`, keep calling with the same filters and `page + 1` until every page is collected. For "operate on all environments in a group" tasks, gather all pages first, then act on every returned `profile_id` — never just the first.
 
 ### Browser profile – move/cookies/UA/fingerprint/cache/share/active
 
