@@ -318,8 +318,8 @@ export const schemas = {
             .regex(/^\d+$/, "Group ID must be a numeric string")
             .optional()
             .describe('Query by group ID; searches all groups if empty'),
-        limit: z.number().min(1).max(200).optional().describe('Profiles per page. Number of profiles returned per page, range 1 ~ 200, default is 50'),
-        page: z.number().min(1).optional().describe('Page number for results, default is 1'),
+        limit: z.number().min(1).max(200).optional().describe('Profiles per page, range 1 ~ 200. If omitted the CLI sends limit=200; the Local API itself defaults to only 1, so always rely on this CLI default or pass an explicit value'),
+        page: z.number().min(1).optional().describe('Page number for results. If omitted the CLI sends page=1'),
         profile_id: nonEmptyStringArraySchema.optional().describe('Query by profile ID. Example: ["h1yynkm","h1yynks"]'),
         profile_no: nonEmptyStringArraySchema.optional().describe('Query by profile number. Example: ["123","124"]'),
         sort_type: z.enum(['profile_no', 'last_open_time', 'created_time']).optional()

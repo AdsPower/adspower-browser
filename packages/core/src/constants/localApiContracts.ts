@@ -37,6 +37,7 @@ export type ParamLocation = 'body' | 'query';
 export type ContractParam = {
     apiName: string;
     location: ParamLocation;
+    default?: unknown;
 };
 
 export type LocalApiContract = {
@@ -157,8 +158,8 @@ export const LOCAL_API_CONTRACTS: Record<ContractCommand, LocalApiContract> = {
         path: '/api/v2/browser-profile/list',
         params: {
             group_id: { apiName: 'group_id', location: 'body' },
-            limit: { apiName: 'limit', location: 'body' },
-            page: { apiName: 'page', location: 'body' },
+            limit: { apiName: 'limit', location: 'body', default: 200 },
+            page: { apiName: 'page', location: 'body', default: 1 },
             profile_id: { apiName: 'profile_id', location: 'body' },
             profile_no: { apiName: 'profile_no', location: 'body' },
             sort_type: { apiName: 'sort_type', location: 'body' },

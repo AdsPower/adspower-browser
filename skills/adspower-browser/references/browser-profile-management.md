@@ -24,7 +24,7 @@
 
 - **group_id** (required): Numeric string; use `"0"` for Ungrouped. Get list via get-group-list.
 - At least one of **username**, **password**, **cookie**, **fakey** (required): Account information.
-- **user_proxy_config** (required when **proxyid** is not provided; default `{"proxy_soft":"no_proxy"}`): Inline proxy config (see [user-proxy-config.md](user-proxy-config.md)). When **proxyid** is present, this field is ignored.
+- **user_proxy_config** (required when **proxyid** is not provided): Inline proxy config (see [user-proxy-config.md](user-proxy-config.md)). For **create-browser**, if the user does not specify a proxy, set this field to `{"proxy_soft":"no_proxy"}`. When **proxyid** is present, this field is ignored.
 - **proxyid** (optional): Saved proxy ID or `"random"`. Takes priority over **user_proxy_config**; when provided, **user_proxy_config** may be omitted.
 - **name** (optional, max 100): Account name.
 - **platform** (optional): Platform domain, e.g. facebook.com.
@@ -55,8 +55,8 @@
 **get-browser-list** — Get the list of browsers.
 
 - **group_id** (optional): Numeric string; query by group ID; empty searches all groups.
-- **limit** (optional): 1–200, default 50. Profiles per page.
-- **page** (optional): Default 1.
+- **limit** (optional): 1–200. Profiles per page. The Local API defaults to only **1** when omitted, so the CLI injects `limit=200` for you; pass an explicit value to override.
+- **page** (optional): Page number. The CLI injects `page=1` when omitted.
 - **profile_id** (optional): Array, e.g. `["h1yynkm","h1yynks"]`.
 - **profile_no** (optional): Array, e.g. `["123","124"]`.
 - **sort_type** (optional): `'profile_no'` | `'last_open_time'` | `'created_time'`.
@@ -66,6 +66,13 @@
 - **tags_filter** (optional): `'include'` (default) | `'exclude'` for tag match mode.
 - **name** (optional): Environment name keyword.
 - **name_filter** (optional): `'include'` (default) | `'exclude'` for name match mode.
+
+Pagination & bulk operations:
+
+- The response includes `page`, `page_size`, `total_count`, and `total_pages`. Use them to tell whether you have the full set.
+- The CLI already defaults to `page=1, limit=200`, so a single call returns up to 200 profiles. Do not assume the first profile is the whole result unless the user asked for one.
+- If `total_pages > 1` (more than 200 matches), request the next page with the same filters and `page + 1`, repeating until you have collected every page.
+- For "operate on all environments in a group / matching a filter" tasks, collect all pages first, then iterate over every returned `profile_id`.
 
 **get-opened-browser** — Get the list of opened browsers.
 

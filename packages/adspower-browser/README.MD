@@ -142,7 +142,7 @@ ads close-browser <profile_id>                   # Or JSON: profile_id? | profil
 ads create-browser '{"group_id":"0","user_proxy_config":{"proxy_soft":"no_proxy"},...}'  # group_id + account field required; proxy optional (defaults to no_proxy; proxyid takes priority over user_proxy_config when both given)
 ads update-browser '{"profile_id":"...",...}'    # profile_id required
 ads delete-browser '{"profile_id":["..."]}'     # profile_id required
-ads get-browser-list '{}'                       # Or group_id?, limit?, page?, profile_id[]?, profile_no[]?, sort_type?, sort_order?, tag_ids?, tags_filter?, name?, name_filter?
+ads get-browser-list '{}'                       # CLI defaults to page=1,limit=200. Or group_id?, limit?, page?, profile_id[]?, profile_no[]?, sort_type?, sort_order?, tag_ids?, tags_filter?, name?, name_filter?
 ads get-opened-browser                          # No params
 ```
 

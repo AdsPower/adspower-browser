@@ -328,6 +328,15 @@ describe('shared contract metadata and serializers', () => {
         });
     });
 
+    it('serializes get-browser-list with CLI pagination defaults when omitted', () => {
+        const parsed = schemas.getBrowserListSchema.parse({});
+
+        expect(buildRequestBodyFor('get-browser-list', parsed)).toEqual({
+            limit: 200,
+            page: 1,
+        });
+    });
+
     it('serializes create-browser body with platform_account', () => {
         const parsed = schemas.createBrowserSchema.parse({
             group_id: '0',

@@ -104,12 +104,14 @@ ads close-browser <profile_id>                   # Or JSON: profile_id? | profil
 ### Browser profile – create/update/delete/list
 
 ```bash
-ads create-browser '{"group_id":"0","user_proxy_config":{"proxy_soft":"no_proxy"},...}'  # group_id + account field required; proxy optional (defaults to no_proxy; proxyid takes priority over user_proxy_config when both given)
+ads create-browser '{"group_id":"0","user_proxy_config":{"proxy_soft":"no_proxy"},...}'  # group_id required: always include it; use "0" for Ungrouped; if given a group name, call get-group-list first; include either proxyid or user_proxy_config
 ads update-browser '{"profile_id":"...",...}'    # profile_id required
 ads delete-browser '{"profile_id":["..."]}'     # profile_id required
-ads get-browser-list '{}'                       # Or group_id?, limit?, page?, profile_id[]?, profile_no[]?, sort_type?, sort_order?, tag_ids?, tags_filter?, name?, name_filter?
+ads get-browser-list '{}'                       # CLI defaults to page=1,limit=200 (Local API itself returns only 1). Or group_id?, limit?, page?, profile_id[]?, profile_no[]?, sort_type?, sort_order?, tag_ids?, tags_filter?, name?, name_filter?
 ads get-opened-browser                          # No params
 ```
+
+**Listing all environments:** `get-browser-list` returns `total_count` / `total_pages`. The CLI sends `page=1,limit=200` by default, so one call covers up to 200 profiles. If `total_pages > 1`, keep calling with the same filters and `page + 1` until every page is collected. For "operate on all environments in a group" tasks, gather all pages first, then act on every returned `profile_id` — never just the first.
 
 ### Browser profile – move/cookies/UA/fingerprint/cache/share/active
 
@@ -203,7 +205,7 @@ See [references/client-patch-management.md](references/client-patch-management.m
 
 ### user_proxy_config (inline proxy config for create-browser / update-browser)
 
-See [references/user-proxy-config.md](references/user-proxy-config.md) for all fields (proxy_soft, proxy_type, proxy_host, proxy_port, etc.) and example. Defaults to `{"proxy_soft":"no_proxy"}` when omitted. If **proxyid** is also provided, **proxyid** takes priority and **user_proxy_config** is ignored.
+See [references/user-proxy-config.md](references/user-proxy-config.md) for all fields (proxy_soft, proxy_type, proxy_host, proxy_port, etc.) and example. For **create-browser**, include either **proxyid** or **user_proxy_config**. If the user does not specify a proxy when creating a browser profile, set **user_proxy_config** to `{"proxy_soft":"no_proxy"}`. For **update-browser**, include **proxyid** or **user_proxy_config** only when changing the profile proxy.
 
 ### fingerprint_config (fingerprint config for create-browser / update-browser)
 
