@@ -128,9 +128,9 @@ export const ensureBrowserPath = () => {
 export const getApiKeyAndPort = (options: any) => {
     const apiKey = options.apiKey;
     const port = options.port;
-    if (apiKey && port) {
+    if (port) {
         return {
-            apiKey,
+            apiKey: apiKey || '',
             port
         };
     }
@@ -153,8 +153,8 @@ export const getApiKeyAndPort = (options: any) => {
 }
 
 export const hasRunning = async (options: any) => {
-    const { apiKey, port } = options;
-    if (apiKey && port) {
+    const { port } = options;
+    if (port) {
         return true;
     }
     const processInstance = readPidFile();
