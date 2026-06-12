@@ -2,7 +2,10 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { ChildProcess, fork } from 'node:child_process';
 import { store } from '../store';
-import { browsersKill, ensureBrowserPath, initSqlite3, isRunning, logError, logInfo, logSuccess, logWarning, readPidFile, removePidFile, sleepTime, toTerminalLink, writePidFile } from '../tools';
+import { browsersKill, ensureBrowserPath, initSqlite3, isRunning, logError, logInfo, logSuccess, logWarning, promptYesNo, readPidFile, removePidFile, sleepTime, toTerminalLink, writePidFile } from '../tools';
+import { checkUpdateJS } from './check';
+import { handleAction } from '../handleAction';
+import { STATELESS_HANDLERS } from '../cli';
 
 type ForkOptionsWithWindowsHide = Parameters<typeof fork>[2] & {
     windowsHide?: boolean;
@@ -76,14 +79,28 @@ export const startChild = (type?: string) => {
                 if (text.indexOf('START_API_SERVER_SUCCESS_$$_') === 0) {
                     const port = text.replace('START_API_SERVER_SUCCESS_$$_', '').trim();
                     store.setStoreValue('apiPort', port);
-                    const localUrl = `http://local.adspower.net:${port}`;
-                    logSuccess(`Server running at:`);
-                    logSuccess(` - local: ${toTerminalLink(localUrl)}`);
                     writePidFile(store.getAllStoreValue());
                     if (child) {
                         child.disconnect();
                         child.unref();
                     }
+                    // 检查是否需要更新JS，如果检查到需要更新JS，就使用promptYesNo询问用户是否需要更新JS
+                    const isUpdateJS = await checkUpdateJS(store.getStoreValue('apiKey'), store.getStoreValue('baseUrl'));
+                    if (isUpdateJS) {
+                        const answer = await promptYesNo(`[?] A new update is available. Update now?`);
+                        if (answer === 'y') {
+                            await handleAction(
+                                JSON.stringify({"version_type":"beta"}), 
+                                {}, 
+                                {name: () => 'update-patch'}, 
+                                STATELESS_HANDLERS['update-patch'].fn
+                            );
+                            return;
+                        }
+                    }
+                    const localUrl = `http://local.adspower.net:${port}`;
+                    logSuccess(`Server running at:`);
+                    logSuccess(` - local: ${toTerminalLink(localUrl)}`);
                 }
                 if (text.includes('CACHE_FOLDER_$$_')) {
                     const cacheFolder = text.replace('CACHE_FOLDER_$$_', '').trim();

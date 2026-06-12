@@ -1,9 +1,8 @@
-import * as readline from 'node:readline/promises';
 import { updateConfig } from "@adspower/local-api-core";
 import { green } from "colors";
 import { HandlerFn, resolveStatelessCommandArgs, STATELESS_HANDLERS } from "./cli";
 import { restartChild } from "./core/start";
-import { hasRunning, logError, getApiKeyAndPort, logSuccess, createLoading, logInfo, sleepTime, logWarning } from "./tools";
+import { hasRunning, logError, getApiKeyAndPort, logSuccess, createLoading, logInfo, sleepTime, logWarning, promptYesNo } from "./tools";
 
 const renderKernelProgress = (result: any) => {
     const status = result.status || 'pending';
@@ -74,15 +73,23 @@ export const handleAction = async (params: any, options: any, command: any, fnc:
             const result = await trackKernelDownload(fnc, args);
             const out = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
             logInfo(`\n\n${out}\n\n`);
+        } else if (commandName === 'update-patch') {
+            const result = await fnc(args);
+            const out = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+            if (!out.includes('The client is already on the latest patch version. No update is required')) {
+                await sleepTime(1000 * 60);
+                loading.stop();
+                await restartChild();
+            } else {
+                loading.stop();
+            }
+            logInfo(`\n\n${out}\n`);
+            return out;
         } else {
             const result = await fnc(args);
             const out = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
             loading.stop();
             logInfo(`\n\n${out}\n`);
-            if (commandName === 'update-patch' && !out.includes('The client is already on the latest patch version. No update is required')) {
-                await sleepTime(1000 * 60);
-                await restartChild();
-            }
             return out;
         }
     } catch (error) {
@@ -169,30 +176,3 @@ const handleError = async (msg: string, commandName: string, params: any) => {
         }
     }
 };
-
-export async function promptYesNo(question: string): Promise<'y' | 'n' | null> {
-    if (!process.stdin.isTTY || !process.stdout.isTTY) {
-        logWarning('[!] Interactive prompt is unavailable in non-interactive mode.');
-        return null;
-    }
-
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-    });
-
-    try {
-        while (true) {
-            const answer = (await rl.question(`${question} [y/N]: `)).trim().toLowerCase();
-            if (answer === 'y' || answer === 'yes') {
-                return 'y';
-            }
-            if (answer === 'n' || answer === 'no' || answer === '') {
-                return 'n';
-            }
-            logWarning('[!] Please enter y or n.');
-        }
-    } finally {
-        rl.close();
-    }
-}
