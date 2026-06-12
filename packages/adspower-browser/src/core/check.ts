@@ -1,6 +1,30 @@
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
+import { spawn } from 'node:child_process';
+import { VERSION } from '../tools';
+
+export type UpdateCheckResult = {
+    js: boolean;
+    npm: boolean;
+    npmLatestVersion?: string;
+};
+
+const NPM_PACKAGE_NAME = 'adspower-browser';
+const NPM_REGISTRY_URL = `https://registry.npmjs.org/${NPM_PACKAGE_NAME}/latest`;
+
+export const checkUpdates = async (apiKey: string, baseUrl?: string): Promise<UpdateCheckResult> => {
+    const [js, npm] = await Promise.all([
+        checkUpdateJS(apiKey, baseUrl),
+        checkUpdateNpmPackage(),
+    ]);
+
+    return {
+        js,
+        npm: npm.hasUpdate,
+        npmLatestVersion: npm.latestVersion,
+    };
+};
 
 export const checkUpdateJS = async (apiKey: string, baseUrl?: string): Promise<boolean> => {
     return new Promise(async (resolve) => {
@@ -45,6 +69,44 @@ export const checkUpdateJS = async (apiKey: string, baseUrl?: string): Promise<b
         });
     });
 }
+
+const checkUpdateNpmPackage = async (): Promise<{ hasUpdate: boolean; latestVersion?: string }> => {
+    try {
+        const res = await axios.get(NPM_REGISTRY_URL, {
+            timeout: 30000,
+        });
+        const latestVersion = res.data?.version;
+        if (!latestVersion || typeof latestVersion !== 'string') {
+            return { hasUpdate: false };
+        }
+        return {
+            hasUpdate: greaterThanVersion(latestVersion, VERSION),
+            latestVersion,
+        };
+    } catch (err) {
+        return { hasUpdate: false };
+    }
+};
+
+export const updateNpmPackage = async (): Promise<void> => {
+    const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+
+    await new Promise<void>((resolve, reject) => {
+        const child = spawn(npmCommand, ['install', '-g', `${NPM_PACKAGE_NAME}@latest`], {
+            stdio: 'inherit',
+            windowsHide: true,
+        });
+
+        child.on('error', reject);
+        child.on('close', (code) => {
+            if (code === 0) {
+                resolve();
+                return;
+            }
+            reject(new Error(`npm install exited with code ${code}`));
+        });
+    });
+};
 
 const getCurVersion = async () => {
     const mainJs = path.join(__dirname, '../cwd/lib', 'main.min.js');
