@@ -1,6 +1,6 @@
 {
   "name": "adspower-browser",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "main": "cli/index.js",
   "type": "commonjs",
   "bin": {
