@@ -139,10 +139,6 @@ export const startChild = (type?: string) => {
                 }
                 if (text === 'restart') {
                     child && child.kill('SIGKILL');
-                    store.setStoreValue('status', 'restarting');
-                    startChild('2').catch(() => {
-                        //
-                    });
                 }
                 if (text.indexOf('INTRANET_$$_') > -1) {
                     const arr = text.split('_$$_');
