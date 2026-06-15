@@ -175,19 +175,9 @@ export const startChild = (type?: string) => {
                 process.exit(0);
             });
             child.on('exit', async (code, signal) => {
-                if (signal === 'SIGKILL') {
-                    await browsersKill();
-                    store.clear();
-                    removePidFile();
-                } else {
-                    // node异常退出的时候重启
-                    child = null;
-                    await sleepTime(500);
-                    startChild('2').then(() => {
-                    }).catch(() => {
-                        logError('[!] Restart failed');
-                    });
-                }
+                await browsersKill();
+                store.clear();
+                removePidFile();
             });
             // 启动超时
             timer = setTimeout(() => {
