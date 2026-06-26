@@ -2,7 +2,10 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { ChildProcess, fork } from 'node:child_process';
 import { store } from '../store';
-import { browsersKill, ensureBrowserPath, initSqlite3, isRunning, logError, logInfo, logSuccess, logWarning, readPidFile, removePidFile, sleepTime, toTerminalLink, writePidFile } from '../tools';
+import { browsersKill, ensureBrowserPath, initSqlite3, isRunning, logError, logInfo, logSuccess, logWarning, promptYesNo, readPidFile, removePidFile, sleepTime, toTerminalLink, writePidFile } from '../tools';
+import { checkUpdates, updateNpmPackage } from './check';
+import { handleAction } from '../handleAction';
+import { STATELESS_HANDLERS } from '../cli';
 
 type ForkOptionsWithWindowsHide = Parameters<typeof fork>[2] & {
     windowsHide?: boolean;
@@ -76,14 +79,43 @@ export const startChild = (type?: string) => {
                 if (text.indexOf('START_API_SERVER_SUCCESS_$$_') === 0) {
                     const port = text.replace('START_API_SERVER_SUCCESS_$$_', '').trim();
                     store.setStoreValue('apiPort', port);
-                    const localUrl = `http://local.adspower.net:${port}`;
-                    logSuccess(`Server running at:`);
-                    logSuccess(` - local: ${toTerminalLink(localUrl)}`);
                     writePidFile(store.getAllStoreValue());
                     if (child) {
                         child.disconnect();
                         child.unref();
                     }
+                    // 检查是否需要更新JS和npm包，如果检查到需要更新，就使用promptYesNo询问用户是否需要更新
+                    const updates = await checkUpdates(store.getStoreValue('apiKey'), store.getStoreValue('baseUrl'));
+                    if (updates.js || updates.npm) {
+                        const answer = await promptYesNo(`[?] A new update is available. Update now?`);
+                        if (answer === 'y') {
+                            if (updates.npm) {
+                                try {
+                                    logInfo(`[i] Updating adspower-browser npm package${updates.npmLatestVersion ? ` to ${updates.npmLatestVersion}` : ''}...`);
+                                    await updateNpmPackage();
+                                    logSuccess(`[i] adspower-browser npm package updated. Please use the next command execution for the new CLI version.`);
+                                    if (!updates.js) {
+                                        // 因为更新JS就会自动重启，所以如果不需要更新JS，就重启一下程序
+                                        await restartChild();
+                                    }
+                                } catch (error) {
+                                    logWarning(`[!] Failed to update adspower-browser npm package: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
+                                }
+                            }
+                            if (updates.js) {
+                                await handleAction(
+                                    JSON.stringify({"version_type":"beta"}), 
+                                    {}, 
+                                    {name: () => 'update-patch'}, 
+                                    STATELESS_HANDLERS['update-patch'].fn
+                                );
+                            }
+                            return;
+                        }
+                    }
+                    const localUrl = `http://local.adspower.net:${port}`;
+                    logSuccess(`Server running at:`);
+                    logSuccess(` - local: ${toTerminalLink(localUrl)}`);
                 }
                 if (text.includes('CACHE_FOLDER_$$_')) {
                     const cacheFolder = text.replace('CACHE_FOLDER_$$_', '').trim();
@@ -107,10 +139,6 @@ export const startChild = (type?: string) => {
                 }
                 if (text === 'restart') {
                     child && child.kill('SIGKILL');
-                    store.setStoreValue('status', 'restarting');
-                    startChild('2').catch(() => {
-                        //
-                    });
                 }
                 if (text.indexOf('INTRANET_$$_') > -1) {
                     const arr = text.split('_$$_');
@@ -143,19 +171,9 @@ export const startChild = (type?: string) => {
                 process.exit(0);
             });
             child.on('exit', async (code, signal) => {
-                if (signal === 'SIGKILL') {
-                    await browsersKill();
-                    store.clear();
-                    removePidFile();
-                } else {
-                    // node异常退出的时候重启
-                    child = null;
-                    await sleepTime(500);
-                    startChild('2').then(() => {
-                    }).catch(() => {
-                        logError('[!] Restart failed');
-                    });
-                }
+                await browsersKill();
+                store.clear();
+                removePidFile();
             });
             // 启动超时
             timer = setTimeout(() => {

@@ -1,3 +1,4 @@
+import * as readline from 'node:readline/promises';
 import * as os from "node:os";
 import * as path from "node:path";
 import * as fs from "node:fs";
@@ -217,5 +218,32 @@ export const initSqlite3 = () => {
         // 将sqliteFile复制到cwdPath
         copySync(sqliteFile, path.join(cwdPath, 'node_sqlite3.node'));
         logSuccess(`[i] SQLite file initialized successfully!`);
+    }
+}
+
+export async function promptYesNo(question: string): Promise<'y' | 'n' | null> {
+    if (!process.stdin.isTTY || !process.stdout.isTTY) {
+        logWarning('[!] Interactive prompt is unavailable in non-interactive mode.');
+        return null;
+    }
+
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
+
+    try {
+        while (true) {
+            const answer = (await rl.question(`${question} [y/N]: `)).trim().toLowerCase();
+            if (answer === 'y' || answer === 'yes') {
+                return 'y';
+            }
+            if (answer === 'n' || answer === 'no' || answer === '') {
+                return 'n';
+            }
+            logWarning('[!] Please enter y or n.');
+        }
+    } finally {
+        rl.close();
     }
 }
