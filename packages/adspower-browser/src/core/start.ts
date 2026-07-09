@@ -11,8 +11,9 @@ type ForkOptionsWithWindowsHide = Parameters<typeof fork>[2] & {
     windowsHide?: boolean;
 };
 
+/** Windows 下通过 --require 注入 preload，按进程类型隐藏 cmd 窗口 */
 const getRuntimeExecArgv = (): string[] => {
-    if (process.platform !== 'win32' || store.getStoreValue('hide') !== 'true') {
+    if (process.platform !== 'win32') {
         return [];
     }
     const preload = path.join(__dirname, 'core/winHideChildProcess.js');
@@ -225,15 +226,11 @@ export const restartChild = async () => {
         const apiKey = processInstance.apiKey;
         const baseUrl = processInstance.baseUrl;
         const nodeEnv = processInstance.nodeEnv;
-        const hide = processInstance.hide;
         await stopChild();
         await sleepTime(1000);
         store.setStoreValue('apiKey', apiKey);
         store.setStoreValue('baseUrl', baseUrl);
         store.setStoreValue('nodeEnv', nodeEnv);
-        if (hide) {
-            store.setStoreValue('hide', hide);
-        }
         await startChild().then(() => {
             logSuccess('[i] Adspower program is restarted');
         }).catch((error) => {

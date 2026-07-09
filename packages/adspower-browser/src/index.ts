@@ -17,7 +17,6 @@ program.command("start")
     .option("-k, --api-key <apiKey>", "Set the API key for the adspower runtime")
     .addOption(new Option("--base-url <baseUrl>", "Set the base URL for the adspower runtime").hideHelp())
     .addOption(new Option("--node-env <nodeEnv>", "Set the node environment for the adspower runtime").hideHelp())
-    .option("--hide", "Hide Windows cmd windows when spawning child processes (Windows only)")
     .action(async (options) => {
         const resolvedApiKey = resolveStartApiKey(options.apiKey, process.env);
         if (!resolvedApiKey.ok) {
@@ -30,9 +29,6 @@ program.command("start")
         }
         if (options.nodeEnv) {
             store.setStoreValue('nodeEnv', options.nodeEnv);
-        }
-        if (options.hide) {
-            store.setStoreValue('hide', 'true');
         }
         await startChild();
     });

@@ -1,4 +1,4 @@
-type StoreKey = 'apiKey' | 'baseUrl' | 'nodeEnv' | 'apiPort' | 'appPort' | 'intranet' | 'rpaPid' | 'rpaPlusPid' | 'aiPid' | 'status' | 'pid' | 'hide';
+type StoreKey = 'apiKey' | 'baseUrl' | 'nodeEnv' | 'apiPort' | 'appPort' | 'intranet' | 'rpaPid' | 'rpaPlusPid' | 'aiPid' | 'status' | 'pid';
 
 class Store {
     private apiKey: string;
@@ -12,7 +12,6 @@ class Store {
     private aiPid: string;
     private status: string;
     private pid: string;
-    private hide: string;
     constructor() {
         this.apiKey = '';
         this.baseUrl = '';
@@ -25,7 +24,6 @@ class Store {
         this.aiPid = '';
         this.status = 'stop';
         this.pid = '';
-        this.hide = '';
     }
 
     public getStoreValue(key: StoreKey): string {
@@ -51,7 +49,6 @@ class Store {
         this.aiPid = '';
         this.status = 'stop';
         this.pid = '';
-        this.hide = '';
     }
 
     public getAllStoreValue() {
@@ -67,7 +64,6 @@ class Store {
             aiPid: this.aiPid,
             status: this.status,
             pid: this.pid,
-            hide: this.hide,
         };
     }
 }
