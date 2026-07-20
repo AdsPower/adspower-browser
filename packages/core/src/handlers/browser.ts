@@ -2,6 +2,7 @@ import os from 'node:os';
 import { getApiClient, getLocalApiBase, API_ENDPOINTS } from '../constants/api.js';
 import { buildQueryParamsFor, buildRequestBodyFor } from '../utils/requestBuilder.js';
 import { resolveOpenBrowserHeadless } from '../utils/openBrowserHeadless.js';
+import { getUaSystemVersionFromOs } from '../utils/systemVer.js';
 import type {
     OpenBrowserParams,
     CloseBrowserParams,
@@ -45,7 +46,23 @@ export const browserHandlers = {
     },
 
     async createBrowser(params: CreateBrowserParams) {
-        const requestBody = buildRequestBodyFor('create-browser', params);
+        let resolvedParams = params;
+        if (!params.fingerprint_config?.random_ua?.ua_system_version) {
+            const uaSystemVersion = getUaSystemVersionFromOs();
+            if (uaSystemVersion) {
+                resolvedParams = {
+                    ...params,
+                    fingerprint_config: {
+                        ...params.fingerprint_config,
+                        random_ua: {
+                            ...params.fingerprint_config?.random_ua,
+                            ua_system_version: [uaSystemVersion],
+                        },
+                    },
+                };
+            }
+        }
+        const requestBody = buildRequestBodyFor('create-browser', resolvedParams);
         const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.CREATE_BROWSER}`, requestBody);
 
         if (response.data.code === 0) {

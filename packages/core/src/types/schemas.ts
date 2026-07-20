@@ -54,7 +54,7 @@ const randomUaConfigSchema = z.object({
             'Android 9', 'Android 10', 'Android 11', 'Android 12', 'Android 13', 'Android 14', 'Android 15',
             'iOS 14', 'iOS 15', 'iOS 16', 'iOS 17', 'iOS 18',
             'Windows 7', 'Windows 8', 'Windows 10', 'Windows 11',
-            'Mac OS X 10', 'Mac OS X 11', 'Mac OS X 12', 'Mac OS X 13', 'Mac OS X 14', 'Mac OS X 15',
+            'Mac OS X 10', 'Mac OS X 11', 'Mac OS X 12', 'Mac OS X 13', 'Mac OS X 14', 'Mac OS X 15', 'Mac OS X 26',
             'Mac OS X', 'Windows', 'iOS', 'Android', 'Linux'
         ])
     ).optional().describe(
@@ -246,7 +246,7 @@ export const schemas = {
         category_id: z.string().optional().describe('The category id of the browser, you can use the get-application-list tool to get the application list'),
         profile_tag_ids: z.array(z.string()).max(30).optional()
             .describe('Tag IDs to assign to the profile, max 30 tags per profile. Example: ["tag1","tag2"]'),
-        fingerprint_config: fingerprintConfigSchema.optional().default({ random_ua: { ua_system_version: ['Windows'] }, browser_kernel_config: { version: 'latest', type: 'chrome' } }),
+        fingerprint_config: fingerprintConfigSchema.optional().default({ browser_kernel_config: { version: 'latest', type: 'chrome' } }),
         platform_account: platformAccountSchema,
     }).strict(),
 

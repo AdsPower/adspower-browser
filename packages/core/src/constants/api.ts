@@ -99,13 +99,18 @@ export const API_ENDPOINTS = {
     UPDATE_PATCH: LOCAL_API_CONTRACTS['update-patch'].path
 } as const;
 
+const createClientHeaders = (apiKey?: string) => ({
+    ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+    'x-mcp-client': 'mcp',
+});
+
 export const apiClient = axios.create({
-    headers: API_KEY ? { 'Authorization': `Bearer ${API_KEY}` } : {}
+    headers: createClientHeaders(API_KEY),
 });
 
 export const getApiClient = () => {
     const client = axios.create({
-        headers: CONFIG.apiKey ? { 'Authorization': `Bearer ${CONFIG.apiKey}` } : {},
+        headers: createClientHeaders(CONFIG.apiKey),
     });
     client.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
         if (isLocalApiRequestUrl(config.url)) {

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { proxyHandlers } from '@adspower/local-api-core';
 import { registerTools } from '../src/utils/toolRegister.js';
 
@@ -66,6 +67,23 @@ describe('registerTools wires MCP input schemas with Postman external keys', () 
         for (const key of mustInclude) {
             expect(keys, `tool ${tool} must accept Postman key "${key}"`).toContain(key);
         }
+    });
+
+    it('registers real MCP handlers without passing Zod 4 validators into the SDK Zod 3 parser', async () => {
+        const server = new McpServer({ name: 'test', version: '0.0.0' });
+        registerTools(server);
+
+        const handlers = (server.server as any)._requestHandlers as Map<string, Function>;
+        const listTools = await handlers.get('tools/list')?.({ method: 'tools/list' }, {});
+        const openBrowser = listTools.tools.find((tool: any) => tool.name === 'open-browser');
+
+        expect(openBrowser.inputSchema.properties).toHaveProperty('profile_id');
+        await expect(
+            handlers.get('tools/call')?.({
+                method: 'tools/call',
+                params: { name: 'open-browser', arguments: {} },
+            }, {})
+        ).rejects.toThrow(/Either profile_id or profile_no must be provided/);
     });
 
     it('describes get-application-list via buildMcpToolDescription (intent + Triggers)', () => {

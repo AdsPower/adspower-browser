@@ -11,6 +11,7 @@ type ForkOptionsWithWindowsHide = Parameters<typeof fork>[2] & {
     windowsHide?: boolean;
 };
 
+/** Windows 下通过 --require 注入 preload，按进程类型隐藏 cmd 窗口 */
 const getRuntimeExecArgv = (): string[] => {
     if (process.platform !== 'win32') {
         return [];

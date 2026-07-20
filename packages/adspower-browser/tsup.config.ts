@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/core/winHideChildProcess.js'],
+  entry: ['src/index.ts', 'src/core/winHideChildProcess.js', 'src/core/winHideChildProcessLogic.js'],
   format: ['cjs'],
   outDir: 'cli',
   sourcemap: false,
