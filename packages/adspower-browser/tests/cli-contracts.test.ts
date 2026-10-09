@@ -93,6 +93,12 @@ describe('Local API commands remain registered for CLI', () => {
         expect(STATELESS_HANDLERS['delete-proxy']).toBeDefined();
         expect(STATELESS_HANDLERS['create-group']).toBeDefined();
         expect(STATELESS_HANDLERS['get-group-list']).toBeDefined();
+        expect(STATELESS_HANDLERS['create-member']).toBeDefined();
+        expect(STATELESS_HANDLERS['update-member']).toBeDefined();
+        expect(STATELESS_HANDLERS['reset-member-password']).toBeDefined();
+        expect(STATELESS_HANDLERS['delete-member']).toBeDefined();
+        expect(STATELESS_HANDLERS['get-member-list']).toBeDefined();
+        expect(STATELESS_HANDLERS['get-member-group-list']).toBeDefined();
     });
 
     it('array shorthand command list is stable', () => {
