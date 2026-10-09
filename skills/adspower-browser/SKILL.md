@@ -157,6 +157,17 @@ ads update-group '{"group_id":"1","group_name":"New Name"}'    # group_id + grou
 ads get-group-list '{}'                         # group_name?, page_size?, page?
 ```
 
+### Member
+
+```bash
+ads create-member '{"user_group_id":"...","email":"alice@example.com","password":"password1","identity":4}'  # identity: 2 admin, 3 manager, 4 staff
+ads update-member '{"user_id":"...","name":"Alice"}'   # omit authorized_group to keep groups; [] + group_update_type 1 clears
+ads reset-member-password '{"user_id":"..."}'          # unbind_phone?: 0|1; new_password is in the response
+ads delete-member '{"user_id":"..."}'
+ads get-member-list '{}'                               # user_group_id?, user_id[]?, email[]?, page?, limit? (default 1)
+ads get-member-group-list '{}'                         # page?, limit? (default 1)
+```
+
 ### Application (categories)
 
 ```bash
@@ -182,6 +193,10 @@ See [references/browser-profile-management.md](references/browser-profile-manage
 ### Group Management
 
 See [references/group-management.md](references/group-management.md) for create-group, update-group, and get-group-list parameters.
+
+### Member Management
+
+See [references/member-management.md](references/member-management.md) for create-member, update-member, reset-member-password, delete-member, get-member-list, and get-member-group-list parameters.
 
 ### Application Management
 
@@ -224,6 +239,7 @@ Reference docs with full enum values and field lists:
 | [references/tool-intent-map.md](references/tool-intent-map.md) | MCP/CLI 工具名与中英 **intent**、**triggers** 对照表（与 `toolIntentMetadata.ts` 同源）。 | 根据用户自然语言选择对应 CLI 命令或 MCP 工具（尤其 `open-browser`）。 |
 | [references/browser-profile-management.md](references/browser-profile-management.md) | **open-browser**, **close-browser**, **create-browser**, **update-browser**, **delete-browser**, **get-browser-list**, **get-opened-browser**, **move-browser**, **get-profile-cookies**, **get-profile-ua**, **close-all-profiles**, **new-fingerprint**, **delete-cache-v2**, **share-profile**, **get-browser-active**, **get-cloud-active** parameters. | Any browser profile operation (open, create, update, delete, list, move, cookies, UA, cache, share, status). |
 | [references/group-management.md](references/group-management.md) | **create-group**, **update-group**, **get-group-list** parameters. | Creating, updating, or listing browser groups. |
+| [references/member-management.md](references/member-management.md) | **create-member**, **update-member**, **reset-member-password**, **delete-member**, **get-member-list**, **get-member-group-list** parameters. | Creating, updating, listing, or deleting team members and member groups. |
 | [references/application-management.md](references/application-management.md) | **check-status**, **get-application-list** parameters. | Checking API availability or listing applications (categories). |
 | [references/proxy-management.md](references/proxy-management.md) | **create-proxy**, **update-proxy**, **get-proxy-list**, **delete-proxy** parameters and enums. | Creating, updating, listing, or deleting proxies. |
 | [references/browser-tag-management.md](references/browser-tag-management.md) | **get-tag-list**, **create-tag**, **update-tag**, **delete-tag** parameters. | Listing, creating, updating, or deleting browser tags. |

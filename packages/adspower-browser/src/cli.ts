@@ -1,6 +1,7 @@
 import {
     browserHandlers,
     groupHandlers,
+    memberHandlers,
     applicationHandlers,
     proxyHandlers,
     tagHandlers,
@@ -194,6 +195,36 @@ export const STATELESS_HANDLERS: Record<string, Handler> = {
         fn: groupHandlers.getGroupList as HandlerFn,
         description: buildCliCommandDescription('get-group-list', 'Get the list of groups'),
         paramsDescription: schemaParamsDescription(schemas.getGroupListSchema, 'get-group-list')
+    },
+    'create-member': {
+        fn: memberHandlers.createMember as HandlerFn,
+        description: buildCliCommandDescription('create-member', 'Create a team member'),
+        paramsDescription: schemaParamsDescription(schemas.createMemberSchema, 'create-member')
+    },
+    'update-member': {
+        fn: memberHandlers.updateMember as HandlerFn,
+        description: buildCliCommandDescription('update-member', 'Update a team member'),
+        paramsDescription: schemaParamsDescription(schemas.updateMemberSchema, 'update-member')
+    },
+    'reset-member-password': {
+        fn: memberHandlers.resetMemberPassword as HandlerFn,
+        description: buildCliCommandDescription('reset-member-password', 'Reset a team member password'),
+        paramsDescription: schemaParamsDescription(schemas.resetMemberPasswordSchema, 'reset-member-password')
+    },
+    'delete-member': {
+        fn: memberHandlers.deleteMember as HandlerFn,
+        description: buildCliCommandDescription('delete-member', 'Delete a team member'),
+        paramsDescription: schemaParamsDescription(schemas.deleteMemberSchema, 'delete-member')
+    },
+    'get-member-list': {
+        fn: memberHandlers.getMemberList as HandlerFn,
+        description: buildCliCommandDescription('get-member-list', 'Get the list of team members'),
+        paramsDescription: schemaParamsDescription(schemas.getMemberListSchema, 'get-member-list')
+    },
+    'get-member-group-list': {
+        fn: memberHandlers.getMemberGroupList as HandlerFn,
+        description: buildCliCommandDescription('get-member-group-list', 'Get the list of member groups'),
+        paramsDescription: schemaParamsDescription(schemas.getMemberGroupListSchema, 'get-member-group-list')
     },
     'check-status': {
         fn: applicationHandlers.checkStatus as HandlerFn,

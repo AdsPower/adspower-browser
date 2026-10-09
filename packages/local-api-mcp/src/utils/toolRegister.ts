@@ -10,6 +10,7 @@ import {
     buildMcpToolDescription,
     browserHandlers,
     groupHandlers,
+    memberHandlers,
     applicationHandlers,
     proxyHandlers,
     tagHandlers,
@@ -163,6 +164,24 @@ export function registerTools(server: McpServer) {
 
     tool('get-group-list', buildMcpToolDescription('get-group-list', 'Get the list of groups'), schemas.getGroupListSchema,
         wrapHandler(groupHandlers.getGroupList));
+
+    tool('create-member', buildMcpToolDescription('create-member', 'Create a team member'), schemas.createMemberSchema,
+        wrapHandler(memberHandlers.createMember));
+
+    tool('update-member', buildMcpToolDescription('update-member', 'Update a team member'), schemas.updateMemberSchema,
+        wrapHandler(memberHandlers.updateMember));
+
+    tool('reset-member-password', buildMcpToolDescription('reset-member-password', 'Reset a team member password'), schemas.resetMemberPasswordSchema,
+        wrapHandler(memberHandlers.resetMemberPassword));
+
+    tool('delete-member', buildMcpToolDescription('delete-member', 'Delete a team member'), schemas.deleteMemberSchema,
+        wrapHandler(memberHandlers.deleteMember));
+
+    tool('get-member-list', buildMcpToolDescription('get-member-list', 'Get the list of team members'), schemas.getMemberListSchema,
+        wrapHandler(memberHandlers.getMemberList));
+
+    tool('get-member-group-list', buildMcpToolDescription('get-member-group-list', 'Get the list of member groups'), schemas.getMemberGroupListSchema,
+        wrapHandler(memberHandlers.getMemberGroupList));
 
     tool('check-status', buildMcpToolDescription('check-status', 'Check the availability of the current device API interface (Connection Status)'), schemas.emptySchema,
         wrapHandler(applicationHandlers.checkStatus));

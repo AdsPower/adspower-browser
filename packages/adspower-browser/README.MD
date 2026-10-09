@@ -168,6 +168,17 @@ ads update-group '{"group_id":"1","group_name":"New Name"}'    # group_id + grou
 ads get-group-list '{}'                         # group_name?, page_size?, page?
 ```
 
+### Member
+
+```bash
+ads create-member '{"user_group_id":"...","email":"alice@example.com","password":"password1","identity":4}'  # identity: 2 admin, 3 manager, 4 staff
+ads update-member '{"user_id":"...","name":"Alice"}'   # omit authorized_group to keep groups; [] + group_update_type 1 clears
+ads reset-member-password '{"user_id":"..."}'          # unbind_phone?: 0|1; new_password is in the response
+ads delete-member '{"user_id":"..."}'
+ads get-member-list '{}'                               # user_group_id?, user_id[]?, email[]?, page?, limit? (default 1)
+ads get-member-group-list '{}'                         # page?, limit? (default 1)
+```
+
 ### Application (categories)
 
 ```bash
