@@ -9,6 +9,8 @@
 | `create-browser` | Create a new AdsPower browser profile (account). | 新建浏览器环境 / 账号 profile。 | create profile, new browser, add account, spin up profile | 新建环境,创建profile,添加浏览器,新开指纹,创建账号 |
 | `update-browser` | Update fields of an existing browser profile. | 更新已有 profile 的配置（备注、代理、指纹等）。 | edit profile, change settings, modify browser, update fingerprint | 修改配置,更新profile,改代理,改指纹,编辑环境 |
 | `delete-browser` | Delete one or more browser profiles permanently. | 永久删除一个或多个浏览器 profile。 | remove profile, delete account, trash browser | 删除环境,移除profile,删掉浏览器账号 |
+| `get-recycle-bin-list` | List browser profiles in the recycle bin from the last 30 days. | 查询近 30 天回收站中的浏览器环境。 | recycle bin, deleted profiles, trash list, recently deleted | 回收站,已删除环境,最近删除,垃圾桶列表 |
+| `restore-recycle-bin` | Restore one deleted browser profile from the recycle bin into a target group. | 把回收站里的一个环境恢复到指定分组。 | restore profile, recover deleted browser, undelete environment | 恢复环境,还原回收站,找回已删除环境 |
 | `get-browser-list` | List or search browser profiles (pagination, filters). | 分页/条件查询浏览器 profile 列表。 | list profiles, search browsers, query accounts, show all profiles | 列表,查询环境,搜索profile,列出所有浏览器 |
 | `get-opened-browser` | List browser profiles currently open on this device. | 查看本机当前已打开的浏览器 profile。 | opened browsers, running profiles, active local sessions | 已打开,正在运行,当前会话,本地活跃 |
 | `move-browser` | Move profiles to another group (regroup). | 将 profile 移动到指定分组。 | move to group, regroup profiles, change group | 移动分组,换组,归类到组 |

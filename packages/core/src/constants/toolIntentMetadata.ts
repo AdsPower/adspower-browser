@@ -37,6 +37,18 @@ export const TOOL_INTENT_BY_NAME: Record<string, ToolIntentRecord> = {
         triggersEn: 'remove profile, delete account, trash browser',
         triggersZh: '删除环境,移除profile,删掉浏览器账号',
     },
+    'get-recycle-bin-list': {
+        intentEn: 'List browser profiles in the recycle bin from the last 30 days.',
+        intentZh: '查询近 30 天回收站中的浏览器环境。',
+        triggersEn: 'recycle bin, deleted profiles, trash list, recently deleted',
+        triggersZh: '回收站,已删除环境,最近删除,垃圾桶列表',
+    },
+    'restore-recycle-bin': {
+        intentEn: 'Restore one deleted browser profile from the recycle bin into a target group.',
+        intentZh: '把回收站里的一个环境恢复到指定分组。',
+        triggersEn: 'restore profile, recover deleted browser, undelete environment',
+        triggersZh: '恢复环境,还原回收站,找回已删除环境',
+    },
     'get-browser-list': {
         intentEn: 'List or search browser profiles (pagination, filters).',
         intentZh: '分页/条件查询浏览器 profile 列表。',

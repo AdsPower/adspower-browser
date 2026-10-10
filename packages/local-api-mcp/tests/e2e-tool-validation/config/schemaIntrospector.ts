@@ -29,6 +29,8 @@ export const toolNameToSchemaKey: Record<string, keyof typeof schemas> = {
     'create-browser': 'createBrowserSchema',
     'update-browser': 'updateBrowserSchema',
     'delete-browser': 'deleteBrowserSchema',
+    'get-recycle-bin-list': 'getRecycleBinListSchema',
+    'restore-recycle-bin': 'restoreRecycleBinSchema',
     'get-browser-list': 'getBrowserListSchema',
     'get-opened-browser': 'emptySchema',
     'move-browser': 'moveBrowserSchema',

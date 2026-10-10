@@ -72,6 +72,8 @@ export const API_ENDPOINTS = {
     GET_BROWSER_LIST: LOCAL_API_CONTRACTS['get-browser-list'].path,
     UPDATE_BROWSER: LOCAL_API_CONTRACTS['update-browser'].path,
     DELETE_BROWSER: LOCAL_API_CONTRACTS['delete-browser'].path,
+    GET_RECYCLE_BIN_LIST: LOCAL_API_CONTRACTS['get-recycle-bin-list'].path,
+    RESTORE_RECYCLE_BIN: LOCAL_API_CONTRACTS['restore-recycle-bin'].path,
     GET_PROFILE_COOKIES: LOCAL_API_CONTRACTS['get-profile-cookies'].path,
     GET_PROFILE_UA: LOCAL_API_CONTRACTS['get-profile-ua'].path,
     CLOSE_ALL_PROFILES: LOCAL_API_CONTRACTS['close-all-profiles'].path,

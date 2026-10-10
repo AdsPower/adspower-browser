@@ -15,6 +15,8 @@ export const toolValidationStrategy: Record<string, ToolValidationStrategy> = {
     'create-browser': 'R',
     'update-browser': 'R',
     'delete-browser': 'D',
+    'get-recycle-bin-list': 'Q',
+    'restore-recycle-bin': 'L',
     'get-browser-list': 'Q',
     'get-opened-browser': 'Q',
     'move-browser': 'R',

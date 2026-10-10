@@ -19,6 +19,8 @@ export const toolMatrix: Record<string, ToolMatrixEntry> = {
     'create-browser': build('create-browser', ['group_id']),
     'update-browser': build('update-browser', ['profile_id']),
     'delete-browser': build('delete-browser', ['profile_id']),
+    'get-recycle-bin-list': build('get-recycle-bin-list', []),
+    'restore-recycle-bin': build('restore-recycle-bin', ['group_id']),
     'get-browser-list': build('get-browser-list', []),
     'get-opened-browser': build('get-opened-browser', []),
     'move-browser': build('move-browser', ['user_ids', 'group_id']),

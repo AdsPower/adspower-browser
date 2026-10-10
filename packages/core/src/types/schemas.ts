@@ -313,6 +313,19 @@ export const schemas = {
         profile_id: z.array(z.string()).describe('The profile ids of the browsers to delete, it is required when you want to delete the browser')
     }).strict(),
 
+    getRecycleBinListSchema: z.object({
+        page: z.number().int().min(1).optional().describe('Page number. Defaults to 1. Only profiles deleted in the last 30 days and visible to the caller are returned.'),
+        limit: z.number().int().min(1).max(100).optional().describe('Profiles per page, range 1-100. Defaults to 1 when omitted.'),
+    }).strict(),
+
+    restoreRecycleBinSchema: z.object({
+        profile_id: z.string().optional().describe('Profile ID in the recycle bin. Either profile_id or profile_no is required. If both are provided, profile_id takes priority.'),
+        profile_no: z.string().regex(/^\d+$/, 'Profile number must be a numeric string').optional().describe('Profile serial number in the recycle bin. Either profile_id or profile_no is required. If both are provided, profile_id takes priority.'),
+        group_id: z.string().regex(/^\d+$/, 'Group ID must be a numeric string').describe('Target group ID after restore. Use get-group-list to find a group the caller can use. "0" is ungrouped.'),
+    }).strict().refine(data => data.profile_id || data.profile_no, {
+        message: 'Either profile_id or profile_no must be provided'
+    }),
+
     getBrowserListSchema: z.object({
         group_id: z.string()
             .regex(/^\d+$/, "Group ID must be a numeric string")

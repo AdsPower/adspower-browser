@@ -31,6 +31,8 @@ const localApiToolExpectations: Array<{ tool: string; mustInclude: string[] }> =
     { tool: 'create-browser', mustInclude: ['group_id', 'category_id'] },
     { tool: 'update-browser', mustInclude: ['profile_id', 'launch_args'] },
     { tool: 'delete-browser', mustInclude: ['profile_id'] },
+    { tool: 'get-recycle-bin-list', mustInclude: ['page', 'limit'] },
+    { tool: 'restore-recycle-bin', mustInclude: ['profile_id', 'profile_no', 'group_id'] },
     { tool: 'get-browser-list', mustInclude: ['group_id', 'profile_id', 'profile_no', 'sort_type', 'sort_order'] },
     { tool: 'move-browser', mustInclude: ['user_ids', 'group_id'] },
     { tool: 'get-profile-cookies', mustInclude: ['profile_id'] },

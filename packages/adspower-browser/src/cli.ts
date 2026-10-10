@@ -104,6 +104,16 @@ export const STATELESS_HANDLERS: Record<string, Handler> = {
         description: buildCliCommandDescription('delete-browser', 'Delete the browser'),
         paramsDescription: schemaParamsDescription(schemas.deleteBrowserSchema, 'delete-browser')
     },
+    'get-recycle-bin-list': {
+        fn: browserHandlers.getRecycleBinList as HandlerFn,
+        description: buildCliCommandDescription('get-recycle-bin-list', 'List browser profiles in the recycle bin from the last 30 days'),
+        paramsDescription: schemaParamsDescription(schemas.getRecycleBinListSchema, 'get-recycle-bin-list')
+    },
+    'restore-recycle-bin': {
+        fn: browserHandlers.restoreRecycleBin as HandlerFn,
+        description: buildCliCommandDescription('restore-recycle-bin', 'Restore a deleted browser profile from the recycle bin into a group'),
+        paramsDescription: schemaParamsDescription(schemas.restoreRecycleBinSchema, 'restore-recycle-bin')
+    },
     'get-browser-list': {
         fn: browserHandlers.getBrowserList as HandlerFn,
         description: buildCliCommandDescription('get-browser-list', 'Get the list of browsers'),

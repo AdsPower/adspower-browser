@@ -6,6 +6,8 @@ export type ContractCommand =
     | 'create-browser'
     | 'update-browser'
     | 'delete-browser'
+    | 'get-recycle-bin-list'
+    | 'restore-recycle-bin'
     | 'get-browser-list'
     | 'get-opened-browser'
     | 'move-browser'
@@ -151,6 +153,23 @@ export const LOCAL_API_CONTRACTS: Record<ContractCommand, LocalApiContract> = {
         path: '/api/v2/browser-profile/delete',
         params: {
             profile_id: { apiName: 'profile_id', location: 'body' },
+        },
+    },
+    'get-recycle-bin-list': {
+        method: 'POST',
+        path: '/api/v2/browser-profile/recycle-bin/list',
+        params: {
+            page: { apiName: 'page', location: 'body', default: 1 },
+            limit: { apiName: 'limit', location: 'body', default: 1 },
+        },
+    },
+    'restore-recycle-bin': {
+        method: 'POST',
+        path: '/api/v2/browser-profile/recycle-bin/restore',
+        params: {
+            profile_id: { apiName: 'profile_id', location: 'body' },
+            profile_no: { apiName: 'profile_no', location: 'body' },
+            group_id: { apiName: 'group_id', location: 'body' },
         },
     },
     'get-browser-list': {

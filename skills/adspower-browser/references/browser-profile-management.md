@@ -51,6 +51,18 @@
 
 - **profile_id** (required): Array of profile ids to delete.
 
+**get-recycle-bin-list** — List profiles deleted in the last 30 days that the caller can see.
+
+- **page** (optional): Page number. Defaults to 1.
+- **limit** (optional): 1–100. Profiles per page. Defaults to 1 when omitted.
+- Response items include `profile_id`, `profile_no`, `name`, `group_name`, `remark`, and `delete_time` (unix seconds).
+
+**restore-recycle-bin** — Restore one deleted profile into a group.
+
+- **profile_id** (optional) or **profile_no** (optional): One is required. If both are provided, **profile_id** takes priority.
+- **group_id** (required): Numeric string. Target group after restore. Use get-group-list to choose a group the caller can use. `"0"` is ungrouped.
+- Package quota, daily restore limit, and group permission failures are returned by the Local API.
+
 **get-browser-list** — Get the list of browsers.
 
 - **group_id** (optional): Numeric string; query by group ID; empty searches all groups.

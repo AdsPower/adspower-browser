@@ -107,6 +107,8 @@ ads close-browser <profile_id>                   # Or JSON: profile_id? | profil
 ads create-browser '{"group_id":"0","user_proxy_config":{"proxy_soft":"no_proxy"},...}'  # group_id required: always include it; use "0" for Ungrouped; if given a group name, call get-group-list first; include either proxyid or user_proxy_config
 ads update-browser '{"profile_id":"...",...}'    # profile_id required
 ads delete-browser '{"profile_id":["..."]}'     # profile_id required
+ads get-recycle-bin-list '{}'                   # page?, limit? (1-100, default 1). Last 30 days only
+ads restore-recycle-bin '{"profile_id":"...","group_id":"123"}'  # profile_id or profile_no, group_id required
 ads get-browser-list '{}'                       # CLI defaults to page=1,limit=200 (Local API itself returns only 1). Or group_id?, limit?, page?, profile_id[]?, profile_no[]?, sort_type?, sort_order?, tag_ids?, tags_filter?, name?, name_filter?
 ads get-opened-browser                          # No params
 ```
@@ -177,7 +179,7 @@ ads delete-proxy '{"proxy_id":["..."]}'        # proxy_id required, max 100
 
 ### Browser Profile Management
 
-See [references/browser-profile-management.md](references/browser-profile-management.md) for open-browser, close-browser, create-browser, update-browser, delete-browser, get-browser-list, get-opened-browser, move-browser, get-profile-cookies, get-profile-ua, close-all-profiles, new-fingerprint, delete-cache-v2, share-profile, get-browser-active, get-cloud-active and their parameters.
+See [references/browser-profile-management.md](references/browser-profile-management.md) for open-browser, close-browser, create-browser, update-browser, delete-browser, get-recycle-bin-list, restore-recycle-bin, get-browser-list, get-opened-browser, move-browser, get-profile-cookies, get-profile-ua, close-all-profiles, new-fingerprint, delete-cache-v2, share-profile, get-browser-active, get-cloud-active and their parameters.
 
 ### Group Management
 
@@ -222,7 +224,7 @@ Reference docs with full enum values and field lists:
 | Reference | Description | When to use |
 |-----------|-------------|-------------|
 | [references/tool-intent-map.md](references/tool-intent-map.md) | MCP/CLI 工具名与中英 **intent**、**triggers** 对照表（与 `toolIntentMetadata.ts` 同源）。 | 根据用户自然语言选择对应 CLI 命令或 MCP 工具（尤其 `open-browser`）。 |
-| [references/browser-profile-management.md](references/browser-profile-management.md) | **open-browser**, **close-browser**, **create-browser**, **update-browser**, **delete-browser**, **get-browser-list**, **get-opened-browser**, **move-browser**, **get-profile-cookies**, **get-profile-ua**, **close-all-profiles**, **new-fingerprint**, **delete-cache-v2**, **share-profile**, **get-browser-active**, **get-cloud-active** parameters. | Any browser profile operation (open, create, update, delete, list, move, cookies, UA, cache, share, status). |
+| [references/browser-profile-management.md](references/browser-profile-management.md) | **open-browser**, **close-browser**, **create-browser**, **update-browser**, **delete-browser**, **get-recycle-bin-list**, **restore-recycle-bin**, **get-browser-list**, **get-opened-browser**, **move-browser**, **get-profile-cookies**, **get-profile-ua**, **close-all-profiles**, **new-fingerprint**, **delete-cache-v2**, **share-profile**, **get-browser-active**, **get-cloud-active** parameters. | Any browser profile operation (open, create, update, delete, recycle, list, move, cookies, UA, cache, share, status). |
 | [references/group-management.md](references/group-management.md) | **create-group**, **update-group**, **get-group-list** parameters. | Creating, updating, or listing browser groups. |
 | [references/application-management.md](references/application-management.md) | **check-status**, **get-application-list** parameters. | Checking API availability or listing applications (categories). |
 | [references/proxy-management.md](references/proxy-management.md) | **create-proxy**, **update-proxy**, **get-proxy-list**, **delete-proxy** parameters and enums. | Creating, updating, listing, or deleting proxies. |

@@ -122,6 +122,12 @@ export function registerTools(server: McpServer) {
     tool('delete-browser', buildMcpToolDescription('delete-browser', 'Delete the browser'), schemas.deleteBrowserSchema,
         wrapHandler(browserHandlers.deleteBrowser));
 
+    tool('get-recycle-bin-list', buildMcpToolDescription('get-recycle-bin-list', 'List browser profiles in the recycle bin from the last 30 days'), schemas.getRecycleBinListSchema,
+        wrapHandler(browserHandlers.getRecycleBinList));
+
+    tool('restore-recycle-bin', buildMcpToolDescription('restore-recycle-bin', 'Restore a deleted browser profile from the recycle bin into a group'), schemas.restoreRecycleBinSchema,
+        wrapHandler(browserHandlers.restoreRecycleBin));
+
     tool('get-browser-list', buildMcpToolDescription('get-browser-list', 'Get the list of browsers'), schemas.getBrowserListSchema,
         wrapHandler(browserHandlers.getBrowserList));
 

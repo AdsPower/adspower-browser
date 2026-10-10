@@ -124,6 +124,33 @@ describe('Zod schemas accept Postman-style external keys', () => {
         ).toBe(false);
     });
 
+    it('get-recycle-bin-list: page and limit bounds', () => {
+        mustParse(schemas.getRecycleBinListSchema, {}, 'getRecycleBinListSchema must allow an empty query');
+        mustParse(
+            schemas.getRecycleBinListSchema,
+            { page: 2, limit: 100 },
+            'getRecycleBinListSchema must accept page and limit within 1-100'
+        );
+        expect(schemas.getRecycleBinListSchema.safeParse({ page: 0 }).success).toBe(false);
+        expect(schemas.getRecycleBinListSchema.safeParse({ limit: 101 }).success).toBe(false);
+    });
+
+    it('restore-recycle-bin: profile_id or profile_no plus group_id', () => {
+        mustParse(
+            schemas.restoreRecycleBinSchema,
+            { profile_id: 'k1gx0oue', group_id: '123456' },
+            'restoreRecycleBinSchema must accept profile_id and group_id'
+        );
+        mustParse(
+            schemas.restoreRecycleBinSchema,
+            { profile_no: '338', group_id: '123456' },
+            'restoreRecycleBinSchema must accept profile_no and group_id'
+        );
+        expect(schemas.restoreRecycleBinSchema.safeParse({ group_id: '123456' }).success).toBe(false);
+        expect(schemas.restoreRecycleBinSchema.safeParse({ profile_id: 'k1gx0oue' }).success).toBe(false);
+        expect(schemas.restoreRecycleBinSchema.safeParse({ profile_no: 'abc', group_id: '1' }).success).toBe(false);
+    });
+
     it('delete-browser: profile_id as array', () => {
         mustParse(
             schemas.deleteBrowserSchema,
@@ -297,6 +324,24 @@ describe('shared contract metadata and serializers', () => {
             delete_cache: '0',
             cdp_mask: '1',
             device_scale: '1',
+        });
+    });
+
+    it('serializes recycle bin list and restore bodies', () => {
+        expect(API_ENDPOINTS.GET_RECYCLE_BIN_LIST).toBe('/api/v2/browser-profile/recycle-bin/list');
+        expect(API_ENDPOINTS.RESTORE_RECYCLE_BIN).toBe('/api/v2/browser-profile/recycle-bin/restore');
+        expect(buildRequestBodyFor('get-recycle-bin-list', schemas.getRecycleBinListSchema.parse({}))).toEqual({
+            page: 1,
+            limit: 1,
+        });
+        expect(buildRequestBodyFor('restore-recycle-bin', schemas.restoreRecycleBinSchema.parse({
+            profile_id: 'k1gx0oue',
+            profile_no: '338',
+            group_id: '123456',
+        }))).toEqual({
+            profile_id: 'k1gx0oue',
+            profile_no: '338',
+            group_id: '123456',
         });
     });
 
