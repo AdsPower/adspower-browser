@@ -20,6 +20,12 @@ export type ContractCommand =
     | 'create-group'
     | 'update-group'
     | 'get-group-list'
+    | 'create-member'
+    | 'update-member'
+    | 'reset-member-password'
+    | 'delete-member'
+    | 'get-member-list'
+    | 'get-member-group-list'
     | 'create-proxy'
     | 'update-proxy'
     | 'get-proxy-list'
@@ -269,6 +275,73 @@ export const LOCAL_API_CONTRACTS: Record<ContractCommand, LocalApiContract> = {
             group_name: { apiName: 'group_name', location: 'query' },
             page: { apiName: 'page', location: 'query' },
             page_size: { apiName: 'page_size', location: 'query' },
+        },
+    },
+    'create-member': {
+        method: 'POST',
+        path: '/api/v2/user/create',
+        params: {
+            user_group_id: { apiName: 'user_group_id', location: 'body' },
+            name: { apiName: 'name', location: 'body' },
+            email: { apiName: 'email', location: 'body' },
+            password: { apiName: 'password', location: 'body' },
+            identity: { apiName: 'identity', location: 'body' },
+            manager: { apiName: 'manager', location: 'body' },
+            member: { apiName: 'member', location: 'body' },
+            authorized_group: { apiName: 'authorized_group', location: 'body' },
+            profile_limit: { apiName: 'profile_limit', location: 'body' },
+            remark: { apiName: 'remark', location: 'body' },
+        },
+    },
+    'update-member': {
+        method: 'POST',
+        path: '/api/v2/user/update',
+        params: {
+            user_id: { apiName: 'user_id', location: 'body' },
+            user_group_id: { apiName: 'user_group_id', location: 'body' },
+            name: { apiName: 'name', location: 'body' },
+            email: { apiName: 'email', location: 'body' },
+            identity: { apiName: 'identity', location: 'body' },
+            manager: { apiName: 'manager', location: 'body' },
+            member: { apiName: 'member', location: 'body' },
+            authorized_group: { apiName: 'authorized_group', location: 'body' },
+            group_update_type: { apiName: 'group_update_type', location: 'body' },
+            profile_limit: { apiName: 'profile_limit', location: 'body' },
+            remark: { apiName: 'remark', location: 'body' },
+        },
+    },
+    'reset-member-password': {
+        method: 'POST',
+        path: '/api/v2/user/reset_password',
+        params: {
+            user_id: { apiName: 'user_id', location: 'body' },
+            unbind_phone: { apiName: 'unbind_phone', location: 'body' },
+        },
+    },
+    'delete-member': {
+        method: 'POST',
+        path: '/api/v2/user/delete',
+        params: {
+            user_id: { apiName: 'user_id', location: 'body' },
+        },
+    },
+    'get-member-list': {
+        method: 'GET',
+        path: '/api/v2/user/list',
+        params: {
+            user_group_id: { apiName: 'user_group_id', location: 'query' },
+            user_id: { apiName: 'user_id', location: 'query' },
+            email: { apiName: 'email', location: 'query' },
+            page: { apiName: 'page', location: 'query' },
+            limit: { apiName: 'limit', location: 'query' },
+        },
+    },
+    'get-member-group-list': {
+        method: 'GET',
+        path: '/api/v2/user-group/list',
+        params: {
+            page: { apiName: 'page', location: 'query' },
+            limit: { apiName: 'limit', location: 'query' },
         },
     },
     'create-proxy': {
