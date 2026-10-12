@@ -213,7 +213,7 @@ export const STATELESS_HANDLERS: Record<string, Handler> = {
     },
     'delete-member': {
         fn: memberHandlers.deleteMember as HandlerFn,
-        description: buildCliCommandDescription('delete-member', 'Delete a team member'),
+        description: buildCliCommandDescription('delete-member', 'Permanently delete a team member'),
         paramsDescription: schemaParamsDescription(schemas.deleteMemberSchema, 'delete-member')
     },
     'get-member-list': {

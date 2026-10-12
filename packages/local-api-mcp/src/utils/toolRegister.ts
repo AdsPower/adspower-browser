@@ -174,7 +174,7 @@ export function registerTools(server: McpServer) {
     tool('reset-member-password', buildMcpToolDescription('reset-member-password', 'Reset a team member password'), schemas.resetMemberPasswordSchema,
         wrapHandler(memberHandlers.resetMemberPassword));
 
-    tool('delete-member', buildMcpToolDescription('delete-member', 'Delete a team member'), schemas.deleteMemberSchema,
+    tool('delete-member', buildMcpToolDescription('delete-member', 'Permanently delete a team member'), schemas.deleteMemberSchema,
         wrapHandler(memberHandlers.deleteMember));
 
     tool('get-member-list', buildMcpToolDescription('get-member-list', 'Get the list of team members'), schemas.getMemberListSchema,

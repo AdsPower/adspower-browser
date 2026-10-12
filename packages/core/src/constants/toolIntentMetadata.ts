@@ -140,10 +140,10 @@ export const TOOL_INTENT_BY_NAME: Record<string, ToolIntentRecord> = {
         triggersZh: '重置密码,改密码,解绑手机',
     },
     'delete-member': {
-        intentEn: 'Delete a team member by user_id.',
-        intentZh: '按 user_id 删除团队成员。',
-        triggersEn: 'remove member, delete user, delete staff',
-        triggersZh: '删除成员,移除用户,删员工',
+        intentEn: 'Permanently delete a team member by user_id. Hard delete, not recoverable.',
+        intentZh: '按 user_id 彻底删除团队成员，不可恢复。',
+        triggersEn: 'remove member, delete user, delete staff, hard delete',
+        triggersZh: '删除成员,移除用户,删员工,彻底删除',
     },
     'get-member-list': {
         intentEn: 'List or search team members (pagination, user_id, email).',

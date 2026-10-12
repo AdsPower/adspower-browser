@@ -26,7 +26,7 @@
 | `create-member` | Create a team member (admin / manager / staff). | 新建团队成员（管理员 / 经理 / 员工）。 | create member, add user, invite teammate, new staff | 创建成员,添加用户,邀请同事,新建员工 |
 | `update-member` | Update an existing team member (role, groups, profile limit). | 编辑已有团队成员（身份、授权分组、环境额度等）。 | edit member, change role, update staff, authorized group | 编辑成员,改身份,更新用户,授权分组 |
 | `reset-member-password` | Reset a team member password; new_password is returned in the response. | 重置成员密码，成功响应里返回明文 new_password。 | reset password, new password, unbind phone | 重置密码,改密码,解绑手机 |
-| `delete-member` | Delete a team member by user_id. | 按 user_id 删除团队成员。 | remove member, delete user, delete staff | 删除成员,移除用户,删员工 |
+| `delete-member` | Permanently delete a team member by user_id. Hard delete, not recoverable. | 按 user_id 彻底删除团队成员，不可恢复。 | remove member, delete user, delete staff, hard delete | 删除成员,移除用户,删员工,彻底删除 |
 | `get-member-list` | List or search team members (pagination, user_id, email). | 分页/条件查询团队成员列表。 | list members, search users, query staff, member list | 成员列表,查询用户,搜索员工,列出成员 |
 | `get-member-group-list` | List member groups / roles with pagination. | 分页查询成员分组（角色）列表。 | member groups, user groups, role list | 成员分组,用户组,角色列表 |
 | `check-status` | Check Local API availability on this machine. | 检测本机 Local API 是否可用。 | API health, connection status, ping AdsPower API | 接口通不通,检测API,连接状态 |

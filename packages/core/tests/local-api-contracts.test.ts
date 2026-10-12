@@ -791,6 +791,18 @@ describe('shared contract metadata and serializers', () => {
         });
     });
 
+    it('create-member schema allows staff without manager', () => {
+        expect(
+            schemas.createMemberSchema.safeParse({
+                user_group_id: 'role-1',
+                email: 'alice@example.com',
+                password: 'password1',
+                identity: 4,
+            }).success,
+            'createMemberSchema must allow identity 4 without manager',
+        ).toBe(true);
+    });
+
     it('create-member schema requires identity and rejects a 7-character password', () => {
         expect(
             schemas.createMemberSchema.safeParse({
@@ -860,14 +872,14 @@ describe('shared contract metadata and serializers', () => {
         );
     });
 
-    it('get-member-list schema rejects more than 50 ids and limit above 2000', () => {
+    it('get-member-list schema rejects more than 50 ids and limit above 200', () => {
         expect(
             schemas.getMemberListSchema.safeParse({ user_id: Array.from({ length: 51 }, (_, i) => String(i)) }).success,
             'getMemberListSchema must reject more than 50 user_id values',
         ).toBe(false);
         expect(
-            schemas.getMemberListSchema.safeParse({ limit: 2001 }).success,
-            'getMemberListSchema must reject limit values above 2000',
+            schemas.getMemberListSchema.safeParse({ limit: 201 }).success,
+            'getMemberListSchema must reject limit values above 200',
         ).toBe(false);
     });
 
