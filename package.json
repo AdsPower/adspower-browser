@@ -1,6 +1,6 @@
 {
   "name": "adspower-browser",
-  "version": "2.1.2-beta.2",
+  "version": "1.0.6",
   "private": true,
   "description": "AdsPower Local API — monorepo: core, MCP server, and adspower-browser CLI/skill",
   "scripts": {
