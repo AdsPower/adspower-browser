@@ -45,6 +45,12 @@ const localApiToolExpectations: Array<{ tool: string; mustInclude: string[] }> =
     { tool: 'create-group', mustInclude: ['group_name'] },
     { tool: 'update-group', mustInclude: ['group_id', 'group_name'] },
     { tool: 'get-group-list', mustInclude: ['group_name', 'page_size'] },
+    { tool: 'create-member', mustInclude: ['user_group_id', 'email', 'password', 'identity'] },
+    { tool: 'update-member', mustInclude: ['user_id', 'authorized_group', 'group_update_type'] },
+    { tool: 'reset-member-password', mustInclude: ['user_id', 'unbind_phone'] },
+    { tool: 'delete-member', mustInclude: ['user_id'] },
+    { tool: 'get-member-list', mustInclude: ['user_id', 'email', 'user_group_id', 'page', 'limit'] },
+    { tool: 'get-member-group-list', mustInclude: ['page', 'limit'] },
     { tool: 'get-application-list', mustInclude: ['category_id'] },
     { tool: 'create-proxy', mustInclude: ['proxies'] },
     { tool: 'update-proxy', mustInclude: ['proxy_id', 'proxy_url'] },
@@ -59,6 +65,23 @@ describe('registerTools wires MCP input schemas with Postman external keys', () 
         expect(registered['open-browser']?.handler).toBeTypeOf('function');
         expect(registered['get-application-list']?.handler).toBeTypeOf('function');
         expect(registered['update-proxy']?.handler).toBeTypeOf('function');
+    });
+
+    it('registers all six Local API v2 member tools', () => {
+        const memberTools = [
+            'create-member',
+            'update-member',
+            'reset-member-password',
+            'delete-member',
+            'get-member-list',
+            'get-member-group-list',
+        ];
+
+        for (const name of memberTools) {
+            expect(registered[name], `missing MCP tool ${name}`).toBeDefined();
+            expect(registered[name]?.handler).toBeTypeOf('function');
+            expect(registered[name]?.description ?? '').toContain('Triggers');
+        }
     });
 
     it.each(localApiToolExpectations)('$tool exposes Postman keys in the schema passed to McpServer.tool()', ({ tool, mustInclude }) => {
@@ -80,6 +103,21 @@ describe('registerTools wires MCP input schemas with Postman external keys', () 
         const openBrowser = listTools.tools.find((tool: any) => tool.name === 'open-browser');
 
         expect(openBrowser.inputSchema.properties).toHaveProperty('profile_id');
+        const memberToolNames = listTools.tools.map((tool: { name: string }) => tool.name);
+        expect(memberToolNames).toEqual(expect.arrayContaining([
+            'create-member',
+            'update-member',
+            'reset-member-password',
+            'delete-member',
+            'get-member-list',
+            'get-member-group-list',
+        ]));
+        await expect(
+            handlers.get('tools/call')?.({
+                method: 'tools/call',
+                params: { name: 'create-member', arguments: { user_group_id: 'role-1', email: 'a@b.com', password: 'short' } },
+            }, {})
+        ).rejects.toThrow(/identity|Invalid arguments/);
         await expect(
             handlers.get('tools/call')?.({
                 method: 'tools/call',

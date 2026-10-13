@@ -133,6 +133,42 @@ export const TOOL_INTENT_BY_NAME: Record<string, ToolIntentRecord> = {
         triggersEn: 'list groups, search group name',
         triggersZh: '分组列表,查组名',
     },
+    'create-member': {
+        intentEn: 'Create a team member (admin / manager / staff).',
+        intentZh: '新建团队成员（管理员 / 经理 / 员工）。',
+        triggersEn: 'create member, add user, invite teammate, new staff',
+        triggersZh: '创建成员,添加用户,邀请同事,新建员工',
+    },
+    'update-member': {
+        intentEn: 'Update an existing team member (role, groups, profile limit).',
+        intentZh: '编辑已有团队成员（身份、授权分组、环境额度等）。',
+        triggersEn: 'edit member, change role, update staff, authorized group',
+        triggersZh: '编辑成员,改身份,更新用户,授权分组',
+    },
+    'reset-member-password': {
+        intentEn: 'Reset a team member password; new_password is returned in the response.',
+        intentZh: '重置成员密码，成功响应里返回明文 new_password。',
+        triggersEn: 'reset password, new password, unbind phone',
+        triggersZh: '重置密码,改密码,解绑手机',
+    },
+    'delete-member': {
+        intentEn: 'Permanently delete a team member by user_id. Hard delete, not recoverable.',
+        intentZh: '按 user_id 彻底删除团队成员，不可恢复。',
+        triggersEn: 'remove member, delete user, delete staff, hard delete',
+        triggersZh: '删除成员,移除用户,删员工,彻底删除',
+    },
+    'get-member-list': {
+        intentEn: 'List or search team members (pagination, user_id, email).',
+        intentZh: '分页/条件查询团队成员列表。',
+        triggersEn: 'list members, search users, query staff, member list',
+        triggersZh: '成员列表,查询用户,搜索员工,列出成员',
+    },
+    'get-member-group-list': {
+        intentEn: 'List member groups / roles with pagination.',
+        intentZh: '分页查询成员分组（角色）列表。',
+        triggersEn: 'member groups, user groups, role list',
+        triggersZh: '成员分组,用户组,角色列表',
+    },
     'check-status': {
         intentEn: 'Check Local API availability on this machine.',
         intentZh: '检测本机 Local API 是否可用。',

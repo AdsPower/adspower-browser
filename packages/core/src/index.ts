@@ -3,6 +3,7 @@ export { PORT, API_KEY, updateConfig } from './constants/config.js';
 export { buildMcpToolDescription, buildCliCommandDescription } from './constants/toolIntentMetadata.js';
 export { browserHandlers } from './handlers/browser.js';
 export { groupHandlers } from './handlers/group.js';
+export { memberHandlers } from './handlers/member.js';
 export { applicationHandlers } from './handlers/application.js';
 export { proxyHandlers } from './handlers/proxy.js';
 export { tagHandlers } from './handlers/tag.js';
