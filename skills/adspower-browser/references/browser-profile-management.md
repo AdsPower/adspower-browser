@@ -1,9 +1,11 @@
 # Browser Profile Management
 
+For commands accepting both identifiers, use the [identifier selection rule in SKILL.md](../SKILL.md#distinguish-profile_id-from-profile_no): letters with optional digits indicate `profile_id`; digits only indicate `profile_no`, even when quoted. Choose the correct field before calling the command instead of trying `profile_id` first.
+
 **open-browser** — Open the browser (environment/profile).
 
-- **profile_id** (optional): Unique profile ID, generated after creating profile.
-- **profile_no** (optional): Profile number.
+- **profile_id** (optional): Unique string ID containing letters with optional digits, generated after creating profile.
+- **profile_no** (optional): Numeric profile number containing digits only.
 - One of **profile_id** or **profile_no** is required. If both are provided, **profile_id** takes priority.
 - **ip_tab** (optional): `'0'` | `'1'`, default 0. Whether to open the IP detection page.
 - **launch_args** (optional): Chrome launch args or startup URL.

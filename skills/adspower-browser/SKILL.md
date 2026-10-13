@@ -67,6 +67,15 @@ MacOS设备下："/Applications/AdsPower Global.app/Contents/MacOS/AdsPower Glob
 Linux设备下：adspower_global --headless=true --api-key=your_api_key --api-port=50325
 ```
 
+## Distinguish `profile_id` from `profile_no`
+
+When a command supports both fields and the user gives an unlabeled profile identifier, choose the field before calling it:
+
+- `profile_id` is a string containing letters: letters and digits (e.g. `abc123`), or letters only (e.g. `abcdef`).
+- `profile_no` is a numeric profile number containing digits only (e.g. `123`). A quoted value such as `"123"` is still a profile number; quotes alone do not make it a `profile_id`.
+
+Use `profile_no` directly for digit-only input; do not first try it as `profile_id` and retry after failure. For example, use `ads open-browser '{"profile_no":"123"}'` for environment 123, and `ads open-browser '{"profile_id":"abc123"}'` for environment abc123. Preserve the command's documented scalar/array format and value type. If the user explicitly names a field, respect it; if a command only accepts `profile_id`, look up the corresponding ID with `get-browser-list` using `profile_no` first.
+
 **Two forms for `<arg>`:**
 
 1. **Single value (shorthand)** — for profile-related commands, pass one profile ID or number:
@@ -130,6 +139,8 @@ ads get-cloud-active '{"user_ids":"id1,id2"}'    # user_ids comma-separated, max
 ```
 
 ### Kernel
+
+For kernel downloads, map 火狐 / Firefox / flowerBrowser to `Firefox`, and 谷歌 / google / Chrome / sunBrowser to `Chrome`; match English names case-insensitively. See [kernel type alias mapping](references/browser-kernel-download-management.md#match-user-wording-to-kernel_type) for details.
 
 ```bash
 ads download-kernel '{"kernel_type":"Chrome","kernel_version":"141"}'
