@@ -159,8 +159,8 @@ export const LOCAL_API_CONTRACTS: Record<ContractCommand, LocalApiContract> = {
         method: 'POST',
         path: '/api/v2/browser-profile/recycle-bin/list',
         params: {
-            page: { apiName: 'page', location: 'body', default: 1 },
-            limit: { apiName: 'limit', location: 'body', default: 1 },
+            page: { apiName: 'page', location: 'body' },
+            limit: { apiName: 'limit', location: 'body' },
         },
     },
     'restore-recycle-bin': {

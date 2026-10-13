@@ -53,8 +53,8 @@
 
 **get-recycle-bin-list** — List profiles deleted in the last 30 days that the caller can see.
 
-- **page** (optional): Page number. Defaults to 1.
-- **limit** (optional): 1–100. Profiles per page. Defaults to 1 when omitted.
+- **page** (optional): Page number. Omit it to use the Local API backend default.
+- **limit** (optional): 1–100. Profiles per page. Omit it to use the Local API backend default.
 - Response items include `profile_id`, `profile_no`, `name`, `group_name`, `remark`, and `delete_time` (unix seconds).
 
 **restore-recycle-bin** — Restore one deleted profile into a group.

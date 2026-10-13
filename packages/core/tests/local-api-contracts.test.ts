@@ -330,9 +330,13 @@ describe('shared contract metadata and serializers', () => {
     it('serializes recycle bin list and restore bodies', () => {
         expect(API_ENDPOINTS.GET_RECYCLE_BIN_LIST).toBe('/api/v2/browser-profile/recycle-bin/list');
         expect(API_ENDPOINTS.RESTORE_RECYCLE_BIN).toBe('/api/v2/browser-profile/recycle-bin/restore');
-        expect(buildRequestBodyFor('get-recycle-bin-list', schemas.getRecycleBinListSchema.parse({}))).toEqual({
-            page: 1,
-            limit: 1,
+        expect(buildRequestBodyFor('get-recycle-bin-list', schemas.getRecycleBinListSchema.parse({}))).toEqual({});
+        expect(buildRequestBodyFor('get-recycle-bin-list', schemas.getRecycleBinListSchema.parse({
+            page: 2,
+            limit: 50,
+        }))).toEqual({
+            page: 2,
+            limit: 50,
         });
         expect(buildRequestBodyFor('restore-recycle-bin', schemas.restoreRecycleBinSchema.parse({
             profile_id: 'k1gx0oue',

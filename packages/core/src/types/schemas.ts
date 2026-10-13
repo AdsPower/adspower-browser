@@ -314,8 +314,8 @@ export const schemas = {
     }).strict(),
 
     getRecycleBinListSchema: z.object({
-        page: z.number().int().min(1).optional().describe('Page number. Defaults to 1. Only profiles deleted in the last 30 days and visible to the caller are returned.'),
-        limit: z.number().int().min(1).max(100).optional().describe('Profiles per page, range 1-100. Defaults to 1 when omitted.'),
+        page: z.number().int().min(1).optional().describe('Page number. Omit to use the Local API backend default. Only profiles deleted in the last 30 days and visible to the caller are returned.'),
+        limit: z.number().int().min(1).max(100).optional().describe('Profiles per page, range 1-100. Omit to use the Local API backend default.'),
     }).strict(),
 
     restoreRecycleBinSchema: z.object({
