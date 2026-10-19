@@ -313,6 +313,19 @@ export const schemas = {
         profile_id: z.array(z.string()).describe('The profile ids of the browsers to delete, it is required when you want to delete the browser')
     }).strict(),
 
+    getRecycleBinListSchema: z.object({
+        page: z.number().int().min(1).optional().describe('Page number. Omit to use the Local API backend default. Only profiles deleted in the last 30 days and visible to the caller are returned.'),
+        limit: z.number().int().min(1).max(100).optional().describe('Profiles per page, range 1-100. Omit to use the Local API backend default.'),
+    }).strict(),
+
+    restoreRecycleBinSchema: z.object({
+        profile_id: z.string().optional().describe('Profile ID in the recycle bin. Either profile_id or profile_no is required. If both are provided, profile_id takes priority.'),
+        profile_no: z.string().regex(/^\d+$/, 'Profile number must be a numeric string').optional().describe('Profile serial number in the recycle bin. Either profile_id or profile_no is required. If both are provided, profile_id takes priority.'),
+        group_id: z.string().regex(/^\d+$/, 'Group ID must be a numeric string').describe('Target group ID after restore. Use get-group-list to find a group the caller can use. "0" is ungrouped.'),
+    }).strict().refine(data => data.profile_id || data.profile_no, {
+        message: 'Either profile_id or profile_no must be provided'
+    }),
+
     getBrowserListSchema: z.object({
         group_id: z.string()
             .regex(/^\d+$/, "Group ID must be a numeric string")
@@ -395,6 +408,55 @@ export const schemas = {
         group_name: z.string().optional().describe('The name of the group to search, use like to search'),
         page_size: z.number().optional().describe('The size of the page, max is 100, default is 10'),
         page: z.number().optional().describe('The page of the group, default is 1')
+    }).strict(),
+
+    createMemberSchema: z.object({
+        user_group_id: z.string().max(50).describe('Member group / role id. Use get-member-group-list to obtain it'),
+        name: z.string().max(50).optional().describe('Member display name, max 50 characters'),
+        email: z.string().max(70).describe('Member email, max 70 characters'),
+        password: z.string().min(8).max(50).describe('Login password in plaintext, 8 to 50 characters. The Local API hashes it before storing'),
+        identity: z.union([z.literal(2), z.literal(3), z.literal(4)]).describe('Role type: 2 admin, 3 manager, 4 staff'),
+        manager: z.string().max(15).optional().describe('Direct manager user_id. Optional even when identity is 4 (staff); omit for no manager. Only staff may send this field'),
+        member: z.array(z.string()).max(300).optional().describe('Direct subordinate user_id list, max 300. Only for identity 3 (manager). Do not send for admin (2); the Local API will reject it'),
+        authorized_group: z.array(z.string()).max(1500).optional().describe('Authorized browser group ids, max 1500. Empty array means no groups'),
+        profile_limit: z.number().optional().describe('Profile quota for this member'),
+        remark: z.string().max(100).optional().describe('Remark, max 100 characters')
+    }).strict(),
+
+    updateMemberSchema: z.object({
+        user_id: z.string().max(50).describe('Member user_id to update'),
+        user_group_id: z.string().max(50).optional().describe('Member group / role id'),
+        name: z.string().max(50).optional().describe('Member display name, max 50 characters. Empty string clears the name. Omit to keep unchanged'),
+        email: z.string().max(70).optional().describe('Member email, max 70 characters. Omit to keep unchanged. Do not send empty string; it will fail validation'),
+        identity: z.union([z.literal(2), z.literal(3), z.literal(4)]).optional().describe('Role type: 2 admin, 3 manager, 4 staff. Omit to keep unchanged. Do not send empty; it will fail validation'),
+        manager: z.string().max(15).optional().describe('Direct manager user_id. Empty string clears the manager. Omit to keep unchanged. Only staff may send this field'),
+        member: z.array(z.string()).max(300).optional().describe('Direct subordinate user_id list, max 300. Only for identity 3 (manager). Empty array clears subordinates. Do not send for admin (2)'),
+        authorized_group: z.array(z.string()).max(1500).optional().describe('Authorized browser group ids, max 1500. Omit to keep current groups. Empty array plus group_update_type 1 (default) replaces/clears; 2 appends/keeps'),
+        group_update_type: z.union([z.literal(1), z.literal(2)]).optional().describe('How authorized_group is applied: 1 replace (default), 2 append'),
+        profile_limit: z.number().optional().describe('Profile quota for this member'),
+        remark: z.string().max(100).optional().describe('Remark, max 100 characters. Empty string clears the remark. Omit to keep unchanged')
+    }).strict(),
+
+    resetMemberPasswordSchema: z.object({
+        user_id: z.string().max(50).describe('Member user_id whose password will be reset'),
+        unbind_phone: z.union([z.literal(0), z.literal(1)]).optional().describe('Whether to unbind the member phone: 1 unbind, 0 keep. Default 0')
+    }).strict(),
+
+    deleteMemberSchema: z.object({
+        user_id: z.string().max(50).describe('Member user_id to permanently delete. Hard delete, not recoverable, does not go to recycle bin')
+    }).strict(),
+
+    getMemberListSchema: z.object({
+        user_group_id: z.string().max(50).optional().describe('Filter by member group / role id'),
+        user_id: z.array(z.string()).max(50).optional().describe('Filter by member user_id list, max 50. Example: ["1001","1002"]'),
+        email: z.array(z.string()).max(50).optional().describe('Filter by member email list, max 50. Example: ["a@b.com"]'),
+        page: z.number().int().min(1).max(20000).optional().describe('Page number, default 1, max 20000'),
+        limit: z.number().int().min(1).max(200).optional().describe('Page size, default 50, max 200. Omitting limit returns 50 rows')
+    }).strict(),
+
+    getMemberGroupListSchema: z.object({
+        page: z.number().int().min(1).max(20000).optional().describe('Page number, default 1, max 20000'),
+        limit: z.number().int().min(1).max(200).optional().describe('Page size, default 50, max 200. Omitting limit returns 50 rows')
     }).strict(),
 
     getApplicationListSchema: z.object({

@@ -9,6 +9,8 @@
 | `create-browser` | Create a new AdsPower browser profile (account). | 新建浏览器环境 / 账号 profile。 | create profile, new browser, add account, spin up profile | 新建环境,创建profile,添加浏览器,新开指纹,创建账号 |
 | `update-browser` | Update fields of an existing browser profile. | 更新已有 profile 的配置（备注、代理、指纹等）。 | edit profile, change settings, modify browser, update fingerprint | 修改配置,更新profile,改代理,改指纹,编辑环境 |
 | `delete-browser` | Delete one or more browser profiles permanently. | 永久删除一个或多个浏览器 profile。 | remove profile, delete account, trash browser | 删除环境,移除profile,删掉浏览器账号 |
+| `get-recycle-bin-list` | List browser profiles in the recycle bin from the last 30 days. | 查询近 30 天回收站中的浏览器环境。 | recycle bin, deleted profiles, trash list, recently deleted | 回收站,已删除环境,最近删除,垃圾桶列表 |
+| `restore-recycle-bin` | Restore one deleted browser profile from the recycle bin into a target group. | 把回收站里的一个环境恢复到指定分组。 | restore profile, recover deleted browser, undelete environment | 恢复环境,还原回收站,找回已删除环境 |
 | `get-browser-list` | List or search browser profiles (pagination, filters). | 分页/条件查询浏览器 profile 列表。 | list profiles, search browsers, query accounts, show all profiles | 列表,查询环境,搜索profile,列出所有浏览器 |
 | `get-opened-browser` | List browser profiles currently open on this device. | 查看本机当前已打开的浏览器 profile。 | opened browsers, running profiles, active local sessions | 已打开,正在运行,当前会话,本地活跃 |
 | `move-browser` | Move profiles to another group (regroup). | 将 profile 移动到指定分组。 | move to group, regroup profiles, change group | 移动分组,换组,归类到组 |
@@ -23,6 +25,12 @@
 | `create-group` | Create a browser profile group. | 新建浏览器分组。 | new group, add folder for profiles | 新建分组,创建组,环境分组 |
 | `update-group` | Rename or update a group. | 重命名或更新分组信息。 | rename group, edit group | 改组名,更新分组 |
 | `get-group-list` | List groups with optional name search. | 分页查询分组列表，可按名称搜索。 | list groups, search group name | 分组列表,查组名 |
+| `create-member` | Create a team member (admin / manager / staff). | 新建团队成员（管理员 / 经理 / 员工）。 | create member, add user, invite teammate, new staff | 创建成员,添加用户,邀请同事,新建员工 |
+| `update-member` | Update an existing team member (role, groups, profile limit). | 编辑已有团队成员（身份、授权分组、环境额度等）。 | edit member, change role, update staff, authorized group | 编辑成员,改身份,更新用户,授权分组 |
+| `reset-member-password` | Reset a team member password; new_password is returned in the response. | 重置成员密码，成功响应里返回明文 new_password。 | reset password, new password, unbind phone | 重置密码,改密码,解绑手机 |
+| `delete-member` | Permanently delete a team member by user_id. Hard delete, not recoverable. | 按 user_id 彻底删除团队成员，不可恢复。 | remove member, delete user, delete staff, hard delete | 删除成员,移除用户,删员工,彻底删除 |
+| `get-member-list` | List or search team members (pagination, user_id, email). | 分页/条件查询团队成员列表。 | list members, search users, query staff, member list | 成员列表,查询用户,搜索员工,列出成员 |
+| `get-member-group-list` | List member groups / roles with pagination. | 分页查询成员分组（角色）列表。 | member groups, user groups, role list | 成员分组,用户组,角色列表 |
 | `check-status` | Check Local API availability on this machine. | 检测本机 Local API 是否可用。 | API health, connection status, ping AdsPower API | 接口通不通,检测API,连接状态 |
 | `get-application-list` | List application/extension categories with pagination. | 分页获取应用/扩展分类列表。 | categories, extension list, application catalog | 应用分类,扩展目录,类别列表 |
 | `create-proxy` | Create one or more proxy entries. | 新建一条或多条代理配置。 | add proxy, new proxy row | 添加代理,新建代理 |

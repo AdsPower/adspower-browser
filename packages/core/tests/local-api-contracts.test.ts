@@ -5,8 +5,17 @@ import { API_ENDPOINTS } from '../src/constants/api.js';
 import { LOCAL_API_CONTRACTS } from '../src/constants/localApiContracts.js';
 import { browserHandlers } from '../src/handlers/browser.js';
 import { groupHandlers } from '../src/handlers/group.js';
+import { memberHandlers } from '../src/handlers/member.js';
 import { proxyHandlers } from '../src/handlers/proxy.js';
 import type { CreateGroupParams, GetGroupListParams, UpdateGroupParams } from '../src/types/group.js';
+import type {
+    CreateMemberParams,
+    DeleteMemberParams,
+    GetMemberGroupListParams,
+    GetMemberListParams,
+    ResetMemberPasswordParams,
+    UpdateMemberParams
+} from '../src/types/member.js';
 import { buildQueryParamsFor, buildRequestBodyFor } from '../src/utils/requestBuilder.js';
 import { schemas } from '../src/types/schemas.js';
 
@@ -122,6 +131,33 @@ describe('Zod schemas accept Postman-style external keys', () => {
             }).success,
             'updateBrowserSchema must reject arbitrary platform_account objects'
         ).toBe(false);
+    });
+
+    it('get-recycle-bin-list: page and limit bounds', () => {
+        mustParse(schemas.getRecycleBinListSchema, {}, 'getRecycleBinListSchema must allow an empty query');
+        mustParse(
+            schemas.getRecycleBinListSchema,
+            { page: 2, limit: 100 },
+            'getRecycleBinListSchema must accept page and limit within 1-100'
+        );
+        expect(schemas.getRecycleBinListSchema.safeParse({ page: 0 }).success).toBe(false);
+        expect(schemas.getRecycleBinListSchema.safeParse({ limit: 101 }).success).toBe(false);
+    });
+
+    it('restore-recycle-bin: profile_id or profile_no plus group_id', () => {
+        mustParse(
+            schemas.restoreRecycleBinSchema,
+            { profile_id: 'k1gx0oue', group_id: '123456' },
+            'restoreRecycleBinSchema must accept profile_id and group_id'
+        );
+        mustParse(
+            schemas.restoreRecycleBinSchema,
+            { profile_no: '338', group_id: '123456' },
+            'restoreRecycleBinSchema must accept profile_no and group_id'
+        );
+        expect(schemas.restoreRecycleBinSchema.safeParse({ group_id: '123456' }).success).toBe(false);
+        expect(schemas.restoreRecycleBinSchema.safeParse({ profile_id: 'k1gx0oue' }).success).toBe(false);
+        expect(schemas.restoreRecycleBinSchema.safeParse({ profile_no: 'abc', group_id: '1' }).success).toBe(false);
     });
 
     it('delete-browser: profile_id as array', () => {
@@ -297,6 +333,28 @@ describe('shared contract metadata and serializers', () => {
             delete_cache: '0',
             cdp_mask: '1',
             device_scale: '1',
+        });
+    });
+
+    it('serializes recycle bin list and restore bodies', () => {
+        expect(API_ENDPOINTS.GET_RECYCLE_BIN_LIST).toBe('/api/v2/browser-profile/recycle-bin/list');
+        expect(API_ENDPOINTS.RESTORE_RECYCLE_BIN).toBe('/api/v2/browser-profile/recycle-bin/restore');
+        expect(buildRequestBodyFor('get-recycle-bin-list', schemas.getRecycleBinListSchema.parse({}))).toEqual({});
+        expect(buildRequestBodyFor('get-recycle-bin-list', schemas.getRecycleBinListSchema.parse({
+            page: 2,
+            limit: 50,
+        }))).toEqual({
+            page: 2,
+            limit: 50,
+        });
+        expect(buildRequestBodyFor('restore-recycle-bin', schemas.restoreRecycleBinSchema.parse({
+            profile_id: 'k1gx0oue',
+            profile_no: '338',
+            group_id: '123456',
+        }))).toEqual({
+            profile_id: 'k1gx0oue',
+            profile_no: '338',
+            group_id: '123456',
         });
     });
 
@@ -751,6 +809,289 @@ describe('shared contract metadata and serializers', () => {
         await expect(groupHandlers.getGroupList(parsed as any)).rejects.toThrow(
             'Failed to get group list: group list failed'
         );
+    });
+
+    it('serializes create-member body using Local API v2 user fields', () => {
+        const parsed = schemas.createMemberSchema.parse({
+            user_group_id: 'role-1',
+            name: 'Alice',
+            email: 'alice@example.com',
+            password: 'password1',
+            identity: 4,
+            manager: '1001',
+            member: [],
+            authorized_group: ['g1'],
+            profile_limit: 10,
+            remark: 'ops',
+        });
+
+        expect(API_ENDPOINTS.CREATE_MEMBER).toBe('/api/v2/user/create');
+        expect(buildRequestBodyFor('create-member', parsed)).toEqual({
+            user_group_id: 'role-1',
+            name: 'Alice',
+            email: 'alice@example.com',
+            password: 'password1',
+            identity: 4,
+            manager: '1001',
+            member: [],
+            authorized_group: ['g1'],
+            profile_limit: 10,
+            remark: 'ops',
+        });
+    });
+
+    it('create-member schema allows staff without manager', () => {
+        expect(
+            schemas.createMemberSchema.safeParse({
+                user_group_id: 'role-1',
+                email: 'alice@example.com',
+                password: 'password1',
+                identity: 4,
+            }).success,
+            'createMemberSchema must allow identity 4 without manager',
+        ).toBe(true);
+    });
+
+    it('create-member schema requires identity and rejects a 7-character password', () => {
+        expect(
+            schemas.createMemberSchema.safeParse({
+                user_group_id: 'role-1',
+                email: 'alice@example.com',
+                password: 'password1',
+            }).success,
+            'createMemberSchema must require identity',
+        ).toBe(false);
+        expect(
+            schemas.createMemberSchema.safeParse({
+                user_group_id: 'role-1',
+                email: 'alice@example.com',
+                password: '1234567',
+                identity: 4,
+            }).success,
+            'createMemberSchema must reject passwords shorter than 8 characters',
+        ).toBe(false);
+    });
+
+    it('serializes update-member body including empty authorized_group', () => {
+        const parsed = schemas.updateMemberSchema.parse({
+            user_id: '1001',
+            authorized_group: [],
+            group_update_type: 1,
+        });
+
+        expect(buildRequestBodyFor('update-member', parsed)).toEqual({
+            user_id: '1001',
+            authorized_group: [],
+            group_update_type: 1,
+        });
+    });
+
+    it('serializes reset-member-password and delete-member bodies using user_id', () => {
+        expect(
+            buildRequestBodyFor(
+                'reset-member-password',
+                schemas.resetMemberPasswordSchema.parse({ user_id: '1001', unbind_phone: 1 }),
+            ),
+        ).toEqual({
+            user_id: '1001',
+            unbind_phone: 1,
+        });
+        expect(
+            buildRequestBodyFor('delete-member', schemas.deleteMemberSchema.parse({ user_id: '1001' })),
+        ).toEqual({
+            user_id: '1001',
+        });
+    });
+
+    it('serializes get-member-list query using JSON arrays for user_id and email', () => {
+        const parsed = schemas.getMemberListSchema.parse({
+            user_group_id: 'role-1',
+            user_id: ['1001', '1002'],
+            email: ['alice@example.com'],
+            page: 1,
+            limit: 20,
+        });
+
+        expect(buildQueryParamsFor('get-member-list', {
+            ...parsed,
+            user_id: JSON.stringify(parsed.user_id),
+            email: JSON.stringify(parsed.email),
+        }).toString()).toBe(
+            'user_group_id=role-1&user_id=%5B%221001%22%2C%221002%22%5D&email=%5B%22alice%40example.com%22%5D&page=1&limit=20',
+        );
+    });
+
+    it('get-member-list schema rejects more than 50 ids and limit above 200', () => {
+        expect(
+            schemas.getMemberListSchema.safeParse({ user_id: Array.from({ length: 51 }, (_, i) => String(i)) }).success,
+            'getMemberListSchema must reject more than 50 user_id values',
+        ).toBe(false);
+        expect(
+            schemas.getMemberListSchema.safeParse({ limit: 201 }).success,
+            'getMemberListSchema must reject limit values above 200',
+        ).toBe(false);
+    });
+
+    it('serializes get-member-group-list query using page and limit', () => {
+        const parsed = schemas.getMemberGroupListSchema.parse({
+            page: 2,
+            limit: 20,
+        });
+
+        expect(API_ENDPOINTS.GET_MEMBER_GROUP_LIST).toBe('/api/v2/user-group/list');
+        expect(buildQueryParamsFor('get-member-group-list', parsed).toString()).toBe('page=2&limit=20');
+    });
+
+    it('member exported parameter types stay aligned with the public schema contract', () => {
+        const createMemberParams: CreateMemberParams = {
+            user_group_id: 'role-1',
+            email: 'alice@example.com',
+            password: 'password1',
+            identity: 4,
+        };
+        const updateMemberParams: UpdateMemberParams = { user_id: '1001' };
+        const resetMemberPasswordParams: ResetMemberPasswordParams = { user_id: '1001' };
+        const deleteMemberParams: DeleteMemberParams = { user_id: '1001' };
+        const getMemberListParams: GetMemberListParams = { page: 1, limit: 1 };
+        const getMemberGroupListParams: GetMemberGroupListParams = { page: 1, limit: 1 };
+
+        expectTypeOf(createMemberParams).toEqualTypeOf<z.infer<typeof schemas.createMemberSchema>>();
+        expectTypeOf(updateMemberParams).toEqualTypeOf<z.infer<typeof schemas.updateMemberSchema>>();
+        expectTypeOf(resetMemberPasswordParams).toEqualTypeOf<z.infer<typeof schemas.resetMemberPasswordSchema>>();
+        expectTypeOf(deleteMemberParams).toEqualTypeOf<z.infer<typeof schemas.deleteMemberSchema>>();
+        expectTypeOf(getMemberListParams).toEqualTypeOf<z.infer<typeof schemas.getMemberListSchema>>();
+        expectTypeOf(getMemberGroupListParams).toEqualTypeOf<z.infer<typeof schemas.getMemberGroupListSchema>>();
+    });
+
+    it('create-member handler sends Local API v2 fields on the wire', async () => {
+        const parsed = schemas.createMemberSchema.parse({
+            user_group_id: 'role-1',
+            email: 'alice@example.com',
+            password: 'password1',
+            identity: 4,
+        });
+        const post = vi.fn().mockResolvedValue({
+            data: {
+                code: 0,
+                data: { user_id: '1001' },
+            },
+        });
+
+        vi.spyOn(apiModule, 'getApiClient').mockReturnValue({ post } as any);
+
+        await memberHandlers.createMember(parsed as any);
+
+        expect(post).toHaveBeenCalledWith(
+            `${apiModule.getLocalApiBase()}${API_ENDPOINTS.CREATE_MEMBER}`,
+            {
+                user_group_id: 'role-1',
+                email: 'alice@example.com',
+                password: 'password1',
+                identity: 4,
+            },
+        );
+    });
+
+    it('get-member-list handler JSON-serializes array filters on the query string', async () => {
+        const parsed = schemas.getMemberListSchema.parse({
+            user_id: ['1001'],
+            page: 1,
+            limit: 1,
+        });
+        const get = vi.fn().mockResolvedValue({
+            data: {
+                code: 0,
+                data: { list: [] },
+            },
+        });
+
+        vi.spyOn(apiModule, 'getApiClient').mockReturnValue({ get } as any);
+
+        await memberHandlers.getMemberList(parsed as any);
+
+        const [, options] = get.mock.calls[0];
+        expect(get).toHaveBeenCalledWith(
+            `${apiModule.getLocalApiBase()}${API_ENDPOINTS.GET_MEMBER_LIST}`,
+            expect.objectContaining({ params: expect.any(URLSearchParams) }),
+        );
+        expect(options.params.get('user_id')).toBe('["1001"]');
+        expect(options.params.get('page')).toBe('1');
+        expect(options.params.get('limit')).toBe('1');
+    });
+
+    it('update-member handler sends authorized_group and group_update_type on the wire', async () => {
+        const parsed = schemas.updateMemberSchema.parse({
+            user_id: '1001',
+            authorized_group: [],
+            group_update_type: 1,
+        });
+        const post = vi.fn().mockResolvedValue({
+            data: { code: 0, data: {} },
+        });
+        vi.spyOn(apiModule, 'getApiClient').mockReturnValue({ post } as any);
+
+        await memberHandlers.updateMember(parsed as any);
+
+        expect(post).toHaveBeenCalledWith(
+            `${apiModule.getLocalApiBase()}${API_ENDPOINTS.UPDATE_MEMBER}`,
+            {
+                user_id: '1001',
+                authorized_group: [],
+                group_update_type: 1,
+            },
+        );
+    });
+
+    it('reset-member-password and delete-member handlers post user_id to v2 paths', async () => {
+        const post = vi.fn().mockResolvedValue({
+            data: { code: 0, data: { new_password: 'secret' } },
+        });
+        vi.spyOn(apiModule, 'getApiClient').mockReturnValue({ post } as any);
+
+        await memberHandlers.resetMemberPassword(
+            schemas.resetMemberPasswordSchema.parse({ user_id: '1001', unbind_phone: 1 }) as any,
+        );
+        await memberHandlers.deleteMember(
+            schemas.deleteMemberSchema.parse({ user_id: '1001' }) as any,
+        );
+
+        expect(post).toHaveBeenNthCalledWith(
+            1,
+            `${apiModule.getLocalApiBase()}${API_ENDPOINTS.RESET_MEMBER_PASSWORD}`,
+            { user_id: '1001', unbind_phone: 1 },
+        );
+        expect(post).toHaveBeenNthCalledWith(
+            2,
+            `${apiModule.getLocalApiBase()}${API_ENDPOINTS.DELETE_MEMBER}`,
+            { user_id: '1001' },
+        );
+        expect(API_ENDPOINTS.RESET_MEMBER_PASSWORD).toBe('/api/v2/user/reset_password');
+        expect(API_ENDPOINTS.DELETE_MEMBER).toBe('/api/v2/user/delete');
+        expect(API_ENDPOINTS.CREATE_MEMBER).toBe('/api/v2/user/create');
+        expect(API_ENDPOINTS.UPDATE_MEMBER).toBe('/api/v2/user/update');
+        expect(API_ENDPOINTS.GET_MEMBER_LIST).toBe('/api/v2/user/list');
+        expect(API_ENDPOINTS.GET_MEMBER_GROUP_LIST).toBe('/api/v2/user-group/list');
+    });
+
+    it('get-member-group-list handler sends page and limit as query params', async () => {
+        const parsed = schemas.getMemberGroupListSchema.parse({
+            page: 2,
+            limit: 20,
+        });
+        const get = vi.fn().mockResolvedValue({
+            data: { code: 0, data: { list: [] } },
+        });
+        vi.spyOn(apiModule, 'getApiClient').mockReturnValue({ get } as any);
+
+        await memberHandlers.getMemberGroupList(parsed as any);
+
+        const [, options] = get.mock.calls[0];
+        expect(get).toHaveBeenCalledWith(
+            `${apiModule.getLocalApiBase()}${API_ENDPOINTS.GET_MEMBER_GROUP_LIST}`,
+            expect.objectContaining({ params: expect.any(URLSearchParams) }),
+        );
+        expect(options.params.get('page')).toBe('2');
+        expect(options.params.get('limit')).toBe('20');
     });
 
 });

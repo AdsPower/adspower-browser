@@ -9,6 +9,8 @@ import type {
     CreateBrowserParams,
     UpdateBrowserParams,
     DeleteBrowserParams,
+    GetRecycleBinListParams,
+    RestoreRecycleBinParams,
     GetBrowserListParams,
     MoveBrowserParams,
     GetProfileCookiesParams,
@@ -87,6 +89,28 @@ export const browserHandlers = {
             buildRequestBodyFor('delete-browser', params)
         );
 
+        if (response.data.code === 0) {
+            return JSON.stringify(response.data.data, null, 2);
+        }
+        throw new Error(response.data.msg);
+    },
+
+    async getRecycleBinList(params: GetRecycleBinListParams) {
+        const response = await getApiClient().post(
+            `${getLocalApiBase()}${API_ENDPOINTS.GET_RECYCLE_BIN_LIST}`,
+            buildRequestBodyFor('get-recycle-bin-list', params)
+        );
+        if (response.data.code === 0) {
+            return JSON.stringify(response.data.data, null, 2);
+        }
+        throw new Error(response.data.msg);
+    },
+
+    async restoreRecycleBin(params: RestoreRecycleBinParams) {
+        const response = await getApiClient().post(
+            `${getLocalApiBase()}${API_ENDPOINTS.RESTORE_RECYCLE_BIN}`,
+            buildRequestBodyFor('restore-recycle-bin', params)
+        );
         if (response.data.code === 0) {
             return JSON.stringify(response.data.data, null, 2);
         }

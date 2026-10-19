@@ -142,6 +142,8 @@ ads close-browser <profile_id>                   # Or JSON: profile_id? | profil
 ads create-browser '{"group_id":"0","user_proxy_config":{"proxy_soft":"no_proxy"},...}'  # group_id + account field required; proxy optional (defaults to no_proxy; proxyid takes priority over user_proxy_config when both given)
 ads update-browser '{"profile_id":"...",...}'    # profile_id required
 ads delete-browser '{"profile_id":["..."]}'     # profile_id required
+ads get-recycle-bin-list '{}'                   # page?, limit? (1-100). Omit either to use the Local API backend default. Last 30 days only
+ads restore-recycle-bin '{"profile_id":"...","group_id":"123"}'  # profile_id or profile_no, group_id required
 ads get-browser-list '{}'                       # CLI defaults to page=1,limit=200. Or group_id?, limit?, page?, profile_id[]?, profile_no[]?, sort_type?, sort_order?, tag_ids?, tags_filter?, name?, name_filter?
 ads get-opened-browser                          # No params
 ```
@@ -166,6 +168,17 @@ ads get-cloud-active '{"user_ids":"id1,id2"}'    # user_ids comma-separated, max
 ads create-group '{"group_name":"My Group","remark":"..."}'   # group_name required
 ads update-group '{"group_id":"1","group_name":"New Name"}'    # group_id + group_name required; remark? (null to clear)
 ads get-group-list '{}'                         # group_name?, page_size?, page?
+```
+
+### Member
+
+```bash
+ads create-member '{"user_group_id":"...","email":"alice@example.com","password":"password1","identity":4}'  # identity: 2 admin, 3 manager, 4 staff; manager optional; member only for identity 3
+ads update-member '{"user_id":"...","name":"Alice"}'   # omit to keep; empty name/manager/remark/member/authorized_group can clear; do not empty email or identity
+ads reset-member-password '{"user_id":"..."}'          # unbind_phone?: 0|1; new_password is in the response
+ads delete-member '{"user_id":"..."}'                  # permanent, not recoverable
+ads get-member-list '{}'                               # user_group_id?, user_id[]?, email[]?, page?, limit? (default 50, max 200)
+ads get-member-group-list '{}'                         # page?, limit? (default 50, max 200)
 ```
 
 ### Application (categories)
