@@ -45,6 +45,7 @@ export const toolMatrix: Record<string, ToolMatrixEntry> = {
     'get-application-list': build('get-application-list', []),
     'create-proxy': build('create-proxy', ['proxies']),
     'update-proxy': build('update-proxy', ['proxy_id']),
+    'get-dynamic-proxy-traffic': build('get-dynamic-proxy-traffic', []),
     'get-proxy-list': build('get-proxy-list', []),
     'delete-proxy': build('delete-proxy', ['proxy_id']),
     'get-tag-list': build('get-tag-list', []),

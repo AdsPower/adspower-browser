@@ -112,7 +112,7 @@ export const STATELESS_HANDLERS: Record<string, Handler> = {
     },
     'restore-recycle-bin': {
         fn: browserHandlers.restoreRecycleBin as HandlerFn,
-        description: buildCliCommandDescription('restore-recycle-bin', 'Restore a deleted browser profile from the recycle bin into a group'),
+        description: buildCliCommandDescription('restore-recycle-bin', 'Restore one or more deleted browser profiles from the recycle bin into a group'),
         paramsDescription: schemaParamsDescription(schemas.restoreRecycleBinSchema, 'restore-recycle-bin')
     },
     'get-browser-list': {
@@ -261,6 +261,11 @@ export const STATELESS_HANDLERS: Record<string, Handler> = {
         fn: proxyHandlers.updateProxy as HandlerFn,
         description: buildCliCommandDescription('update-proxy', 'Update the proxy'),
         paramsDescription: schemaParamsDescription(schemas.updateProxySchema, 'update-proxy')
+    },
+    'get-dynamic-proxy-traffic': {
+        fn: proxyHandlers.getDynamicProxyTraffic as HandlerFn,
+        description: buildCliCommandDescription('get-dynamic-proxy-traffic', 'Query and return dynamic proxy traffic for the current team, including available traffic, traffic package expiration dates, and daily traffic consumption for the current month or a specified date range.'),
+        paramsDescription: schemaParamsDescription(schemas.getDynamicProxyTrafficSchema, 'get-dynamic-proxy-traffic')
     },
     'get-proxy-list': {
         fn: proxyHandlers.getProxyList as HandlerFn,

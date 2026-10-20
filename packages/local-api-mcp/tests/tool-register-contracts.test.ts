@@ -26,6 +26,7 @@ afterEach(() => {
 });
 
 const localApiToolExpectations: Array<{ tool: string; mustInclude: string[] }> = [
+    { tool: 'get-dynamic-proxy-traffic', mustInclude: ['start_date', 'end_date'] },
     { tool: 'open-browser', mustInclude: ['profile_id', 'profile_no'] },
     { tool: 'close-browser', mustInclude: ['profile_id', 'profile_no'] },
     { tool: 'create-browser', mustInclude: ['group_id', 'category_id'] },

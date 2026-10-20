@@ -143,7 +143,7 @@ ads create-browser '{"group_id":"0","user_proxy_config":{"proxy_soft":"no_proxy"
 ads update-browser '{"profile_id":"...",...}'    # profile_id required
 ads delete-browser '{"profile_id":["..."]}'     # profile_id required
 ads get-recycle-bin-list '{}'                   # page?, limit? (1-100). Omit either to use the Local API backend default. Last 30 days only
-ads restore-recycle-bin '{"profile_id":"...","group_id":"123"}'  # profile_id or profile_no, group_id required
+ads restore-recycle-bin '{"profile_id":["id1","id2"],"group_id":"123"}'  # profile_id[] or profile_no[], group_id required
 ads get-browser-list '{}'                       # CLI defaults to page=1,limit=200. Or group_id?, limit?, page?, profile_id[]?, profile_no[]?, sort_type?, sort_order?, tag_ids?, tags_filter?, name?, name_filter?
 ads get-opened-browser                          # No params
 ```

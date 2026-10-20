@@ -41,6 +41,7 @@ export const toolValidationStrategy: Record<string, ToolValidationStrategy> = {
     'get-application-list': 'Q',
     'create-proxy': 'R',
     'update-proxy': 'R',
+    'get-dynamic-proxy-traffic': 'Q',
     'get-proxy-list': 'Q',
     'delete-proxy': 'D',
     'get-tag-list': 'Q',
