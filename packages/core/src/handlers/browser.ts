@@ -114,7 +114,6 @@ export const browserHandlers = {
         if (_p.profile_no && Array.isArray(_p.profile_no)) {
             _p.profile_no = _p.profile_no.join(',');
         }
-        console.log(_p);
         const response = await getApiClient().post(
             `${getLocalApiBase()}${API_ENDPOINTS.RESTORE_RECYCLE_BIN}`,
             buildRequestBodyFor('restore-recycle-bin', _p)
