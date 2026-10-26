@@ -126,7 +126,7 @@ export function registerTools(server: McpServer) {
     tool('get-recycle-bin-list', buildMcpToolDescription('get-recycle-bin-list', 'List browser profiles in the recycle bin from the last 30 days'), schemas.getRecycleBinListSchema,
         wrapHandler(browserHandlers.getRecycleBinList));
 
-    tool('restore-recycle-bin', buildMcpToolDescription('restore-recycle-bin', 'Restore a deleted browser profile from the recycle bin into a group'), schemas.restoreRecycleBinSchema,
+    tool('restore-recycle-bin', buildMcpToolDescription('restore-recycle-bin', 'Restore one or more deleted browser profiles from the recycle bin into a group'), schemas.restoreRecycleBinSchema,
         wrapHandler(browserHandlers.restoreRecycleBin));
 
     tool('get-browser-list', buildMcpToolDescription('get-browser-list', 'Get the list of browsers'), schemas.getBrowserListSchema,
@@ -200,6 +200,9 @@ export function registerTools(server: McpServer) {
 
     tool('update-proxy', buildMcpToolDescription('update-proxy', 'Update the proxy'), schemas.updateProxySchema,
         wrapHandler(proxyHandlers.updateProxy));
+
+    tool('get-dynamic-proxy-traffic', buildMcpToolDescription('get-dynamic-proxy-traffic', 'Query and return dynamic proxy traffic for the current team, including available traffic, traffic package expiration dates, and daily traffic consumption for the current month or a specified date range.'), schemas.getDynamicProxyTrafficSchema,
+        wrapHandler(proxyHandlers.getDynamicProxyTraffic));
 
     tool('get-proxy-list', buildMcpToolDescription('get-proxy-list', 'Get the list of proxies'), schemas.getProxyListSchema,
         wrapHandler(proxyHandlers.getProxyList));

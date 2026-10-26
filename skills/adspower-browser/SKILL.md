@@ -1,6 +1,6 @@
 ---
 name: adspower-browser
-description: "AdsPower profile operation via adspower-browser CLI. open/launch/start browser or profile, environment, config profile, AdsPower; create/update/delete/list profiles; groups, tags, proxies; kernel download/list; client patch; API check-status. User phrases like open environment or map to commands such as open-browser."
+description: "AdsPower profile operation via adspower-browser CLI. open/launch/start browser or profile, environment, config profile, AdsPower; create/update/delete/list profiles; groups, tags, proxies, dynamic proxy traffic; kernel download/list; client patch; API check-status. User phrases like open environment or map to commands such as open-browser."
 ---
 
 # AdsPower Local API with adspower-browser
@@ -108,7 +108,7 @@ ads create-browser '{"group_id":"0","user_proxy_config":{"proxy_soft":"no_proxy"
 ads update-browser '{"profile_id":"...",...}'    # profile_id required
 ads delete-browser '{"profile_id":["..."]}'     # profile_id required
 ads get-recycle-bin-list '{}'                   # page?, limit? (1-100). Omit either to use the Local API backend default. Last 30 days only
-ads restore-recycle-bin '{"profile_id":"...","group_id":"123"}'  # profile_id or profile_no, group_id required
+ads restore-recycle-bin '{"profile_id":["id1","id2"],"group_id":"123"}'  # profile_id[] or profile_no[], group_id required
 ads get-browser-list '{}'                       # CLI defaults to page=1,limit=200 (Local API itself returns only 1). Or group_id?, limit?, page?, profile_id[]?, profile_no[]?, sort_type?, sort_order?, tag_ids?, tags_filter?, name?, name_filter?
 ads get-opened-browser                          # No params
 ```
@@ -182,6 +182,7 @@ ads get-application-list '{"category_id":"123","page":1,"limit":20}'
 ```bash
 ads create-proxy '[{"type":"http","host":"127.0.0.1","port":"8080"}]'  # top-level array; type, host, port required per item
 ads update-proxy '{"proxy_id":"proxy-1","proxy_url":"https://refresh.example.com"}'
+ads get-dynamic-proxy-traffic                    # start_date?, end_date? (YYYY-MM-DD); available traffic, package expiration dates, daily usage; defaults to current month through today
 ads get-proxy-list '{}'                         # limit?, page?, proxy_id[]?
 ads delete-proxy '{"proxy_id":["..."]}'        # proxy_id required, max 100
 ```
@@ -206,7 +207,7 @@ See [references/application-management.md](references/application-management.md)
 
 ### Proxy Management
 
-See [references/proxy-management.md](references/proxy-management.md) for create-proxy, update-proxy, get-proxy-list, and delete-proxy parameters.
+See [references/proxy-management.md](references/proxy-management.md) for create-proxy, update-proxy, get-proxy-list, get-dynamic-proxy-traffic, and delete-proxy parameters.
 
 ### Tag Management
 
@@ -243,7 +244,7 @@ Reference docs with full enum values and field lists:
 | [references/group-management.md](references/group-management.md) | **create-group**, **update-group**, **get-group-list** parameters. | Creating, updating, or listing browser groups. |
 | [references/member-management.md](references/member-management.md) | **create-member**, **update-member**, **reset-member-password**, **delete-member**, **get-member-list**, **get-member-group-list** parameters. | Creating, updating, listing, or deleting team members and member groups. |
 | [references/application-management.md](references/application-management.md) | **check-status**, **get-application-list** parameters. | Checking API availability or listing applications (categories). |
-| [references/proxy-management.md](references/proxy-management.md) | **create-proxy**, **update-proxy**, **get-proxy-list**, **delete-proxy** parameters and enums. | Creating, updating, listing, or deleting proxies. |
+| [references/proxy-management.md](references/proxy-management.md) | **create-proxy**, **update-proxy**, **get-proxy-list**, **get-dynamic-proxy-traffic**, **delete-proxy** parameters and enums. | Creating, updating, listing, or deleting proxies; querying team dynamic proxy available traffic, package expiration dates, and daily consumption. |
 | [references/browser-tag-management.md](references/browser-tag-management.md) | **get-tag-list**, **create-tag**, **update-tag**, **delete-tag** parameters. | Listing, creating, updating, or deleting browser tags. |
 | [references/browser-kernel-management.md](references/browser-kernel-management.md) | **download-kernel**, **get-kernel-list** parameters. | Downloading a specific kernel and querying supported kernel versions. |
 | [references/client-patch-management.md](references/client-patch-management.md) | **update-patch** parameters. | Updating AdsPower client to latest patch channel (stable/beta). |

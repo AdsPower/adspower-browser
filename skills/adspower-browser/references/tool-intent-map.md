@@ -10,7 +10,7 @@
 | `update-browser` | Update fields of an existing browser profile. | 更新已有 profile 的配置（备注、代理、指纹等）。 | edit profile, change settings, modify browser, update fingerprint | 修改配置,更新profile,改代理,改指纹,编辑环境 |
 | `delete-browser` | Delete one or more browser profiles permanently. | 永久删除一个或多个浏览器 profile。 | remove profile, delete account, trash browser | 删除环境,移除profile,删掉浏览器账号 |
 | `get-recycle-bin-list` | List browser profiles in the recycle bin from the last 30 days. | 查询近 30 天回收站中的浏览器环境。 | recycle bin, deleted profiles, trash list, recently deleted | 回收站,已删除环境,最近删除,垃圾桶列表 |
-| `restore-recycle-bin` | Restore one deleted browser profile from the recycle bin into a target group. | 把回收站里的一个环境恢复到指定分组。 | restore profile, recover deleted browser, undelete environment | 恢复环境,还原回收站,找回已删除环境 |
+| `restore-recycle-bin` | Restore one or more deleted browser profiles from the recycle bin into a target group. | 把回收站里的一个或多个环境恢复到指定分组。 | restore profile, recover deleted browser, undelete environment | 恢复环境,还原回收站,找回已删除环境 |
 | `get-browser-list` | List or search browser profiles (pagination, filters). | 分页/条件查询浏览器 profile 列表。 | list profiles, search browsers, query accounts, show all profiles | 列表,查询环境,搜索profile,列出所有浏览器 |
 | `get-opened-browser` | List browser profiles currently open on this device. | 查看本机当前已打开的浏览器 profile。 | opened browsers, running profiles, active local sessions | 已打开,正在运行,当前会话,本地活跃 |
 | `move-browser` | Move profiles to another group (regroup). | 将 profile 移动到指定分组。 | move to group, regroup profiles, change group | 移动分组,换组,归类到组 |
@@ -35,6 +35,7 @@
 | `get-application-list` | List application/extension categories with pagination. | 分页获取应用/扩展分类列表。 | categories, extension list, application catalog | 应用分类,扩展目录,类别列表 |
 | `create-proxy` | Create one or more proxy entries. | 新建一条或多条代理配置。 | add proxy, new proxy row | 添加代理,新建代理 |
 | `update-proxy` | Update an existing proxy entry. | 更新已有代理项。 | edit proxy, change proxy host | 修改代理,更新代理 |
+| `get-dynamic-proxy-traffic` | Query and return dynamic proxy traffic for the current team, including available traffic, traffic package expiration dates, and daily traffic consumption for the current month or a specified date range. | 查询并返回当前团队动态代理的流量信息，包括可用流量、流量包到期日期，以及本月或指定日期范围内的每日流量消耗情况。 | dynamic proxy traffic, available traffic, traffic package expiration, daily traffic consumption | 动态代理流量,可用流量,流量包到期日期,每日流量消耗 |
 | `get-proxy-list` | List proxies with filters/pagination. | 分页/条件查询代理列表。 | list proxies, search proxy | 代理列表,查代理 |
 | `delete-proxy` | Delete proxies by id list. | 按 ID 列表删除代理。 | remove proxy, delete proxy entries | 删除代理,移除代理 |
 | `get-tag-list` | List browser tags. | 查询浏览器标签列表。 | list tags, label list | 标签列表,查看标签 |

@@ -55,6 +55,7 @@ export const toolNameToSchemaKey: Record<string, keyof typeof schemas> = {
     'get-application-list': 'getApplicationListSchema',
     'create-proxy': 'createProxyMcpSchema',
     'update-proxy': 'updateProxySchema',
+    'get-dynamic-proxy-traffic': 'getDynamicProxyTrafficSchema',
     'get-proxy-list': 'getProxyListSchema',
     'delete-proxy': 'deleteProxySchema',
     'get-tag-list': 'getTagListSchema',

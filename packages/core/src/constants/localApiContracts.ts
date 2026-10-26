@@ -30,6 +30,7 @@ export type ContractCommand =
     | 'get-member-group-list'
     | 'create-proxy'
     | 'update-proxy'
+    | 'get-dynamic-proxy-traffic'
     | 'get-proxy-list'
     | 'delete-proxy'
     | 'get-tag-list'
@@ -382,6 +383,14 @@ export const LOCAL_API_CONTRACTS: Record<ContractCommand, LocalApiContract> = {
             proxy_url: { apiName: 'proxy_url', location: 'body' },
             remark: { apiName: 'remark', location: 'body' },
             ipchecker: { apiName: 'ipchecker', location: 'body' },
+        },
+    },
+    'get-dynamic-proxy-traffic': {
+        method: 'POST',
+        path: '/api/v2/proxy/dynamic-proxy-traffic',
+        params: {
+            start_date: { apiName: 'start_date', location: 'body' },
+            end_date: { apiName: 'end_date', location: 'body' },
         },
     },
     'get-proxy-list': {

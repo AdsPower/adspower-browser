@@ -319,8 +319,8 @@ export const schemas = {
     }).strict(),
 
     restoreRecycleBinSchema: z.object({
-        profile_id: z.string().optional().describe('Profile ID in the recycle bin. Either profile_id or profile_no is required. If both are provided, profile_id takes priority.'),
-        profile_no: z.string().regex(/^\d+$/, 'Profile number must be a numeric string').optional().describe('Profile serial number in the recycle bin. Either profile_id or profile_no is required. If both are provided, profile_id takes priority.'),
+        profile_id: nonEmptyStringArraySchema.optional().describe('Array of one or more profile IDs in the recycle bin. Either profile_id or profile_no is required. If both are provided, profile_id takes priority.'),
+        profile_no: z.array(z.string().regex(/^\d+$/, 'Profile number must be a numeric string')).min(1).optional().describe('Array of one or more profile serial numbers in the recycle bin. Either profile_id or profile_no is required. If both are provided, profile_id takes priority.'),
         group_id: z.string().regex(/^\d+$/, 'Group ID must be a numeric string').describe('Target group ID after restore. Use get-group-list to find a group the caller can use. "0" is ungrouped.'),
     }).strict().refine(data => data.profile_id || data.profile_no, {
         message: 'Either profile_id or profile_no must be provided'
@@ -494,6 +494,11 @@ export const schemas = {
         proxy_url: z.string().optional().describe('URL used to refresh the proxy, eg: https://www.baidu.com/'),
         remark: z.string().optional().describe('Remark/description for the proxy'),
         ipchecker: z.enum(['ip2location', 'ipapi', 'ipfoxy']).optional().describe('IP checker.')
+    }).strict(),
+
+    getDynamicProxyTrafficSchema: z.object({
+        start_date: z.iso.date().optional().describe('Query start date in YYYY-MM-DD format. Defaults to the first day of the current month in the Local API when omitted'),
+        end_date: z.iso.date().optional().describe('Query end date in YYYY-MM-DD format. Defaults to the current date in the Local API when omitted')
     }).strict(),
 
     getProxyListSchema: z.object({

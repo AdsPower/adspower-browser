@@ -57,9 +57,11 @@
 - **limit** (optional): 1–100. Profiles per page. Omit it to use the Local API backend default.
 - Response items include `profile_id`, `profile_no`, `name`, `group_name`, `remark`, and `delete_time` (unix seconds).
 
-**restore-recycle-bin** — Restore one deleted profile into a group.
+**restore-recycle-bin** — Restore one or more deleted profiles into a group.
 
-- **profile_id** (optional) or **profile_no** (optional): One is required. If both are provided, **profile_id** takes priority.
+- **profile_id** (optional): Non-empty array of profile IDs, e.g. `["id1","id2"]`.
+- **profile_no** (optional): Non-empty array of numeric strings, e.g. `["338","339"]`.
+- Provide at least one of these arrays. If both are provided, **profile_id** takes priority.
 - **group_id** (required): Numeric string. Target group after restore. Use get-group-list to choose a group the caller can use. `"0"` is ungrouped.
 - Package quota, daily restore limit, and group permission failures are returned by the Local API.
 

@@ -83,6 +83,7 @@ export const API_ENDPOINTS = {
     GET_BROWSER_ACTIVE: LOCAL_API_CONTRACTS['get-browser-active'].path,
     CREATE_PROXY: LOCAL_API_CONTRACTS['create-proxy'].path,
     UPDATE_PROXY: LOCAL_API_CONTRACTS['update-proxy'].path,
+    GET_DYNAMIC_PROXY_TRAFFIC: LOCAL_API_CONTRACTS['get-dynamic-proxy-traffic'].path,
     GET_PROXY_LIST: LOCAL_API_CONTRACTS['get-proxy-list'].path,
     DELETE_PROXY: LOCAL_API_CONTRACTS['delete-proxy'].path,
     GET_OPENED_BROWSER: LOCAL_API_CONTRACTS['get-opened-browser'].path,
