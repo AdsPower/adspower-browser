@@ -1,5 +1,6 @@
+import { rpaLocalTools, rpaRemoteTools } from '@adspower/local-api-core';
 import type { ToolMatrixEntry } from '../types.js';
-import { getOptionalFieldsFromSchema } from './schemaIntrospector.js';
+import { getOptionalFieldsFromSchema, getRequiredFieldsForTool } from './schemaIntrospector.js';
 
 function build(tool: string, requiredMin: string[]): ToolMatrixEntry {
     return {
@@ -70,3 +71,8 @@ export const toolMatrix: Record<string, ToolMatrixEntry> = {
     'drag-element': build('drag-element', ['selector', 'targetSelector']),
     'iframe-click-element': build('iframe-click-element', ['selector', 'iframeSelector']),
 };
+
+for (const tool of [...rpaLocalTools, ...rpaRemoteTools]) {
+    const name = `rpa-${tool.name}`;
+    toolMatrix[name] = build(name, getRequiredFieldsForTool(name));
+}

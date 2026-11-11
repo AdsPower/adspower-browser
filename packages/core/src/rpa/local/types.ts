@@ -1,0 +1,31 @@
+import { z } from 'zod';
+import { rpaSchemas, taskSubmissionResultSchema } from './schemas.js';
+
+export type ReadExcelFieldsParams = z.infer<typeof rpaSchemas.readExcelFieldsSchema>;
+export type ReadTextListParams = z.infer<typeof rpaSchemas.readTextListSchema>;
+export type CheckEmailParams = z.infer<typeof rpaSchemas.checkEmailSchema>;
+export type GetTwoFaParams = z.infer<typeof rpaSchemas.getTwoFaSchema>;
+export type GoogleSheetsParams = z.input<typeof rpaSchemas.googleSheetsSchema>;
+export type StartDebugParams = z.input<typeof rpaSchemas.startDebugSchema>;
+export type GetDebugLogParams = z.infer<typeof rpaSchemas.getDebugLogSchema>;
+export type CancelDebugParams = z.infer<typeof rpaSchemas.cancelDebugSchema>;
+export type AddTaskParams = z.infer<typeof rpaSchemas.addTaskSchema>;
+export type CancelTaskParams = z.infer<typeof rpaSchemas.cancelTaskSchema>;
+export type AddPlanParams = z.infer<typeof rpaSchemas.addPlanSchema>;
+export type GetPlanSwitchParams = z.infer<typeof rpaSchemas.getPlanSwitchSchema>;
+export type CancelPlanParams = z.infer<typeof rpaSchemas.cancelPlanSchema>;
+export type GetRpaConfigParams = z.input<typeof rpaSchemas.getRpaConfigSchema>;
+export type UpdateRpaConfigParams = z.infer<typeof rpaSchemas.updateRpaConfigSchema>;
+export type GetLatestExecutionParams = z.infer<typeof rpaSchemas.getLatestExecutionSchema>;
+export type GetRecordListParams = z.input<typeof rpaSchemas.getRecordListSchema>;
+export type GetRecordCountParams = z.infer<typeof rpaSchemas.getRecordCountSchema>;
+export type GetRecordDetailParams = z.infer<typeof rpaSchemas.getRecordDetailSchema>;
+export type GetRecordItemsParams = z.input<typeof rpaSchemas.getRecordItemsSchema>;
+export type GetRecordItemsCountParams = z.infer<typeof rpaSchemas.getRecordItemsCountSchema>;
+export type GetTaskExecuteItemsParams = z.input<typeof rpaSchemas.getTaskExecuteItemsSchema>;
+export type GetTaskExecuteItemsCountParams = z.infer<typeof rpaSchemas.getTaskExecuteItemsCountSchema>;
+export type GetTaskLogParams = z.infer<typeof rpaSchemas.getTaskLogSchema>;
+export type CancelTaskItemsParams = z.infer<typeof rpaSchemas.cancelTaskItemsSchema>;
+export type DeleteRecordParams = z.infer<typeof rpaSchemas.deleteRecordSchema>;
+
+export type AddTaskResult = z.infer<typeof taskSubmissionResultSchema>;

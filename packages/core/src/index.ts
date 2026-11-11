@@ -1,5 +1,5 @@
 export { apiClient, LOCAL_API_BASE, API_ENDPOINTS } from './constants/api.js';
-export { PORT, API_KEY, updateConfig } from './constants/config.js';
+export { PORT, RPA_PORT, API_KEY, updateConfig } from './constants/config.js';
 export { buildMcpToolDescription, buildCliCommandDescription } from './constants/toolIntentMetadata.js';
 export { browserHandlers } from './handlers/browser.js';
 export { groupHandlers } from './handlers/group.js';
@@ -12,3 +12,6 @@ export { kernelHandlers } from './handlers/kernel.js';
 export { patchHandlers } from './handlers/patch.js';
 export { schemas } from './types/schemas.js';
 export { default as browserBase } from './utils/browserBase.js';
+export * from './rpa/index.js';
+// Preserve the existing public imports while new consumers use explicit local names.
+export { rpaLocalHandlers as rpaHandlers, rpaLocalSchemas as rpaSchemas } from './rpa/index.js';

@@ -11,50 +11,11 @@ import {
 } from '@adspower/local-api-core';
 import { schemas } from '@adspower/local-api-core/src/types/schemas';
 
-export type HandlerFn = (params: any) => Promise<string | unknown>;
+import { RPA_HANDLERS } from './cliRpa';
+import { formatSchemaPropertiesForHelp, type Handler, type HandlerFn } from './cliShared';
 
-export type Handler = {
-    fn: HandlerFn;
-    description: string;
-    paramsDescription: string;
-}
-
-function formatJsonValueForHelp(value: unknown, indent: number): string {
-    const pad = '  '.repeat(indent);
-    const childPad = '  '.repeat(indent + 1);
-
-    if (value === null || typeof value !== 'object') {
-        return JSON.stringify(value);
-    }
-
-    if (Array.isArray(value)) {
-        if (value.length === 0) {
-            return '[]';
-        }
-
-        const lines = value.map((item) => `${childPad}${formatJsonValueForHelp(item, indent + 1)}`);
-        return `[\n${lines.join(',\n')}\n${pad}]`;
-    }
-
-    const entries = Object.entries(value as Record<string, unknown>);
-    if (entries.length === 0) {
-        return '{}';
-    }
-
-    const lines = entries.map(([key, val]) => {
-        if (['enum', 'oneOf', 'required'].includes(key) && Array.isArray(val)) {
-            return `${childPad}${JSON.stringify(key)}: ${JSON.stringify(val)}`;
-        }
-
-        return `${childPad}${JSON.stringify(key)}: ${formatJsonValueForHelp(val, indent + 1)}`;
-    });
-
-    return `{\n${lines.join(',\n')}\n${pad}}`;
-}
-
-export function formatSchemaPropertiesForHelp(properties: unknown): string {
-    return formatJsonValueForHelp(properties, 0);
-}
+export { formatSchemaPropertiesForHelp } from './cliShared';
+export type { Handler, HandlerFn } from './cliShared';
 
 function schemaParamsDescription(schema: { toJSONSchema(): { properties?: unknown } }, type: string): string {
     let paramStr = 'view help: https://documenter.getpostman.com/view/45822952/2sB2x5JDXn\n';
@@ -77,6 +38,7 @@ function schemaParamsDescription(schema: { toJSONSchema(): { properties?: unknow
 }
 
 export const STATELESS_HANDLERS: Record<string, Handler> = {
+    ...RPA_HANDLERS,
     'open-browser': {
         fn: browserHandlers.openBrowser as HandlerFn,
         description: buildCliCommandDescription(

@@ -89,3 +89,9 @@ PORT=50325 pnpm test:e2e:local-api-mcp:full
 - `packages/local-api-mcp/tests/e2e-tool-validation/*.contracts.test.ts`
 
 因此 `pnpm test:contracts` 也会收集该 e2e 文件；`test:e2e:local-api-mcp` 仅缩小到该文件便于回归。
+
+## RPA coverage
+
+All 52 RPA tools are included in schema introspection, required/optional parameter matrices and validation strategies. Conditional minimum inputs select record_id for task cancellation and task_id for task/process execution-item queries.
+
+The registered `rpa.validation.*.reject-unknown-field` cases exercise rejection over actual MCP stdio without invoking business operations. They do not validate successful backend writes, profile execution, external credentials or optional-parameter roundtrips. Those require dedicated test fixtures and real services; rejection cases do not mark optional fields as covered.

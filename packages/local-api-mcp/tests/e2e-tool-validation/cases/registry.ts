@@ -1,3 +1,4 @@
+import { rpaValidationCases } from './rpa/rpa-validation.case.js';
 import { applicationCases } from './application/application-list.case.js';
 import { automationCases } from './automation/automation.case.js';
 import { automationChainCases } from './automation/automation-chain.case.js';
@@ -16,6 +17,7 @@ import type { CaseRunResult } from '../types.js';
 export type { CaseRunResult };
 
 const caseRegistry: Record<string, () => Promise<CaseRunResult>> = {
+    ...rpaValidationCases,
     ...groupCases,
     ...proxyCases,
     ...browserCases,
