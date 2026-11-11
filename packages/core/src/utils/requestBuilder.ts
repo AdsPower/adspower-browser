@@ -51,7 +51,11 @@ export function buildRequestBodyFor(command: ContractCommand, params: Record<str
 
         const value = withContractDefault(params[inputName], config.default);
         if (value !== undefined) {
-            requestBody[config.apiName] = toContractValue(value);
+            requestBody[config.apiName] = command === 'restore-recycle-bin'
+                && (inputName === 'profile_id' || inputName === 'profile_no')
+                && Array.isArray(value)
+                ? value.join(',')
+                : toContractValue(value);
         }
     });
 

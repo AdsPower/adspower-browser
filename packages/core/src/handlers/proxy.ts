@@ -3,9 +3,9 @@ import type {
     CreateProxyParams,
     UpdateProxyParams,
     GetProxyListParams,
+    GetDynamicProxyTrafficParams,
     DeleteProxyParams
 } from '../types/proxy.js';
-import { schemas } from '../types/schemas.js';
 import { buildRequestBodyFor } from '../utils/requestBuilder.js';
 
 type ProxyItem = CreateProxyParams[number];
@@ -50,6 +50,16 @@ export const proxyHandlers = {
     async updateProxy(params: UpdateProxyParams) {
         const requestBody = buildRequestBodyFor('update-proxy', params as Record<string, unknown>);
         const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.UPDATE_PROXY}`, requestBody);
+
+        if (response.data.code === 0) {
+            return JSON.stringify(response.data.data, null, 2);
+        }
+        throw new Error(response.data.msg);
+    },
+
+    async getDynamicProxyTraffic(params: GetDynamicProxyTrafficParams = {}) {
+        const requestBody = buildRequestBodyFor('get-dynamic-proxy-traffic', params);
+        const response = await getApiClient().post(`${getLocalApiBase()}${API_ENDPOINTS.GET_DYNAMIC_PROXY_TRAFFIC}`, requestBody);
 
         if (response.data.code === 0) {
             return JSON.stringify(response.data.data, null, 2);

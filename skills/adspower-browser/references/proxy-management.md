@@ -30,3 +30,17 @@
 **delete-proxy** — Delete the proxy/proxies.
 
 - **proxy_id** (required): Array of proxy ids to delete, max 100.
+
+**get-dynamic-proxy-traffic** — Query and return dynamic proxy traffic for the current team, including available traffic, traffic package expiration dates, and daily traffic consumption for the current month or a specified date range.
+
+查询并返回当前团队动态代理的流量信息，包括可用流量、流量包到期日期，以及本月或指定日期范围内的每日流量消耗情况。
+
+- Calls `POST /api/v2/proxy/dynamic-proxy-traffic`.
+- **start_date** (optional): String in `YYYY-MM-DD` format. Defaults to the first day of the current month in the Local API.
+- **end_date** (optional): String in `YYYY-MM-DD` format. Defaults to the current date in the Local API.
+- Omit dates to use the Local API defaults; return the API data without assuming a response structure.
+
+```bash
+ads get-dynamic-proxy-traffic
+ads get-dynamic-proxy-traffic '{"start_date":"2026-10-01","end_date":"2026-10-20"}'
+```

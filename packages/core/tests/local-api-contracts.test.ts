@@ -147,17 +147,17 @@ describe('Zod schemas accept Postman-style external keys', () => {
     it('restore-recycle-bin: profile_id or profile_no plus group_id', () => {
         mustParse(
             schemas.restoreRecycleBinSchema,
-            { profile_id: 'k1gx0oue', group_id: '123456' },
+            { profile_id: ['k1gx0oue'], group_id: '123456' },
             'restoreRecycleBinSchema must accept profile_id and group_id'
         );
         mustParse(
             schemas.restoreRecycleBinSchema,
-            { profile_no: '338', group_id: '123456' },
+            { profile_no: ['338'], group_id: '123456' },
             'restoreRecycleBinSchema must accept profile_no and group_id'
         );
         expect(schemas.restoreRecycleBinSchema.safeParse({ group_id: '123456' }).success).toBe(false);
-        expect(schemas.restoreRecycleBinSchema.safeParse({ profile_id: 'k1gx0oue' }).success).toBe(false);
-        expect(schemas.restoreRecycleBinSchema.safeParse({ profile_no: 'abc', group_id: '1' }).success).toBe(false);
+        expect(schemas.restoreRecycleBinSchema.safeParse({ profile_id: ['k1gx0oue'] }).success).toBe(false);
+        expect(schemas.restoreRecycleBinSchema.safeParse({ profile_no: ['abc'], group_id: '1' }).success).toBe(false);
     });
 
     it('delete-browser: profile_id as array', () => {
@@ -348,8 +348,8 @@ describe('shared contract metadata and serializers', () => {
             limit: 50,
         });
         expect(buildRequestBodyFor('restore-recycle-bin', schemas.restoreRecycleBinSchema.parse({
-            profile_id: 'k1gx0oue',
-            profile_no: '338',
+            profile_id: ['k1gx0oue'],
+            profile_no: ['338'],
             group_id: '123456',
         }))).toEqual({
             profile_id: 'k1gx0oue',

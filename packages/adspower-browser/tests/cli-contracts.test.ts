@@ -90,6 +90,8 @@ describe('Local API commands remain registered for CLI', () => {
         expect(STATELESS_HANDLERS['open-browser']).toBeDefined();
         expect(STATELESS_HANDLERS['update-proxy']).toBeDefined();
         expect(STATELESS_HANDLERS['get-proxy-list']).toBeDefined();
+        expect(STATELESS_HANDLERS['get-dynamic-proxy-traffic'].paramsDescription).toContain('start_date');
+        expect(resolveStatelessCommandArgs('get-dynamic-proxy-traffic', undefined)).toEqual({ ok: true, args: {} });
         expect(STATELESS_HANDLERS['delete-proxy']).toBeDefined();
         expect(STATELESS_HANDLERS['create-group']).toBeDefined();
         expect(STATELESS_HANDLERS['get-group-list']).toBeDefined();

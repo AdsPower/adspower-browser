@@ -44,8 +44,8 @@ export const TOOL_INTENT_BY_NAME: Record<string, ToolIntentRecord> = {
         triggersZh: '回收站,已删除环境,最近删除,垃圾桶列表',
     },
     'restore-recycle-bin': {
-        intentEn: 'Restore one deleted browser profile from the recycle bin into a target group.',
-        intentZh: '把回收站里的一个环境恢复到指定分组。',
+        intentEn: 'Restore one or more deleted browser profiles from the recycle bin into a target group.',
+        intentZh: '把回收站里的一个或多个环境恢复到指定分组。',
         triggersEn: 'restore profile, recover deleted browser, undelete environment',
         triggersZh: '恢复环境,还原回收站,找回已删除环境',
     },
@@ -192,6 +192,12 @@ export const TOOL_INTENT_BY_NAME: Record<string, ToolIntentRecord> = {
         intentZh: '更新已有代理项。',
         triggersEn: 'edit proxy, change proxy host',
         triggersZh: '修改代理,更新代理',
+    },
+    'get-dynamic-proxy-traffic': {
+        intentEn: 'Query and return dynamic proxy traffic for the current team, including available traffic, traffic package expiration dates, and daily traffic consumption for the current month or a specified date range.',
+        intentZh: '查询并返回当前团队动态代理的流量信息，包括可用流量、流量包到期日期，以及本月或指定日期范围内的每日流量消耗情况。',
+        triggersEn: 'dynamic proxy traffic, available traffic, traffic package expiration, daily traffic consumption',
+        triggersZh: '动态代理流量,可用流量,流量包到期日期,每日流量消耗',
     },
     'get-proxy-list': {
         intentEn: 'List proxies with filters/pagination.',

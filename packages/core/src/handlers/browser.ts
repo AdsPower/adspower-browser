@@ -107,9 +107,16 @@ export const browserHandlers = {
     },
 
     async restoreRecycleBin(params: RestoreRecycleBinParams) {
+        const _p: any = params;
+        if (_p.profile_id && Array.isArray(_p.profile_id)) {
+            _p.profile_id = _p.profile_id.join(',');
+        }
+        if (_p.profile_no && Array.isArray(_p.profile_no)) {
+            _p.profile_no = _p.profile_no.join(',');
+        }
         const response = await getApiClient().post(
             `${getLocalApiBase()}${API_ENDPOINTS.RESTORE_RECYCLE_BIN}`,
-            buildRequestBodyFor('restore-recycle-bin', params)
+            buildRequestBodyFor('restore-recycle-bin', _p)
         );
         if (response.data.code === 0) {
             return JSON.stringify(response.data.data, null, 2);
