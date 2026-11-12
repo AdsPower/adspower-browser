@@ -41,14 +41,14 @@ export const rpaRemoteTools: RpaRemoteTool[] = [
     },
     {
         name: 'get-process-list',
-        description: 'Get the list of RPA processes with optional filters and pagination.',
+        description: 'List RPA processes with optional filters and pagination. Includes expired paid-template processes by default. Disclose any exclusion of expired processes when summarizing results.',
         schema: rpaRemoteSchemas.getProcessListSchema,
         handler: rpaRemoteHandlers.getProcessList,
         readOnly: true,
     },
     {
         name: 'get-process-list-count',
-        description: 'Get the number of RPA processes matching the filters.',
+        description: 'Count RPA processes matching the filters. Includes expired paid-template processes by default. If the list excludes them, use the same other filters with this option set to 0 and 1 to report the total and the number excluded.',
         schema: rpaRemoteSchemas.getProcessListCountSchema,
         handler: rpaRemoteHandlers.getProcessListCount,
         readOnly: true,

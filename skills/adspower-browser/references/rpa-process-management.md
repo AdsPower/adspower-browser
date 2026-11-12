@@ -67,13 +67,14 @@ ads rpa-get-template-subscription-info '{"id":"123"}'
 - **page_size** (optional): One of `10`, `20`, `50`, `100`; defaults to `10`.
 - **access_link** (optional): Number `0` (default) or `1`. Set to `1` only when the process file download link is needed.
 - **origin** (optional): Fixed string `"0"`; defaults to `"0"`.
-- **block_expired_paid_template_process** (optional): Fixed number `1`; defaults to `1`.
+- **block_expired_paid_template_process** (optional): Number `0` includes expired paid-template processes and is the default. Number `1` excludes them.
 - Returns metadata such as IDs, names, variables and settings. Process nodes are stored in the process file referenced by `access_link`; the list itself is not the complete workflow.
 
 **rpa-get-process-list-count** — Count matching processes.
 
 - **ids**, **keyword**, **batch_id**, **page**, **page_size**, **access_link**, **origin**, **block_expired_paid_template_process** (optional): Same types as the list endpoint.
 - **fields** is not accepted. The client preserves the backend data object.
+- Report totals with expired paid-template processes included. If the list excludes them, count with both `0` and `1` using the same other filters and report the difference as the number excluded. For example, “4 matching processes in total, 1 expired paid-template process excluded from the list.” If either count is unavailable, disclose the filter and leave the excluded count unspecified.
 
 **rpa-update-process-editable-fields** — Update process attributes without changing process contents.
 

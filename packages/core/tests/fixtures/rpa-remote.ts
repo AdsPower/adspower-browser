@@ -26,14 +26,14 @@ export const remoteCases = [
         "name": "rpa-get-process-list",
         "method": "GET",
         "path": "/rpav2/local-api/get-process-list-by-api",
-        "params": { "page_size": 10,  "access_link": 0, "origin": "0", "block_expired_paid_template_process": 1 }
+        "params": { "page_size": 10,  "access_link": 0, "origin": "0", "block_expired_paid_template_process": 0 }
     },
     {
         "handler": "getProcessListCount",
         "name": "rpa-get-process-list-count",
         "method": "GET",
         "path": "/rpav2/local-api/get-process-list-count-by-api",
-        "params": { "page_size": 10,  "access_link": 0, "origin": "0", "block_expired_paid_template_process": 1 }
+        "params": { "page_size": 10,  "access_link": 0, "origin": "0", "block_expired_paid_template_process": 0 }
     },
     {
         "handler": "getTaskList",

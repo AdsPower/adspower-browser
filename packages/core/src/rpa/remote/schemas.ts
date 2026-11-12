@@ -39,7 +39,8 @@ const flowQueryShape = {
     ...pagination,
     access_link: z.union([z.literal(0), z.literal(1)]).default(0).describe('Defaults to 0; set to 1 only when a process file download link is needed.'),
     origin: z.literal('0').default('0').describe('Process origin; fixed to string 0.'),
-    block_expired_paid_template_process: z.literal(1).default(1).describe('Expired paid-template filtering option; fixed to 1.'),
+    block_expired_paid_template_process: z.union([z.literal(0), z.literal(1)]).default(0)
+        .describe('Expired paid-template processes: 0 includes them (default); 1 excludes them.'),
 };
 
 
