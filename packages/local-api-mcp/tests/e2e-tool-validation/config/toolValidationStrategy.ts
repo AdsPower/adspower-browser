@@ -1,3 +1,5 @@
+import { rpaLocalTools, rpaRemoteTools } from '@adspower/local-api-core';
+
 export type ToolValidationStrategy =
     | 'R' // Roundtrip write/readback
     | 'D' // Delete visibility/state check
@@ -67,3 +69,11 @@ export const toolValidationStrategy: Record<string, ToolValidationStrategy> = {
     'drag-element': 'A',
     'iframe-click-element': 'A',
 };
+
+for (const tool of [...rpaLocalTools, ...rpaRemoteTools]) {
+    const name = `rpa-${tool.name}`;
+    toolValidationStrategy[name] = tool.readOnly ? 'Q'
+        : tool.name.startsWith('delete-') ? 'D'
+        : ['add-task', 'cancel-task', 'add-plan', 'cancel-plan', 'start-debug', 'cancel-debug', 'cancel-task-items'].includes(tool.name) ? 'L'
+        : ['check-email', 'google-sheets', 'create-share', 'receive-share', 'top-process'].includes(tool.name) ? 'E' : 'R';
+}

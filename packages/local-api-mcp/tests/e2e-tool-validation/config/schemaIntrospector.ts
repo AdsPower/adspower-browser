@@ -1,4 +1,4 @@
-import { schemas } from '@adspower/local-api-core';
+import { rpaLocalTools, rpaRemoteTools, schemas } from '@adspower/local-api-core';
 import type { z } from 'zod';
 
 /**
@@ -82,7 +82,11 @@ export const toolNameToSchemaKey: Record<string, keyof typeof schemas> = {
     'iframe-click-element': 'iframeClickElementSchema',
 };
 
+const rpaSchemasByTool = new Map([...rpaLocalTools, ...rpaRemoteTools].map(tool => [`rpa-${tool.name}`, tool.schema]));
+
 export function getZodSchemaForTool(toolName: string): z.ZodTypeAny {
+    const rpaSchema = rpaSchemasByTool.get(toolName);
+    if (rpaSchema) return rpaSchema;
     const key = toolNameToSchemaKey[toolName];
     if (!key) {
         throw new Error(`Unknown MCP tool name for schema mapping: ${toolName}`);
@@ -98,4 +102,13 @@ export function getOptionalFieldsFromSchema(toolName: string): string[] {
         .filter(([, fieldSchema]) => fieldSchema.isOptional())
         .map(([name]) => name)
         .sort();
+}
+
+/** Includes explicit alternatives required by cross-field refinements. */
+export function getRequiredFieldsForTool(toolName: string): string[] {
+    const schema = getZodSchemaForTool(toolName);
+    const required = schema.toJSONSchema({ io: 'input' }).required ?? [];
+    if (toolName === 'rpa-cancel-task') return [...required, 'record_id'];
+    if (['rpa-get-task-execute-items', 'rpa-get-task-execute-items-count'].includes(toolName)) return [...required, 'task_id'];
+    return [...required];
 }

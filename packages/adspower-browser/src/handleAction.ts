@@ -1,3 +1,4 @@
+import { RPA_HANDLERS } from './cliRpa';
 import { updateConfig } from "@adspower/local-api-core";
 import { green } from "colors";
 import { HandlerFn, resolveStatelessCommandArgs, STATELESS_HANDLERS } from "./cli";
@@ -55,9 +56,10 @@ export const handleAction = async (params: any, options: any, command: any, fnc:
         return;
     }
     const { apiKey, port } = getApiKeyAndPort(options);
-    updateConfig(apiKey, port);
+    updateConfig(apiKey, port, options.rpaPort);
 
     const commandName = command.name();
+    const isRpaCommand = Object.prototype.hasOwnProperty.call(RPA_HANDLERS, commandName);
     // Preserve the external Local API contract names before handing params to the core handlers.
     const resolved = resolveStatelessCommandArgs(commandName, params);
     if (!resolved.ok) {
@@ -65,7 +67,9 @@ export const handleAction = async (params: any, options: any, command: any, fnc:
         return;
     }
     const args = resolved.args;
-    logSuccess(`Executing command: ${commandName}, params: ${JSON.stringify(args)}`);
+    logSuccess(isRpaCommand
+        ? `Executing command: ${commandName}`
+        : `Executing command: ${commandName}, params: ${JSON.stringify(args)}`);
     const loading = createLoading(`Executing ${commandName}...`);
     try {
         if (commandName === 'download-kernel') {

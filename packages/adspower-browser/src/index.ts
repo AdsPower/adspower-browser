@@ -57,6 +57,10 @@ for (const cmd of Object.keys(STATELESS_HANDLERS)) {
         .description(STATELESS_HANDLERS[cmd].description)
         .option("-k, --api-key <apiKey>", "Set the API key for the adspower runtime")
         .option("-p, --port <port>", "Set the port for the adspower runtime")
+        // Commander only accepts one-character short flags in its constructor.
+        .addOption(Object.assign(new Option("--rpa-port <port>", "Set the port for the local RPA Plus service"), {
+            short: "-rp", flags: "-rp, --rpa-port <port>",
+        }))
         .argument("[params]", STATELESS_HANDLERS[cmd].paramsDescription)
         .action(async (params, options, command) => {
             await handleAction(params, options, command, fnc);

@@ -1,3 +1,6 @@
+import { registerLocalRpaTools } from '../rpa/local.js';
+import { registerRemoteRpaTools } from '../rpa/remote.js';
+import type { RpaToolAnnotations } from '../rpa/types.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import {
     CallToolRequestSchema,
@@ -31,6 +34,7 @@ type Zod4Tool = {
     schema: z.ZodTypeAny;
     shape: Record<string, z.ZodTypeAny>;
     handler: ToolHandler;
+    annotations?: RpaToolAnnotations;
 };
 
 function getSchemaShape(schema: z.ZodTypeAny): Record<string, z.ZodTypeAny> {
@@ -54,7 +58,8 @@ function registerZod4Tool(
     name: string,
     description: string,
     schema: z.ZodTypeAny,
-    handler: ToolHandler
+    handler: ToolHandler,
+    annotations?: RpaToolAnnotations,
 ) {
     const shape = getSchemaShape(schema);
 
@@ -67,7 +72,7 @@ function registerZod4Tool(
         return;
     }
 
-    tools.push({ name, description, schema, shape, handler });
+    tools.push({ name, description, schema, shape, handler, annotations });
 }
 
 function installZod4ToolHandlers(server: McpServer, tools: Zod4Tool[]) {
@@ -81,7 +86,8 @@ function installZod4ToolHandlers(server: McpServer, tools: Zod4Tool[]) {
         tools: tools.map((tool) => ({
             name: tool.name,
             description: tool.description,
-            inputSchema: tool.schema.toJSONSchema()
+            inputSchema: tool.schema.toJSONSchema({ io: 'input' }),
+            ...(tool.annotations ? { annotations: tool.annotations } : {}),
         }))
     }));
 
@@ -105,8 +111,11 @@ function installZod4ToolHandlers(server: McpServer, tools: Zod4Tool[]) {
 
 export function registerTools(server: McpServer) {
     const tools: Zod4Tool[] = [];
-    const tool = (name: string, description: string, schema: z.ZodTypeAny, handler: ToolHandler) =>
-        registerZod4Tool(server, tools, name, description, schema, handler);
+    const tool = (name: string, description: string, schema: z.ZodTypeAny, handler: ToolHandler, annotations?: RpaToolAnnotations) =>
+        registerZod4Tool(server, tools, name, description, schema, handler, annotations);
+
+    registerLocalRpaTools(tool);
+    registerRemoteRpaTools(tool);
 
     tool('open-browser', buildMcpToolDescription('open-browser', 'Open the browser, both environment and profile mean browser'), schemas.openBrowserSchema,
         wrapHandler(browserHandlers.openBrowser));

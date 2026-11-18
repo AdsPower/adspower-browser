@@ -60,3 +60,7 @@
 | `evaluate-script` | Run JavaScript in the page context. | 在页面上下文执行 JS。 | execute js, run script in page | 执行脚本,页面JS |
 | `drag-element` | Drag an element to a target element. | 拖拽元素到另一元素。 | drag and drop, dnd | 拖拽,拖放 |
 | `iframe-click-element` | Click inside an iframe by iframe and inner selectors. | 在 iframe 内点击子元素。 | iframe click, nested frame | 框架内点击,iframe里点 |
+
+## RPA
+
+For RPA requests, use the [RPA function index](rpa.md) to select the local or remote interface reference. Read only the reference needed for the requested operation.

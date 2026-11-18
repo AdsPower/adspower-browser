@@ -1,6 +1,6 @@
 ---
 name: adspower-browser
-description: "AdsPower profile operation via adspower-browser CLI. open/launch/start browser or profile, environment, config profile, AdsPower; create/update/delete/list profiles; groups, tags, proxies, dynamic proxy traffic; kernel download/list; client patch; API check-status. User phrases like open environment or map to commands such as open-browser."
+description: "AdsPower profile operation via adspower-browser CLI. open/launch/start browser or profile, environment, config profile, AdsPower; create/update/delete/list profiles; groups, tags, proxies, dynamic proxy traffic; kernel download/list; client patch; API check-status; RPA automation. User phrases like open environment or map to commands such as open-browser."
 ---
 
 # AdsPower Local API with adspower-browser
@@ -33,6 +33,7 @@ Apply when the user:
 - Says 打开环境、配置文件、profile、AdsPower 等意指**启动已有**浏览器环境 → 使用 `open-browser`（CLI 或 MCP）；完整说法与工具映射见 [references/tool-intent-map.md](references/tool-intent-map.md)
 - Mentions opening or closing browsers/profiles, fingerprint, UA, or proxy
 - Wants to manage groups, tags, proxies, or check API status
+- Wants to use RPA automation or manage RPA flows and tasks
 - Refers to AdsPower or adspower-browser (and MCP is not running or not desired)
 
 Ensure AdsPower is running (default port `50325`). Pass `--port` / `--api-key` when needed, or set the `ADS_API_KEY` environment variable before running `start`.
@@ -220,6 +221,10 @@ See [references/browser-kernel-management.md](references/browser-kernel-manageme
 ### Patch Management
 
 See [references/client-patch-management.md](references/client-patch-management.md) for update-patch parameters.
+
+### RPA
+
+For any RPA request, read [references/rpa.md](references/rpa.md) first, then load only the relevant function reference it links to.
 
 ### user_proxy_config (inline proxy config for create-browser / update-browser)
 

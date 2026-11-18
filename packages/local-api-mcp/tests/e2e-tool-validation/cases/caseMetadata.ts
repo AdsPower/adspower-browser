@@ -1,3 +1,5 @@
+import { rpaLocalTools, rpaRemoteTools } from '@adspower/local-api-core';
+
 /**
  * Declares which MCP tool each case exercises and which optional parameters are
  * validated on success (for aggregation / missingOptional reporting).
@@ -250,3 +252,9 @@ export const caseMetadata: Record<string, CaseMetadata> = {
         optionalParamsOnSuccess: [],
     },
 };
+
+for (const tool of [...rpaLocalTools, ...rpaRemoteTools]) {
+    caseMetadata[`rpa.validation.${tool.name}.reject-unknown-field`] = {
+        tool: `rpa-${tool.name}`, optionalParamsOnSuccess: [],
+    };
+}
